@@ -1,7 +1,5 @@
 use std::fs;
 
-use base64::engine::general_purpose::STANDARD;
-use base64::Engine;
 use identity_crypto::transcripts::delivery_attestation_transcript;
 use identity_crypto::PublicKey;
 use message_attestation::locate::locate;
@@ -18,10 +16,12 @@ fn public_key(value: &Value) -> PublicKey {
 
 fn error_name(error: &AttestationError) -> &'static str {
     match error {
-        AttestationError::NotString => "NotString",
-        AttestationError::Base64(_) => "Base64",
+        AttestationError::NotObject => "NotObject",
         AttestationError::Decode(_) => "Decode",
+        AttestationError::Encode(_) => "Encode",
+        AttestationError::Sign(_) => "Sign",
         AttestationError::EmptyMessages => "EmptyMessages",
+        AttestationError::NoRecipients => "NoRecipients",
         AttestationError::UnknownKeyId(_) => "UnknownKeyId",
         AttestationError::OwnDevicesMissing => "OwnDevicesMissing",
         AttestationError::NotARecipient => "NotARecipient",
@@ -71,6 +71,8 @@ fn every_vector_case_agrees() {
 
         let now = case["now_unix"].as_i64();
         let max_age = case["max_age_secs"].as_i64();
+        // The `_meta` object: the proto3-JSON attestation under DEFAULT_META_KEY.
+        let meta = &case["meta"];
         let policy = AttestationPolicy {
             meta_key: DEFAULT_META_KEY,
             trusted: &trusted,
@@ -79,15 +81,15 @@ fn every_vector_case_agrees() {
             now_unix: now,
         };
         let result = verify_attestation(
-            &case["meta"],
+            meta,
             &policy,
             &store,
             case["scope"].as_str().expect("scope"),
         );
 
         if let Some(transcript_hex) = case["transcript_hex"].as_str() {
-            match locate(&case["meta"], DEFAULT_META_KEY) {
-                Ok(Some((_, attestation))) => {
+            match locate(meta, DEFAULT_META_KEY) {
+                Ok(Some(attestation)) => {
                     match delivery_attestation_transcript(&attestation) {
                         Ok(transcript) => {
                             let expected = hex::decode(transcript_hex).expect("transcript hex");
@@ -141,27 +143,18 @@ fn every_vector_case_agrees() {
         {
             failures.push(format!("{name}: delivery header mismatch"));
         }
-        let raw_expected = STANDARD
-            .decode(expected_ok["raw_b64"].as_str().expect("raw base64"))
-            .expect("raw bytes");
-        if delivery.raw != raw_expected {
-            failures.push(format!("{name}: raw bytes mismatch"));
-        }
         let expected_messages = expected_ok["messages"].as_array().expect("messages");
         if delivery.messages.len() != expected_messages.len() {
             failures.push(format!("{name}: message count mismatch"));
             continue;
         }
         for (actual, expected_message) in delivery.messages.iter().zip(expected_messages) {
-            let author = expected_message["author_genesis_hex"].as_str();
-            let actual_author = actual.author_genesis.as_ref().map(|key| hex::encode(key.as_bytes()));
+            // Every message carries an author and a delegation cert (the transcript requires both).
+            let actual_author = hex::encode(actual.author_genesis.as_bytes());
             if actual.message_id != expected_message["message_id"]
                 || actual.room_id != expected_message["room_id"]
                 || actual.body_text != expected_message["body_text"]
-                || actual_author.as_deref() != author
-                || actual.outcome as i32 != expected_message["outcome"].as_i64().unwrap() as i32
-                || actual.delegation_cert.is_some()
-                    != expected_message["has_cert"].as_bool().unwrap()
+                || expected_message["author_genesis_hex"].as_str() != Some(actual_author.as_str())
             {
                 failures.push(format!("{name}: message mismatch"));
             }

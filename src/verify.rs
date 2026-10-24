@@ -1,4 +1,3 @@
-use identity_crypto::pb;
 use identity_crypto::{verify_p256, PublicKey};
 
 use crate::locate::locate;
@@ -35,9 +34,8 @@ pub struct VerifiedBody {
     pub message_id: String,
     pub room_id: String,
     pub body_text: String,
-    pub author_genesis: Option<PublicKey>,
-    pub outcome: pb::VerificationOutcome,
-    pub delegation_cert: Option<pb::DelegationCert>,
+    pub author_genesis: PublicKey,
+    pub delegation_cert: identity_crypto::pb::DelegationCert,
 }
 
 pub struct VerifiedDelivery {
@@ -45,7 +43,6 @@ pub struct VerifiedDelivery {
     pub batch_sequence: u64,
     pub attested_at_unix: i64,
     pub messages: Vec<VerifiedBody>,
-    pub raw: Vec<u8>,
 }
 
 #[must_use]
@@ -67,7 +64,7 @@ pub fn verify_attestation(
     replay: &dyn ReplayStore,
     scope: &str,
 ) -> Result<Option<Verified>, AttestationError> {
-    let Some((raw, attestation)) = locate(meta, policy.meta_key)? else {
+    let Some(attestation) = locate(meta, policy.meta_key)? else {
         return Ok(None);
     };
 
@@ -133,17 +130,25 @@ pub fn verify_attestation(
             let author_genesis = message
                 .author_genesis
                 .as_ref()
-                .map(PublicKey::try_from)
-                .transpose()
-                .map_err(|error| AttestationError::Transcript(error.to_string()))?;
+                .ok_or(AttestationError::Transcript(
+                    "missing messages.author_genesis".to_owned(),
+                ))
+                .and_then(|key| {
+                    PublicKey::try_from(key)
+                        .map_err(|error| AttestationError::Transcript(error.to_string()))
+                })?;
+            let delegation_cert = message
+                .delegation_cert
+                .clone()
+                .ok_or(AttestationError::Transcript(
+                    "missing messages.delegation_cert".to_owned(),
+                ))?;
             Ok(VerifiedBody {
                 message_id: message.message_id.clone(),
                 room_id: message.room_id.clone(),
                 body_text: message.body_text.clone(),
                 author_genesis,
-                outcome: pb::VerificationOutcome::try_from(message.verification_outcome)
-                    .map_err(|error| AttestationError::Transcript(error.to_string()))?,
-                delegation_cert: message.delegation_cert.clone(),
+                delegation_cert,
             })
         })
         .collect::<Result<Vec<_>, AttestationError>>()?;
@@ -159,7 +164,6 @@ pub fn verify_attestation(
             batch_sequence: attestation.batch_sequence,
             attested_at_unix: attested_at.seconds,
             messages,
-            raw,
         },
         pending,
     }))

@@ -1,12 +1,24 @@
 # message-attestation
 
-Verifies a delivery attestation carried in an ACP prompt's `_meta`: a P-256 signature by a trusted delivery key over a batch of messages addressed to this device, plus replay protection. It **authenticates, never authorizes**. What to do with a message (or on rejection) is the consumer's policy.
+Verifies, writes and signs a delivery attestation carried in an ACP prompt's `_meta`: a P-256 signature by a trusted delivery key over a batch of messages addressed to this device, plus replay protection. It **authenticates, never authorizes**. What to do with a message (or on rejection) is the consumer's policy.
 
-The wire type is `identity_crypto::pb::DeliveryAttestation`; this crate is named differently on purpose. P-256 only. Pure and synchronous: no tokio, no clock (the caller passes `now_unix`), no key storage, no signing. Only `FileReplayStore` does I/O.
+The wire type is `identity_crypto::pb::DeliveryAttestation`; this crate is named differently on purpose. P-256 only. Pure and synchronous: no tokio, no clock (the caller passes `now_unix`), no key storage (a signer passes its own `SigningKeyPair`). Only `FileReplayStore` does I/O.
 
 ## Pinned dependency
 
-`identity-crypto` is pinned to rev `c079d2f2fe5fb5fa1898a78bc53be0c896672b0f` (0.4.0), the same rev as structmux's workspace. Two revs give two `PublicKey` types, so bump it together with structmux. `prost` and `prost-types` are `0.13` to match.
+`identity-crypto` is pinned to rev `edee5ca175402f657f5845694ac853877364c55f` (0.5.0). structmux's workspace still pins `c079d2f` (0.4.0) until it moves to this rev; two revs give two `PublicKey` types, so do not link this crate into structmux before then.
+
+## Entry point
+
+The attestation lives in the ACP `_meta` object. `locate` and `attach` take that object itself (the value of `params._meta` in `session/prompt`), not the JSON-RPC request. For a request `{"params": {"_meta": {...}}}` the caller passes `&request["params"]["_meta"]`. The crate never walks `params`.
+
+The key lookup is top level only: a copy nested anywhere else under `_meta` is ignored. An absent key, or a `_meta` that is absent (`Null`), is `None`, not an error. A value at the key that is not a JSON object is `NotObject`.
+
+The value is proto3-JSON of `identity_crypto::pb::DeliveryAttestation`, decoded and written by the generated serde of identity-crypto. `attach` is the only writer (`attach(&mut meta, DEFAULT_META_KEY, &attestation)`) and `locate` is its inverse; nobody hand-builds the JSON. Unknown fields are rejected, `bytes` are emitted as standard padded base64 (decoding accepts either alphabet and padding, to the same bytes), `attestedAt` is RFC 3339 emitted with `Z` (offsets accepted on parse), and `author_genesis` and `delegation_cert` are required on every message (a missing one is a `Transcript` error).
+
+## Signing
+
+`sign_attestation(&signer, UnsignedAttestation { batch_sequence, attested_at, messages, recipient_devices })` is the one signing path for central and any other producer: `key_id` is the signer's `PublicKey::thumbprint()` (verifiers key their trusted table by it), the signature is over `delivery_attestation_transcript`, and the result is checked with `verify_p256` before it is returned. Empty `messages` is `EmptyMessages`, empty `recipient_devices` is `NoRecipients`. The caller owns the key and the `batch_sequence` counter; then `attach` writes the result into `_meta`.
 
 ## Flow
 
@@ -21,7 +33,7 @@ let policy = AttestationPolicy {
 match verify_attestation(&meta, &policy, &replay_store, scope)? {
     None => { /* no attestation in _meta: your policy */ }
     Some(Verified { delivery, pending }) => {
-        // delivery.messages hold the signed fields; delivery.raw the original bytes for pass-through
+        // delivery.messages hold the signed fields (author_genesis and delegation_cert on each)
         // ... record your idempotency key, then:
         confirm(&replay_store, pending)?;
     }
@@ -30,7 +42,7 @@ match verify_attestation(&meta, &policy, &replay_store, scope)? {
 
 Replay is two-phase. `verify_attestation` checks the batch sequence against the store but records nothing, so verifying twice succeeds. `confirm` records it (atomic compare-and-advance) and returns `Replay` if the sequence was already advanced. **Confirm at the same point you record your idempotency key.**
 
-Every decode, signature or store error is a rejection; nothing returns `Ok` by default. `raw` is the attestation as received and is not canonical (prost ignores unknown fields and field order): do not use it as an identity.
+Every decode, signature or store error is a rejection; nothing returns `Ok` by default. The signed transcript is built from the parsed fields, so re-encoding an attestation yields the same signed content; the JSON text itself is not an identity.
 
 ## Replay stores
 

@@ -3,13 +3,12 @@ name = "message-attestation"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.89"
-description = "Verify a delivery attestation carried in an ACP prompt's _meta, with two-phase replay protection"
+description = "Verify, attach and sign a delivery attestation carried in an ACP prompt's _meta, with two-phase replay protection"
 
 [dependencies]
-identity-crypto = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "c079d2f2fe5fb5fa1898a78bc53be0c896672b0f" }
-prost = "0.13"
-prost-types = "0.13"
-base64 = "0.22"
+identity-crypto = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "edee5ca175402f657f5845694ac853877364c55f" }
 serde_json = "1"
 thiserror = "2"
+
+[dev-dependencies]
 hex = "0.4"
