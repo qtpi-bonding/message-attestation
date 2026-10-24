@@ -84,3 +84,13 @@ fn two_stores_on_one_file_do_not_both_accept_the_same_sequence() {
     }
     fs::remove_dir_all(directory).expect("clean up");
 }
+
+#[test]
+fn a_stale_temp_file_does_not_wedge_the_store() {
+    let (directory, path) = test_path("stale-temp");
+    let store = FileReplayStore::open(&path).expect("open");
+    let stale = directory.join(format!(".replay.json.{}.tmp", std::process::id()));
+    fs::write(&stale, b"leftover from a crash").expect("write stale temp");
+    assert!(store.record("scope", "key", 1).expect("record despite stale temp"));
+    assert_eq!(store.last_seen("scope", "key").expect("read"), Some(1));
+}

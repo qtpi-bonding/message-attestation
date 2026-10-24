@@ -55,6 +55,7 @@ pub struct PendingSequence {
     sequence: u64,
 }
 
+#[must_use]
 pub struct Verified {
     pub delivery: VerifiedDelivery,
     pub pending: PendingSequence,
@@ -106,7 +107,7 @@ pub fn verify_attestation(
         .ok_or_else(|| AttestationError::Transcript("missing attested_at".to_owned()))?;
     if let Some(max) = policy.max_age_secs {
         let now = policy.now_unix.ok_or(AttestationError::ClockMissing)?;
-        let age = now - attested_at.seconds;
+        let age = now.checked_sub(attested_at.seconds).unwrap_or(i64::MAX);
         if age < 0 || age > max {
             return Err(AttestationError::Stale {
                 age_secs: age,

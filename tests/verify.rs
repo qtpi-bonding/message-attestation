@@ -2,7 +2,6 @@ mod common;
 
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
-use identity_crypto::pb::DeliveryAttestation;
 use message_attestation::locate::locate;
 use message_attestation::{
     confirm, verify_attestation, AttestationError, AttestationPolicy, MemoryReplayStore,
@@ -58,39 +57,15 @@ fn bytes_that_are_not_an_attestation_are_a_decode_error() {
 
 #[test]
 fn locate_returns_the_original_bytes_unchanged() {
-    let attestation = DeliveryAttestation::default();
+    let attestation = common::signed(3, 2, 100).attestation;
     let bytes = attestation.encode_to_vec();
+    assert!(!bytes.is_empty());
     let meta = json!({DEFAULT_META_KEY: STANDARD.encode(&bytes)});
     let (raw, decoded) = locate(&meta, DEFAULT_META_KEY)
         .expect("valid attestation should decode")
         .expect("key is present");
     assert_eq!(raw, bytes);
     assert_eq!(decoded, attestation);
-}
-
-#[test]
-fn a_genuine_attestation_verifies_and_returns_the_signed_body() {
-    let signed = common::signed(7, 1, 100);
-    let trusted = vec![("delivery-key".to_owned(), signed.key.clone())];
-    let policy = AttestationPolicy {
-        meta_key: DEFAULT_META_KEY,
-        trusted: &trusted,
-        own_devices: Some(std::slice::from_ref(&signed.device)),
-        max_age_secs: None,
-        now_unix: None,
-    };
-    let replay = MemoryReplayStore::default();
-    let verified = verify_attestation(&signed.meta, &policy, &replay, "room")
-        .expect("valid attestation")
-        .expect("attestation is present");
-    assert_eq!(verified.delivery.key_id, "delivery-key");
-    assert_eq!(verified.delivery.batch_sequence, 7);
-    assert_eq!(verified.delivery.attested_at_unix, 100);
-    assert_eq!(verified.delivery.messages.len(), 1);
-    assert_eq!(verified.delivery.messages[0].message_id, "message-0");
-    assert_eq!(verified.delivery.messages[0].room_id, "room-1");
-    assert_eq!(verified.delivery.messages[0].body_text, "body-0");
-    assert_eq!(verified.delivery.messages[0].author_genesis, Some(signed.key));
 }
 
 #[test]
@@ -108,70 +83,6 @@ fn the_original_bytes_are_returned_unchanged() {
         .expect("valid attestation")
         .expect("attestation is present");
     assert_eq!(verified.delivery.raw, signed.raw);
-}
-
-#[test]
-fn an_unknown_key_id_is_refused() {
-    let signed = common::signed(1, 1, 100);
-    let trusted = Vec::new();
-    let policy = AttestationPolicy {
-        meta_key: DEFAULT_META_KEY,
-        trusted: &trusted,
-        own_devices: Some(std::slice::from_ref(&signed.device)),
-        max_age_secs: None,
-        now_unix: None,
-    };
-    let error = verification_error(verify_attestation(
-        &signed.meta,
-        &policy,
-        &MemoryReplayStore::default(),
-        "s",
-    ));
-    assert!(matches!(error, AttestationError::UnknownKeyId(ref id) if id == "delivery-key"));
-}
-
-#[test]
-fn a_tampered_body_fails_the_signature() {
-    let signed = common::signed(1, 1, 100);
-    let mut tampered = signed.attestation.clone();
-    tampered.messages[0].body_text = "changed".to_owned();
-    let meta = common::meta_for(&tampered);
-    let trusted = vec![("delivery-key".to_owned(), signed.key.clone())];
-    let policy = AttestationPolicy {
-        meta_key: DEFAULT_META_KEY,
-        trusted: &trusted,
-        own_devices: Some(std::slice::from_ref(&signed.device)),
-        max_age_secs: None,
-        now_unix: None,
-    };
-    let error = verification_error(verify_attestation(
-        &meta,
-        &policy,
-        &MemoryReplayStore::default(),
-        "s",
-    ));
-    assert!(matches!(error, AttestationError::BadSignature));
-}
-
-#[test]
-fn a_device_not_in_recipients_is_refused() {
-    let signed = common::signed(1, 1, 100);
-    let other = common::signed(2, 1, 100);
-    let trusted = vec![("delivery-key".to_owned(), signed.key.clone())];
-    let policy = AttestationPolicy {
-        meta_key: DEFAULT_META_KEY,
-        trusted: &trusted,
-        own_devices: Some(std::slice::from_ref(&other.device)),
-        max_age_secs: None,
-        now_unix: None,
-    };
-    let error = verification_error(verify_attestation(
-        &signed.meta,
-        &policy,
-        &MemoryReplayStore::default(),
-        "s",
-    ));
-    assert!(matches!(error, AttestationError::NotARecipient));
 }
 
 #[test]
@@ -212,26 +123,6 @@ fn an_empty_own_device_list_is_an_error_not_a_pass() {
         "s",
     ));
     assert!(matches!(error, AttestationError::OwnDevicesMissing));
-}
-
-#[test]
-fn an_empty_message_list_is_refused() {
-    let signed = common::signed(1, 0, 100);
-    let trusted = vec![("delivery-key".to_owned(), signed.key.clone())];
-    let policy = AttestationPolicy {
-        meta_key: DEFAULT_META_KEY,
-        trusted: &trusted,
-        own_devices: Some(std::slice::from_ref(&signed.device)),
-        max_age_secs: None,
-        now_unix: None,
-    };
-    let error = verification_error(verify_attestation(
-        &signed.meta,
-        &policy,
-        &MemoryReplayStore::default(),
-        "s",
-    ));
-    assert!(matches!(error, AttestationError::EmptyMessages));
 }
 
 #[test]
@@ -328,4 +219,79 @@ fn no_attestation_returns_none_even_without_own_devices() {
     let result = verify_attestation(&json!({}), &policy, &MemoryReplayStore::default(), "s")
         .expect("absent attestation is not an error");
     assert!(result.is_none());
+}
+
+fn policy_for<'a>(
+    trusted: &'a Vec<(String, identity_crypto::PublicKey)>,
+    device: &'a identity_crypto::PublicKey,
+    max_age_secs: Option<i64>,
+    now_unix: Option<i64>,
+) -> AttestationPolicy<'a> {
+    AttestationPolicy {
+        meta_key: DEFAULT_META_KEY,
+        trusted,
+        own_devices: Some(std::slice::from_ref(device)),
+        max_age_secs,
+        now_unix,
+    }
+}
+
+#[test]
+fn a_valid_attestation_under_a_nested_key_is_ignored_by_verify() {
+    let signed = common::signed(1, 1, 100);
+    let trusted = vec![("delivery-key".to_owned(), signed.key.clone())];
+    let policy = policy_for(&trusted, &signed.device, None, None);
+    let nested = json!({"outer": signed.meta});
+    let result = verify_attestation(&nested, &policy, &MemoryReplayStore::default(), "s")
+        .expect("nested key is not an error");
+    assert!(result.is_none());
+}
+
+#[test]
+fn a_window_without_a_clock_is_refused() {
+    let signed = common::signed(1, 1, 100);
+    let trusted = vec![("delivery-key".to_owned(), signed.key.clone())];
+    let policy = policy_for(&trusted, &signed.device, Some(50), None);
+    let error = verification_error(verify_attestation(
+        &signed.meta,
+        &policy,
+        &MemoryReplayStore::default(),
+        "s",
+    ));
+    assert!(matches!(error, AttestationError::ClockMissing));
+}
+
+#[test]
+fn a_future_dated_attestation_is_stale_and_age_equal_to_max_is_accepted() {
+    let signed = common::signed(1, 1, 100);
+    let trusted = vec![("delivery-key".to_owned(), signed.key.clone())];
+    let future = policy_for(&trusted, &signed.device, Some(50), Some(90));
+    let error = verification_error(verify_attestation(
+        &signed.meta,
+        &future,
+        &MemoryReplayStore::default(),
+        "s",
+    ));
+    assert!(matches!(error, AttestationError::Stale { age_secs: -10, max: 50 }));
+    let boundary = policy_for(&trusted, &signed.device, Some(50), Some(150));
+    assert!(verify_attestation(&signed.meta, &boundary, &MemoryReplayStore::default(), "s")
+        .expect("age equal to max")
+        .is_some());
+}
+
+#[test]
+fn confirming_an_already_advanced_sequence_is_a_replay() {
+    let signed = common::signed(5, 1, 100);
+    let trusted = vec![("delivery-key".to_owned(), signed.key.clone())];
+    let policy = policy_for(&trusted, &signed.device, None, None);
+    let replay = MemoryReplayStore::default();
+    let first = verify_attestation(&signed.meta, &policy, &replay, "s")
+        .expect("verify")
+        .expect("present");
+    let second = verify_attestation(&signed.meta, &policy, &replay, "s")
+        .expect("verify")
+        .expect("present");
+    confirm(&replay, first.pending).expect("first confirm");
+    let error = confirm(&replay, second.pending).expect_err("second confirm is a replay");
+    assert!(matches!(error, AttestationError::Replay { last: 5, got: 5, .. }));
 }

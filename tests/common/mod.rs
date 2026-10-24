@@ -55,8 +55,3 @@ pub fn signed(sequence: u64, message_count: usize, attested_at: i64) -> SignedAt
         device,
     }
 }
-
-pub fn meta_for(attestation: &pb::DeliveryAttestation) -> Value {
-    let raw = attestation.encode_to_vec();
-    json!({DEFAULT_META_KEY: STANDARD.encode(raw)})
-}

@@ -54,7 +54,9 @@ pub struct FileReplayStore {
 
 impl FileReplayStore {
     pub fn open(path: &Path) -> Result<Self, AttestationError> {
-        let lock_path = PathBuf::from(format!("{}.lock", path.display()));
+        let mut lock_name = path.as_os_str().to_owned();
+        lock_name.push(".lock");
+        let lock_path = PathBuf::from(lock_name);
         let store = Self {
             path: path.to_owned(),
             lock_path,
@@ -101,7 +103,10 @@ impl FileReplayStore {
     }
 
     fn write_state(&self, state: &Map<String, Value>) -> Result<(), AttestationError> {
-        let parent = self.path.parent().unwrap_or_else(|| Path::new("."));
+        let parent = match self.path.parent() {
+            Some(parent) if !parent.as_os_str().is_empty() => parent,
+            _ => Path::new("."),
+        };
         let name = self
             .path
             .file_name()
@@ -110,7 +115,8 @@ impl FileReplayStore {
         let temp_path = parent.join(format!(".{name}.{}.tmp", std::process::id()));
         let contents = serde_json::to_vec(state).map_err(store_error)?;
         let mut temp = OpenOptions::new()
-            .create_new(true)
+            .create(true)
+            .truncate(true)
             .write(true)
             .open(&temp_path)
             .map_err(store_error)?;
