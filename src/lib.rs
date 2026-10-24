@@ -1,6 +1,6 @@
 pub mod error;
 pub mod locate;
-
+pub mod replay;
 
 pub use error::AttestationError;
 
