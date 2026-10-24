@@ -6,7 +6,7 @@ rust-version = "1.89"
 description = "Verify, attach and sign a delivery attestation carried in an ACP prompt's _meta, with two-phase replay protection"
 
 [dependencies]
-identity-crypto = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "7a074a677142e8fd6027e6c2ed8c8d41b1a1f39a" }
+identity-crypto = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "c6a5e8da1ccc6500abd9b22171a06f36da5a1da8" }
 serde_json = "1"
 thiserror = "2"
 
