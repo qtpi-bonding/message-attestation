@@ -6,7 +6,7 @@ The wire type is `identity_crypto::pb::DeliveryAttestation`; this crate is named
 
 ## Pinned dependency
 
-`identity-crypto` is pinned to rev `edee5ca175402f657f5845694ac853877364c55f` (0.5.0). structmux's workspace still pins `c079d2f` (0.4.0) until it moves to this rev; two revs give two `PublicKey` types, so do not link this crate into structmux before then.
+`identity-crypto` is pinned to rev `7a074a677142e8fd6027e6c2ed8c8d41b1a1f39a` (0.5.1). structmux's workspace still pins `c079d2f` (0.4.0) until it moves to this rev; two revs give two `PublicKey` types, so do not link this crate into structmux before then.
 
 ## Entry point
 
