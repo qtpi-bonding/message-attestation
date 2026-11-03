@@ -260,7 +260,7 @@ fn forged_author_signature_under_a_vouched_delivery() {
     let other = author(T0);
     let m = message("m-1", vec![room("r"), person(&f.recipient.id)]);
     let mut s = f.delivery.messages[0].clone();
-    // Same transcript fields, another session's signature.
+    // A signature by another session's key, which the carried chain does not name.
     s.signature = raw_sign(&other, &f.dl.id, MESSAGE_BODY_TYPE, &m.encode_to_vec()).signature;
     let d = with_signed(&f, s, vec![room("r")]);
     assert!(matches!(check(&f, &d), Err(AttestationError::MessageSignature { index: 0, .. })));
@@ -313,6 +313,53 @@ fn via_must_name_a_target_of_the_message() {
     // A target of the message itself is accepted.
     let d = with_signed(&f, f.delivery.messages[0].clone(), vec![person(&f.recipient.id)]);
     check(&f, &d).unwrap();
+}
+
+#[test]
+fn empty_via_is_refused() {
+    let f = fx();
+    let mut d = f.delivery.clone();
+    d.via[0].targets.clear();
+    let t = identity_crypto::transcripts::delivery_transcript(&d).unwrap();
+    d.signature = f.dl.device.signing_key_pair().sign_bytes(&t).unwrap().to_vec();
+    assert!(matches!(check(&f, &d), Err(AttestationError::InvalidVia { index: 0 })));
+}
+
+#[test]
+fn missing_signer_principal_genesis() {
+    let f = fx();
+    let mut d = f.delivery.clone();
+    d.signer_device.as_mut().unwrap().principal_genesis = None;
+    assert!(matches!(check(&f, &d), Err(AttestationError::Transcript(_))));
+}
+
+#[test]
+fn attested_at_may_lead_now_by_the_skew_only() {
+    let f = fx();
+    let at = |secs: i64| {
+        sign_delivery(
+            f.dl.device.signing_key_pair(),
+            &f.dl.delegation,
+            unsigned(
+                &f.recipient,
+                &f.own,
+                1,
+                secs,
+                vec![OutgoingMessage { message: f.delivery.messages[0].clone(), via: f.via.clone() }],
+            ),
+        )
+        .unwrap()
+    };
+    let mut p = policy(&f);
+    p.max_age_secs = Some(10);
+    let ok = verify_delivery(&at(T0 + 30), &p, &MemoryReplayStore::default());
+    assert!(ok.is_ok(), "{ok:?}");
+    let r = verify_delivery(&at(T0 + 31), &p, &MemoryReplayStore::default());
+    assert!(matches!(r, Err(AttestationError::Stale { age: -31, max: 10 })), "{r:?}");
+    let r = verify_delivery(&at(T0 - 11), &p, &MemoryReplayStore::default());
+    assert!(matches!(r, Err(AttestationError::Stale { age: 11, .. })), "{r:?}");
+    let ok = verify_delivery(&at(T0 - 10), &p, &MemoryReplayStore::default());
+    assert!(ok.is_ok(), "{ok:?}");
 }
 
 #[test]

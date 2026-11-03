@@ -3,11 +3,12 @@
 use identity_crypto::transcripts::delivery_transcript;
 use identity_crypto::{
     pb, verify_carried_message, verify_p256, verify_root_device_delegation, PrincipalId, PublicKey,
+    SKEW_SECONDS,
 };
 use prost::Message as _;
 
 use crate::locate::locate;
-use crate::message::{check_target, is_valid_id, validate_message, MessageKey, MESSAGE_BODY_TYPE};
+use crate::message::{is_valid_id, validate_message, MessageKey, MESSAGE_BODY_TYPE};
 use crate::replay::ReplayStore;
 use crate::AttestationError;
 
@@ -139,10 +140,16 @@ pub fn verify_delivery(
         return Err(AttestationError::NotARecipient);
     }
 
-    let attested_at_unix = delivery.attested_at.as_ref().map_or(0, |t| t.seconds);
+    let attested_at_unix = delivery
+        .attested_at
+        .as_ref()
+        .ok_or_else(|| AttestationError::Transcript("missing attested_at".to_string()))?
+        .seconds;
     if let Some(max) = policy.max_age_secs {
+        // A delivery may be dated up to the clock skew identity-crypto allows
+        // ahead of `now_unix`, as the deliverer delegation check does.
         let age = policy.now_unix.saturating_sub(attested_at_unix);
-        if !(0..=max).contains(&age) {
+        if age < -SKEW_SECONDS || age > max {
             return Err(AttestationError::Stale { age, max });
         }
     }
@@ -151,7 +158,7 @@ pub fn verify_delivery(
     if let Some(last) = replay.last_seen(&scope, &deliverer_str)? {
         if last >= delivery.sequence {
             return Err(AttestationError::Replay {
-                key_id: deliverer_str,
+                principal: deliverer_str,
                 last,
                 got: delivery.sequence,
             });
@@ -175,8 +182,7 @@ pub fn verify_delivery(
             .get(index)
             .map(|t| t.targets.clone())
             .unwrap_or_default();
-        if via.is_empty()
-            || via.iter().any(|t| check_target(t, "via").is_err() || !message.to.contains(t))
+        if via.is_empty() || via.iter().any(|t| !message.to.contains(t))
         {
             return Err(AttestationError::InvalidVia { index });
         }
@@ -215,5 +221,5 @@ pub fn confirm(replay: &dyn ReplayStore, pending: PendingSequence) -> Result<(),
         return Ok(());
     }
     let last = replay.last_seen(&pending.scope, &pending.key)?.unwrap_or(0);
-    Err(AttestationError::Replay { key_id: pending.key, last, got: pending.sequence })
+    Err(AttestationError::Replay { principal: pending.key, last, got: pending.sequence })
 }
