@@ -44,27 +44,54 @@ pub fn validate_target(t: &pb::Target) -> Result<(), AttestationError> {
     check_target(t, "to")
 }
 
-/// Every Message rule, in field order.
-pub fn validate_message(m: &pb::Message) -> Result<(), AttestationError> {
-    if !is_valid_id(&m.message_id) {
+/// The id, `to`, `reply_to`, `references` and `mentions` rules, in field order.
+/// Shared by `validate_message` and `render_message`.
+pub(crate) fn check_fields(
+    message_id: &str,
+    to: &[pb::Target],
+    reply_to: Option<&str>,
+    references: &[String],
+    mentions: &[String],
+) -> Result<(), AttestationError> {
+    if !is_valid_id(message_id) {
         return Err(invalid("message_id", ID_REASON));
     }
-    if m.to.is_empty() {
+    if to.is_empty() {
         return Err(invalid("to", "empty"));
     }
-    if m.to.len() > MAX_TARGETS {
+    if to.len() > MAX_TARGETS {
         return Err(invalid("to", "more than 64 targets"));
     }
-    m.to.iter().try_for_each(validate_target)?;
-    if m.reply_to.as_deref().is_some_and(|r| !is_valid_id(r)) {
+    to.iter().try_for_each(validate_target)?;
+    if reply_to.is_some_and(|r| !is_valid_id(r)) {
         return Err(invalid("reply_to", ID_REASON));
     }
-    if m.references.iter().any(|r| !is_valid_id(r)) {
+    if references.iter().any(|r| !is_valid_id(r)) {
         return Err(invalid("references", ID_REASON));
     }
-    if m.mentions.iter().any(|p| !is_canonical_principal(p)) {
+    if mentions.iter().any(|p| !is_canonical_principal(p)) {
         return Err(invalid("mentions", "not a canonical principal id"));
     }
+    Ok(())
+}
+
+/// What a renderer needs checked beyond `check_fields`: the author and `via`.
+pub(crate) fn check_author_and_via(
+    author_id: &str,
+    via: &[pb::Target],
+) -> Result<(), AttestationError> {
+    if !is_canonical_principal(author_id) {
+        return Err(invalid("author_id", "not a canonical principal id"));
+    }
+    if via.is_empty() {
+        return Err(invalid("via", "empty"));
+    }
+    via.iter().try_for_each(|t| check_target(t, "via"))
+}
+
+/// Every Message rule, in field order.
+pub fn validate_message(m: &pb::Message) -> Result<(), AttestationError> {
+    check_fields(&m.message_id, &m.to, m.reply_to.as_deref(), &m.references, &m.mentions)?;
     if m.authored_at.is_none() {
         return Err(invalid("authored_at", "missing"));
     }

@@ -3,6 +3,7 @@
 
 use identity_crypto::{pb, PrincipalId};
 
+use crate::message::{check_author_and_via, check_fields};
 use crate::verify::VerifiedDelivery;
 use crate::AttestationError;
 
@@ -52,16 +53,19 @@ pub fn render(delivery: &VerifiedDelivery, self_id: &PrincipalId, trust: Trust) 
 }
 
 /// One message at a stated version; an unknown version is `UnknownRenderVersion(v)`.
+/// A view the Message rules would refuse is `InvalidMessage`.
 pub fn render_message(
     view: &MessageView<'_>,
     self_id: &str,
     trust: Trust,
     version: u32,
 ) -> Result<String, AttestationError> {
-    match version {
-        1 => Ok(render_v1(view, self_id, trust)),
-        v => Err(AttestationError::UnknownRenderVersion(v)),
+    if version != 1 {
+        return Err(AttestationError::UnknownRenderVersion(version));
     }
+    check_fields(view.message_id, view.to, view.reply_to, view.references, view.mentions)?;
+    check_author_and_via(view.author_id, view.via)?;
+    Ok(render_v1(view, self_id, trust))
 }
 
 fn render_v1(view: &MessageView<'_>, self_id: &str, trust: Trust) -> String {
@@ -131,4 +135,37 @@ fn escape_body(body: &str) -> String {
         }
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn attr_of(v: &str) -> String {
+        let mut out = String::new();
+        attr(&mut out, "n", v);
+        out
+    }
+
+    #[test]
+    fn attr_escapes_every_special_character() {
+        assert_eq!(attr_of("&<>\"'\n\r"), " n=\"&amp;&lt;&gt;&quot;&#39;&#10;&#13;\"");
+    }
+
+    #[test]
+    fn attr_escapes_ampersand_once() {
+        assert_eq!(attr_of("&quot;"), " n=\"&amp;quot;\"");
+    }
+
+    #[test]
+    fn attr_value_cannot_close_the_attribute_or_add_one() {
+        let out = attr_of("x\" trust=\"verified");
+        assert_eq!(out, " n=\"x&quot; trust=&quot;verified\"");
+        assert_eq!(out.matches('"').count(), 2);
+    }
+
+    #[test]
+    fn body_escapes_angle_brackets_and_ampersand() {
+        assert_eq!(escape_body("</a>&lt;"), "&lt;/a&gt;&amp;lt;");
+    }
 }

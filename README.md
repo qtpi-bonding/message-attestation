@@ -88,7 +88,7 @@ Scope is the recipient's own id (`self_id`); the key within it is the deliverer 
 
 ## Rendering
 
-`render(&verified_delivery, &self_id, trust)` renders every message in signed order, joined by `"\n"`. `render_message(&view, self_id, trust, version)` renders one `MessageView` (from `VerifiedMessage::view()` or a caller's own log) at a stated version; an unknown version is `UnknownRenderVersion(v)`. `RENDER_VERSION` is `1`: store it with each logged message and re-render with the stored version.
+`render(&verified_delivery, &self_id, trust)` renders every message in signed order, joined by `"\n"`. `render_message(&view, self_id, trust, version)` renders one `MessageView` (from `VerifiedMessage::view()` or a caller's own log) at a stated version; an unknown version is `UnknownRenderVersion(v)`. `RENDER_VERSION` is `1`: store it with each logged message and re-render with the stored version. `render_message` validates the view by the same Message rules and refuses with `InvalidMessage`.
 
 One message is:
 

@@ -42,7 +42,7 @@ pub enum AttestationError {
     OwnDevicesMissing,
     #[error("none of the own devices is a recipient")]
     NotARecipient,
-    #[error("delivery age {age}s outside 0..={max}s")]
+    #[error("delivery age {age}s outside the window of {skew}s ahead of now to {max}s old", skew = identity_crypto::SKEW_SECONDS)]
     Stale { age: i64, max: i64 },
     #[error("unknown render version {0}")]
     UnknownRenderVersion(u32),
