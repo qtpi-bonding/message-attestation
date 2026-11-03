@@ -24,4 +24,24 @@ pub enum AttestationError {
     InvalidDeliveryId,
     #[error("invalid via for message {index}")]
     InvalidVia { index: usize },
+    #[error("deliverer {0} is not trusted")]
+    UnknownDeliverer(String),
+    #[error("deliverer device: {0}")]
+    DelivererDevice(String),
+    #[error("delivery is for another recipient")]
+    WrongRecipient,
+    #[error("message {index} is not addressed to the deliverer")]
+    WrongAudience { index: usize },
+    #[error("message {index} signature chain: {reason}")]
+    MessageSignature { index: usize, reason: String },
+    #[error("message {index} body is not a Message")]
+    WrongBodyType { index: usize },
+    #[error("bad delivery signature")]
+    BadSignature,
+    #[error("no own devices configured")]
+    OwnDevicesMissing,
+    #[error("none of the own devices is a recipient")]
+    NotARecipient,
+    #[error("delivery age {age}s outside 0..={max}s")]
+    Stale { age: i64, max: i64 },
 }
