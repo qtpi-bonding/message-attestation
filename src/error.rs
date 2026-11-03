@@ -44,4 +44,6 @@ pub enum AttestationError {
     NotARecipient,
     #[error("delivery age {age}s outside 0..={max}s")]
     Stale { age: i64, max: i64 },
+    #[error("unknown render version {0}")]
+    UnknownRenderVersion(u32),
 }

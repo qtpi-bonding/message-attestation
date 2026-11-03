@@ -9,6 +9,7 @@ use prost::Message as _;
 
 use crate::locate::locate;
 use crate::message::{is_valid_id, validate_message, MessageKey, MESSAGE_BODY_TYPE};
+use crate::render::MessageView;
 use crate::replay::ReplayStore;
 use crate::AttestationError;
 
@@ -25,6 +26,7 @@ pub struct DeliveryPolicy<'a> {
 #[derive(Clone, Debug)]
 pub struct VerifiedMessage {
     author: PrincipalId,
+    author_id: String,
     message: pb::Message,
     via: Vec<pb::Target>,
 }
@@ -38,6 +40,20 @@ impl VerifiedMessage {
     }
     pub fn via(&self) -> &[pb::Target] {
         &self.via
+    }
+    /// The renderer's input, borrowing from this message.
+    pub fn view(&self) -> MessageView<'_> {
+        let m = &self.message;
+        MessageView {
+            message_id: &m.message_id,
+            author_id: &self.author_id,
+            to: &m.to,
+            via: &self.via,
+            reply_to: m.reply_to.as_deref(),
+            references: &m.references,
+            mentions: &m.mentions,
+            body: &m.body,
+        }
     }
     pub fn key(&self) -> MessageKey {
         MessageKey { author: self.author.clone(), message_id: self.message.message_id.clone() }
@@ -186,7 +202,12 @@ pub fn verify_delivery(
         {
             return Err(AttestationError::InvalidVia { index });
         }
-        messages.push(VerifiedMessage { author: carried.author().clone(), message, via });
+        messages.push(VerifiedMessage {
+            author: carried.author().clone(),
+            author_id: carried.author().to_string(),
+            message,
+            via,
+        });
     }
 
     Ok(Verified {
