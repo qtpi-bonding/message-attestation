@@ -1,9 +1,9 @@
 [package]
 name = "message-attestation"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.89"
-description = "Verify, attach and sign a delivery attestation carried in an ACP prompt's _meta, with two-phase replay protection"
+description = "Sign, verify, attach and render author-signed Messages inside a deliverer-signed Delivery carried in an ACP prompt's _meta, with two-phase replay protection"
 
 [dependencies]
 identity-crypto = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "feb5d585a77c6ba45eedc16fd08c2bd7feeff782" }

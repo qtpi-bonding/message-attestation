@@ -80,7 +80,7 @@ fn attach_then_locate_round_trips() {
     attach(&mut meta, DEFAULT_META_KEY, &d).unwrap();
     let v = serde_json::Value::Object(meta);
     assert_eq!(locate(&v, DEFAULT_META_KEY).unwrap(), Some(d));
-    assert_eq!(locate(&v, "message-attestation/v1").unwrap(), None);
+    assert_eq!(locate(&v, "other-key").unwrap(), None);
     let s = serde_json::json!({ DEFAULT_META_KEY: "x" });
     assert!(matches!(locate(&s, DEFAULT_META_KEY), Err(AttestationError::NotObject)));
 }
