@@ -405,8 +405,8 @@ dependencies = [
 
 [[package]]
 name = "identity-crypto"
-version = "0.8.0"
-source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=2b3c82cd6e74c086b0fd13648457e3e4fcd2c139#2b3c82cd6e74c086b0fd13648457e3e4fcd2c139"
+version = "0.9.0"
+source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=feb5d585a77c6ba45eedc16fd08c2bd7feeff782#feb5d585a77c6ba45eedc16fd08c2bd7feeff782"
 dependencies = [
  "chrono",
  "hex",
@@ -494,6 +494,7 @@ version = "0.1.0"
 dependencies = [
  "hex",
  "identity-crypto",
+ "prost",
  "serde_json",
  "thiserror",
 ]
