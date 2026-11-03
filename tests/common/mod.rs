@@ -42,3 +42,17 @@ pub fn room(id: &str) -> pb::Target {
 pub fn person(id: &PrincipalId) -> pb::Target {
     pb::Target { target: Some(pb::target::Target::RecipientId(id.to_string())) }
 }
+
+pub struct Deliverer {
+    pub id: PrincipalId,
+    pub device: identity_crypto::jwk_duo::KeyDuo,
+    pub delegation: pb::KeyDelegation,
+}
+
+pub fn deliverer(now: i64) -> Deliverer {
+    let root = GenerationService::generate_key_duo();
+    let device = GenerationService::generate_key_duo();
+    let id = principal_id(&root);
+    let delegation = delegate_device(&root, &id, &device, now, now + DAY).unwrap();
+    Deliverer { id, device, delegation }
+}

@@ -1,6 +1,8 @@
 pub mod error;
+pub mod locate;
 pub mod message;
 pub mod replay;
+pub mod sign;
 
 pub use error::AttestationError;
 pub use message::{
@@ -8,3 +10,5 @@ pub use message::{
     MAX_ID_LEN, MAX_TARGETS, MESSAGE_BODY_TYPE,
 };
 pub use replay::{FileReplayStore, MemoryReplayStore, ReplayStore};
+pub use locate::{attach, locate};
+pub use sign::{sign_delivery, OutgoingMessage, UnsignedDelivery, DEFAULT_META_KEY};
