@@ -1,0 +1,2620 @@
+{
+  "cases": [
+    {
+      "expected": {
+        "ok": {
+          "messages": [
+            {
+              "author": "p256:043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f583408045239449",
+              "message_id": "m-1"
+            }
+          ],
+          "render": "<incoming-message id=\"m-1\" from=\"p256:043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f583408045239449\" to=\"room:design\" via=\"room:design\" trust=\"verified\">hello room</incoming-message>"
+        }
+      },
+      "max_age_secs": 600,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15.250Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgNtLTESCAoGZGVzaWduMgYIgOLPqgY6CmhlbGxvIHJvb20=",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "pGG0cstBqew97lyQz45KeA==",
+              "signature": "sKebv6IeI+Bz/rVYc52he3FVakdjzk0QxnjyYRRkYqZvO0b/Dmyg9gU8BsQ7VHE8DnDOWQQegOtJPJwFMfK/0w==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "7s/4n+MExAeJDAYx1G18wGP4b7PliZPHZSbq5AVW/pl0Jhtmy4eU4NKmP9XUJF9Lqrr7MYL4AI27Suzh08metg==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "one room message",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0ee6b28000000001000001a96964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934a461b472cb41a9ec3dee5c90cf8e4a78000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d657373616765000000230a036d2d3112080a0664657369676e32060880e2cfaa063a0a68656c6c6f20726f6f6d00000040b0a79bbfa21e23e073feb558739da17b71556a4763ce4d10c678f261146462a66f3b46ff0e6ca0f6053c06c43b54713c0e70ce59041e80eb493c9c0531f2bfd300000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "ok": {
+          "messages": [
+            {
+              "author": "p256:043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f583408045239449",
+              "message_id": "m-123"
+            }
+          ],
+          "render": "<incoming-message id=\"m-123\" from=\"p256:043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f583408045239449\" to=\"room:design, room:ops, you\" via=\"you\" reply-to=\"m-99\" references=\"m-98, m-97\" mentions=\"p256:040ec41bae231b7bb3e0d501d5cfd64f53d8990a935677b03a6be646d1378a7c2e955957a2e02afeb5f6b651a4ebe4e8e0d42b968651a35318b0409dc56421532a, p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe\" mentions-you=\"true\" trust=\"verified\">hi\nthere &amp; &lt;you&gt;</incoming-message>"
+        }
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgVtLTEyMxIICgZkZXNpZ24SBQoDb3BzEooBEocBcDI1NjowNDNhNTM1YmQwYmU0NjZmZjNkODU2YTA3N2FhZDk1MDRmMTZhYTVkNTIyOGZjZDdjMjc3NDg4NWVlMjEzZjNiMzQ2NmFiYTgxODViMzM0MWUwYzJlM2QxYjNhZTY5ZTQ3ZDBmMDFkNGJiZDcwNmQ5NTc4YjBiNjVkNmQzZGUxZWZlGgRtLTk5IgRtLTk4IgRtLTk3KocBcDI1NjowNDBlYzQxYmFlMjMxYjdiYjNlMGQ1MDFkNWNmZDY0ZjUzZDg5OTBhOTM1Njc3YjAzYTZiZTY0NmQxMzc4YTdjMmU5NTU5NTdhMmUwMmFmZWI1ZjZiNjUxYTRlYmU0ZThlMGQ0MmI5Njg2NTFhMzUzMThiMDQwOWRjNTY0MjE1MzJhKocBcDI1NjowNDNhNTM1YmQwYmU0NjZmZjNkODU2YTA3N2FhZDk1MDRmMTZhYTVkNTIyOGZjZDdjMjc3NDg4NWVlMjEzZjNiMzQ2NmFiYTgxODViMzM0MWUwYzJlM2QxYjNhZTY5ZTQ3ZDBmMDFkNGJiZDcwNmQ5NTc4YjBiNjVkNmQzZGUxZWZlMgYIgOLPqgY6EGhpCnRoZXJlICYgPHlvdT4=",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "p6bc/RbX3fIgJV1vjDcdZw==",
+              "signature": "jd8bKCnyD/P4QxTqlrGt628ysaE46pXHJ8E2/NuBLn8kF6O3kjTiomQG6mqVFbSPKLDSI2N9T2FwYPx377TIhA==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "AvZjW4e2SAHWRkYA23aRCUhUJMhbYxpCW1sqZlsfngWXXmRp+KvAR50aXxlvpRy0RLtC4vf4roMwldk6o9UEUw==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "direct and room targets, reply and mentions",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb00000000000000010000036b6964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934a7a6dcfd16d7ddf220255d6f8c371d67000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d657373616765000001e50a056d2d31323312080a0664657369676e12050a036f7073128a01128701703235363a303433613533356264306265343636666633643835366130373761616439353034663136616135643532323866636437633237373438383565653231336633623334363661626138313835623333343165306332653364316233616536396534376430663031643462626437303664393537386230623635643664336465316566651a046d2d393922046d2d393822046d2d39372a8701703235363a303430656334316261653233316237626233653064353031643563666436346635336438393930613933353637376230336136626536343664313337386137633265393535393537613265303261666562356636623635316134656265346538653064343262393638363531613335333138623034303964633536343231353332612a8701703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666532060880e2cfaa063a1068690a74686572652026203c796f753e000000408ddf1b2829f20ff3f84314ea96b1adeb6f32b1a138ea95c727c136fcdb812e7f2417a3b79234e2a26406ea6a9515b48f28b0d223637d4f617060fc77efb4c884000000010200000087703235363a30343361353335626430626534363666663364383536613037376161643935303466313661613564353232386663643763323737343838356565323133663362333436366162613831383562333334316530633265336431623361653639653437643066303164346262643730366439353738623062363564366433646531656665",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "ok": {
+          "messages": [
+            {
+              "author": "p256:040ec41bae231b7bb3e0d501d5cfd64f53d8990a935677b03a6be646d1378a7c2e955957a2e02afeb5f6b651a4ebe4e8e0d42b968651a35318b0409dc56421532a",
+              "message_id": "m-a"
+            },
+            {
+              "author": "p256:043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f583408045239449",
+              "message_id": "m-b"
+            }
+          ],
+          "render": "<incoming-message id=\"m-a\" from=\"p256:040ec41bae231b7bb3e0d501d5cfd64f53d8990a935677b03a6be646d1378a7c2e955957a2e02afeb5f6b651a4ebe4e8e0d42b968651a35318b0409dc56421532a\" to=\"room:a, room:b\" via=\"room:a, room:b\" trust=\"verified\">first</incoming-message>\n<incoming-message id=\"m-b\" from=\"p256:043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f583408045239449\" to=\"room:b, you\" via=\"room:b, you\" mentions=\"p256:043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f583408045239449\" trust=\"verified\">second</incoming-message>"
+        }
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgNtLWESAwoBYRIDCgFiMgYIgOLPqgY6BWZpcnN0",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "Sun6vtCD6qwcZvjAIJZaDQ==",
+              "signature": "05fDwaQNYG19IOvevtYSvExWXYbD9SN/RD6oFHMd5rzAZQNt+wWMGEueUy4sqO9owjNM8jixdbOjufvbRUGQfg==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BLJxc5EcACX5yuU5GiuulsTnfebfqMSH9E9fe4lEJH7PUsu8XtO5nWLcT9aTk4TigGrtxGBuj4mZkNAXyQmHDEg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BDYTCp6XYNtzfPPAEbi7OCA96SfjJo6WrFJSfYRj42ZSOpHKNlct6+XEdC6c2WrGr5y1tz3a9WBOqWd2PnWT7Do=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BA7EG64jG3uz4NUB1c/WT1PYmQqTVnewOmvmRtE3inwulVlXouAq/rX2tlGk6+To4NQrloZRo1MYsECdxWQhUyo=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "vllTbMGnJYW3sWZK9TjTPy6BjNHpq2jtTI9hnytvku/qKXzceuXAXXdiLJx0mhMs/c+UnsNsdFQSEs7w9Onccg==",
+                    "signingRoot": {
+                      "key": "BA7EG64jG3uz4NUB1c/WT1PYmQqTVnewOmvmRtE3inwulVlXouAq/rX2tlGk6+To4NQrloZRo1MYsECdxWQhUyo=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BLJxc5EcACX5yuU5GiuulsTnfebfqMSH9E9fe4lEJH7PUsu8XtO5nWLcT9aTk4TigGrtxGBuj4mZkNAXyQmHDEg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BA7EG64jG3uz4NUB1c/WT1PYmQqTVnewOmvmRtE3inwulVlXouAq/rX2tlGk6+To4NQrloZRo1MYsECdxWQhUyo=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BL2/WMF06T1gJV5JkS3+umwQbAum4fIgMxeHTiuv1CM60j0xOfbaAuFaCCpLauXOVnSxlNm0z9tp8Y4OSCKFPdM=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "xEWQIErRYpsR1zTzH1YDDIiBF9JsEL0O7tO4rdZj/8V3o0QhQ0yvqzLf3QPCTsXRkkbRC2uw06TlnWf+fqqupQ=="
+                  }
+                }
+              }
+            },
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgNtLWISAwoBYhKKARKHAXAyNTY6MDQzYTUzNWJkMGJlNDY2ZmYzZDg1NmEwNzdhYWQ5NTA0ZjE2YWE1ZDUyMjhmY2Q3YzI3NzQ4ODVlZTIxM2YzYjM0NjZhYmE4MTg1YjMzNDFlMGMyZTNkMWIzYWU2OWU0N2QwZjAxZDRiYmQ3MDZkOTU3OGIwYjY1ZDZkM2RlMWVmZSqHAXAyNTY6MDQzMDc4YTliY2E4OTIxNTgwMjFkMDdlYWUwMzE5M2U5MzI1MmFlNzhmODE1OTUxNmVkYjM1ZTEwYjlhYzBiODY5NmMyNTAwOTJiMzYyZjFmMGE2MjEzMzY2NTM2YWM2NzM3MDFlOWQ5ZDEzZDk4YTUzZjU4MzQwODA0NTIzOTQ0OTIGCIDiz6oGOgZzZWNvbmQ=",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "aGiZre7Qqz09c8yLK76tDA==",
+              "signature": "WXyVo3OU987bIiXwqLKR6R3BG084b5zBRl3tpxxv6WuJeg9C1N7sFLzmK5HYmZCSQaluyfu26gHx/UwIepBUWA==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "jOmU+JfIDwL4eMpSmRo8x/BdbIIYz7WYgBXRTPPZxkxF1gtasKFtU8JShA8rFgdfei8twGS207++4086ngWK7Q==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "a"
+                },
+                {
+                  "roomId": "b"
+                }
+              ]
+            },
+            {
+              "targets": [
+                {
+                  "roomId": "b"
+                },
+                {
+                  "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "two messages keep signed order",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000002000001a46964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041040ec41bae231b7bb3e0d501d5cfd64f53d8990a935677b03a6be646d1378a7c2e955957a2e02afeb5f6b651a4ebe4e8e0d42b968651a35318b0409dc56421532a030000004104bdbf58c174e93d60255e49912dfeba6c106c0ba6e1f2203317874e2bafd4233ad23d3139f6da02e15a082a4b6ae5ce5674b194d9b4cfdb69f18e0e4822853dd300000087703235363a303434393061313935333166313638643563336135616536313030383339626232643164393230643738653661656163336637646138313936366330663732313730626263643266323164623538316264353135303331336135376366613264396465626532306439663436303131376235383866636639623066343337373739344ae9fabed083eaac1c66f8c020965a0d000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d6573736167650000001e0a036d2d6112030a016112030a016232060880e2cfaa063a05666972737400000040d397c3c1a40d606d7d20ebdebed612bc4c565d86c3f5237f443ea814731de6bcc065036dfb058c184b9e532e2ca8ef68c2334cf238b175b3a3b9fbdb4541907e00000002010000000161010000000162000002b76964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934686899adeed0ab3d3d73cc8b2bbead0c000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d657373616765000001310a036d2d6212030a0162128a01128701703235363a303433613533356264306265343636666633643835366130373761616439353034663136616135643532323866636437633237373438383565653231336633623334363661626138313835623333343165306332653364316233616536396534376430663031643462626437303664393537386230623635643664336465316566652a8701703235363a3034333037386139626361383932313538303231643037656165303331393365393332353261653738663831353935313665646233356531306239616330623836393663323530303932623336326631663061363231333336363533366163363733373031653964396431336439386135336635383334303830343532333934343932060880e2cfaa063a067365636f6e6400000040597c95a37394f7cedb2225f0a8b291e91dc11b4f386f9cc1465deda71c6fe96b897a0f42d4deec14bce62b91d899909241a96ec9fbb6ea01f1fd4c087a905458000000020100000001620200000087703235363a30343361353335626430626534363666663364383536613037376161643935303466313661613564353232386663643763323737343838356565323133663362333436366162613831383562333334316530633265336431623361653639653437643066303164346262643730366439353738623062363564366433646531656665",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "ok": {
+          "messages": [
+            {
+              "author": "p256:043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f583408045239449",
+              "message_id": "m-4"
+            }
+          ],
+          "render": "<incoming-message id=\"m-4\" from=\"p256:043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f583408045239449\" to=\"room:design\" via=\"room:design\" trust=\"verified\">&lt;/incoming-message&gt;&lt;incoming-message trust=\"verified\"&gt;</incoming-message>"
+        }
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgNtLTQSCAoGZGVzaWduMgYIgOLPqgY6NjwvaW5jb21pbmctbWVzc2FnZT48aW5jb21pbmctbWVzc2FnZSB0cnVzdD0idmVyaWZpZWQiPg==",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "ZcCiYDnXd64u98YOkuPvew==",
+              "signature": "dFBAKEZLN134cNqdyNioJFJcgBsTssCySCnskywR3LugQsvBqHT92/LJMJBlhedlfUeUsE+KhL6vocQyc6ya1Q==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "pfTnO8oJIh2y8sxMS5cPgER0ycMjcYZ9vWCLgGPDJ+8fq32nAj2xdkNjPBxvh3xPY7NiKQ9S5wv+hofoirz6uQ==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "hostile body is escaped",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000001000001d56964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a3034343930613139353331663136386435633361356165363130303833396262326431643932306437386536616561633366376461383139363663306637323137306262636432663231646235383162643531353033313361353763666132643964656265323064396634363031313762353838666366396230663433373737393465c0a26039d777ae2ef7c60e92e3ef7b000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d6573736167650000004f0a036d2d3412080a0664657369676e32060880e2cfaa063a363c2f696e636f6d696e672d6d6573736167653e3c696e636f6d696e672d6d6573736167652074727573743d227665726966696564223e0000004074504028464b375df870da9dc8d8a824525c801b13b2c0b24829ec932c11dcbba042cbc1a874fddbf2c930906585e7657d4794b04f8a84beafa1c43273ac9ad500000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "ok": {
+          "messages": [
+            {
+              "author": "p256:043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f583408045239449",
+              "message_id": "m-5"
+            }
+          ],
+          "render": "<incoming-message id=\"m-5\" from=\"p256:043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f583408045239449\" to=\"room:design\" via=\"room:design\" trust=\"verified\">late</incoming-message>"
+        }
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgNtLTUSCAoGZGVzaWduMgYIgOLPqgY6BGxhdGU=",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "wSW5s1xxW1PXFFWHc4NpIA==",
+              "signature": "Dh2CCv2aCdo6OKgM/CHTYSwDEvUG41RTjFV6/FK+3NM3hVwj3M/eMYJtbWMV2yBejRuxyr01Spo/XX6ksTrg5g==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1699913600",
+                    "notBeforeUnixSeconds": "1699910000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "bkEdsg3jI0wGxhMuYNwVGgR+LfNZA0IeMnuAgibbOrAAe5klRkflcF4/u5jfT2iQ4Bi9oqHNYNdMTFbyaGnd7w=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "3WFgiqyhj5NlFLmO6w4mINwIuEnhcnX/zPWIMxac7pmea0LfYH6GalD5Vdbw63731x/FbWIIhEtgNbv2tLl/ig==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "expired author session redelivered",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000001000001a36964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934c125b9b35c715b53d714558773836920000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d6573736167650000001d0a036d2d3512080a0664657369676e32060880e2cfaa063a046c617465000000400e1d820afd9a09da3a38a80cfc21d3612c0312f506e354538c557afc52bedcd337855c23dccfde31826d6d6315db205e8d1bb1cabd354a9a3f5d7ea4b13ae0e600000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "none": true
+      },
+      "max_age_secs": null,
+      "meta": {
+        "x": {
+          "message-attestation/v2": {
+            "attestedAt": "2023-11-14T22:13:15Z",
+            "deliveryId": "d-1",
+            "messages": [
+              {
+                "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+                "body": "CgNtLTESCAoGZGVzaWduMgYIgOLPqgY6CmhlbGxvIHJvb20=",
+                "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+                "issuedAtUnixSeconds": "1700000000",
+                "nonce": "pGG0cstBqew97lyQz45KeA==",
+                "signature": "sKebv6IeI+Bz/rVYc52he3FVakdjzk0QxnjyYRRkYqZvO0b/Dmyg9gU8BsQ7VHE8DnDOWQQegOtJPJwFMfK/0w==",
+                "signer": {
+                  "selfRooted": {
+                    "device": {
+                      "delegated": {
+                        "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                        "scheme": "KEY_SCHEME_ECDSA_P256"
+                      },
+                      "delegatedEncryption": {
+                        "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                        "scheme": "KEY_SCHEME_ECDSA_P256"
+                      },
+                      "issuedAtUnixSeconds": "1699913600",
+                      "notAfterUnixSeconds": "1700864000",
+                      "principalGenesis": {
+                        "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                        "scheme": "KEY_SCHEME_ECDSA_P256"
+                      },
+                      "purpose": "KEY_PURPOSE_DEVICE",
+                      "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                      "signingRoot": {
+                        "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                        "scheme": "KEY_SCHEME_ECDSA_P256"
+                      }
+                    },
+                    "session": {
+                      "device": {
+                        "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                        "scheme": "KEY_SCHEME_ECDSA_P256"
+                      },
+                      "notAfterUnixSeconds": "1700003600",
+                      "notBeforeUnixSeconds": "1699996400",
+                      "principalGenesis": {
+                        "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                        "scheme": "KEY_SCHEME_ECDSA_P256"
+                      },
+                      "session": {
+                        "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                        "scheme": "KEY_SCHEME_ECDSA_P256"
+                      },
+                      "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                    }
+                  }
+                }
+              }
+            ],
+            "recipientDevices": [
+              {
+                "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+                "scheme": "KEY_SCHEME_ECDSA_P256"
+              }
+            ],
+            "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+            "sequence": "5",
+            "signature": "kC731iH0QonYdtWr2zn1YvUb/TbLwquP8Wa5wEGFJCW3pAasTG+Y6kR0jXi3mDAGB1IaQWcNz+ZR5KuoJk0p/Q==",
+            "signerDevice": {
+              "delegated": {
+                "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+                "scheme": "KEY_SCHEME_ECDSA_P256"
+              },
+              "delegatedEncryption": {
+                "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+                "scheme": "KEY_SCHEME_ECDSA_P256"
+              },
+              "issuedAtUnixSeconds": "1699999900",
+              "notAfterUnixSeconds": "1700086400",
+              "principalGenesis": {
+                "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+                "scheme": "KEY_SCHEME_ECDSA_P256"
+              },
+              "purpose": "KEY_PURPOSE_DEVICE",
+              "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+              "signingRoot": {
+                "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+                "scheme": "KEY_SCHEME_ECDSA_P256"
+              }
+            },
+            "via": [
+              {
+                "targets": [
+                  {
+                    "roomId": "design"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "name": "nested meta key",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": null,
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "UnknownDeliverer"
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgNtLTESCAoGZGVzaWduMgYIgOLPqgY6CmhlbGxvIHJvb20=",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "pGG0cstBqew97lyQz45KeA==",
+              "signature": "sKebv6IeI+Bz/rVYc52he3FVakdjzk0QxnjyYRRkYqZvO0b/Dmyg9gU8BsQ7VHE8DnDOWQQegOtJPJwFMfK/0w==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "vifMZCWB1LM9L4BPEw0vcnkfMP+uuzHIHeOeJiI1Ria2dUoemH7sk9Zj3jhqae7Iv+NHuUgsk19RDcoK0NH8eQ==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BE+8P3Jp2NyAOtHQTclilNA3NvD0gesMHEokxhBZFWD5uPuo1Lg8aSyvLG+oW/S/2X9pCLNtvf+5SNI/TvW7Jj4=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BKE8ziJPn1nPm1y9GeR/iFeCKqZ6Mc715Eq6GaK21z2/szmqUOWPJqBK6PIEdbcSu1P37N+Ut/H3JXfia+j5tLo=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BCAlYhC6GiKoc3WSGCUBF1ElObtOZK2EAa/0HpMCLo1xrYUHXFzSLJush8e66Nn8hPWGX6gWO7YfyXJkUCXqvsA=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "lgwEPh/3GfmWY0xNgFTc7w4ADplDkf+4sRjHCU6Vymr1vXYOHWoF1a2PQri5oAtYGKGn91+CKosxEvRNGgDEcw==",
+            "signingRoot": {
+              "key": "BCAlYhC6GiKoc3WSGCUBF1ElObtOZK2EAa/0HpMCLo1xrYUHXFzSLJush8e66Nn8hPWGX6gWO7YfyXJkUCXqvsA=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "untrusted deliverer",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e76310003000000410420256210ba1a22a873759218250117512539bb4e64ad8401aff41e93022e8d71ad85075c5cd22c9bac87c7bae8d9fc84f5865fa8163bb61fc972645025eabec00300000041044fbc3f7269d8dc803ad1d04dc96294d03736f0f481eb0c1c4a24c610591560f9b8fba8d4b83c692caf2c6fa85bf4bfd97f6908b36dbdffb948d23f4ef5bb263e00000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000001000001a96964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934a461b472cb41a9ec3dee5c90cf8e4a78000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d657373616765000000230a036d2d3112080a0664657369676e32060880e2cfaa063a0a68656c6c6f20726f6f6d00000040b0a79bbfa21e23e073feb558739da17b71556a4763ce4d10c678f261146462a66f3b46ff0e6ca0f6053c06c43b54713c0e70ce59041e80eb493c9c0531f2bfd300000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "BadSignature"
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgNtLTESCAoGZGVzaWduMgYIgOLPqgY6CHRhbXBlcmVk",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "pGG0cstBqew97lyQz45KeA==",
+              "signature": "sKebv6IeI+Bz/rVYc52he3FVakdjzk0QxnjyYRRkYqZvO0b/Dmyg9gU8BsQ7VHE8DnDOWQQegOtJPJwFMfK/0w==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "kC731iH0QonYdtWr2zn1YvUb/TbLwquP8Wa5wEGFJCW3pAasTG+Y6kR0jXi3mDAGB1IaQWcNz+ZR5KuoJk0p/Q==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "tampered message body",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000001000001a76964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934a461b472cb41a9ec3dee5c90cf8e4a78000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d657373616765000000210a036d2d3112080a0664657369676e32060880e2cfaa063a0874616d706572656400000040b0a79bbfa21e23e073feb558739da17b71556a4763ce4d10c678f261146462a66f3b46ff0e6ca0f6053c06c43b54713c0e70ce59041e80eb493c9c0531f2bfd300000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "MessageSignature"
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgNtLTESCAoGZGVzaWduMgYIgOLPqgY6CmhlbGxvIHJvb20=",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "pGG0cstBqew97lyQz45KeA==",
+              "signature": "YcgfCn0/Wp7KMg64Pimcet5XawIl6rF1zdxlIZKZoV9cN1vpXu4aE8NkgZ77S7wKSollf0eZUCQktcKzdjDZyA==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "IAkvRKgE58zXcRaiYhBBAwI1kvK8bfmrQM4MOqzpsps64jRIsDCATEccN6ZnnEMHfpqgJQUlTbRPg8MGWXi+4A==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "forged author signature",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000001000001a96964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934a461b472cb41a9ec3dee5c90cf8e4a78000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d657373616765000000230a036d2d3112080a0664657369676e32060880e2cfaa063a0a68656c6c6f20726f6f6d0000004061c81f0a7d3f5a9eca320eb83e299c7ade576b0225eab175cddc65219299a15f5c375be95eee1a13c364819efb4bbc0a4a89657f4799502424b5c2b37630d9c800000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "WrongRecipient"
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgNtLTESCAoGZGVzaWduMgYIgOLPqgY6CmhlbGxvIHJvb20=",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "pGG0cstBqew97lyQz45KeA==",
+              "signature": "sKebv6IeI+Bz/rVYc52he3FVakdjzk0QxnjyYRRkYqZvO0b/Dmyg9gU8BsQ7VHE8DnDOWQQegOtJPJwFMfK/0w==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:0404905e75173ba660cb54fa02c6f8cecb5f5f13eb7c354ef27c1668a7dbce0c1a7363d88cfba339ffc79c9753dbe94d40f8a5658959d57023530dfc1901ca65dd",
+          "sequence": "5",
+          "signature": "3qcLgpgwybJ9GzAD9txoobvZN9hExvWMc8Pw5EZrZy/ETQ8iQLHMoycRSA9xdJAqBxvVsAuavrW41QvyG/xT8g==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "wrong recipient",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034303439303565373531373362613636306362353466613032633666386365636235663566313365623763333534656632376331363638613764626365306331613733363364383863666261333339666663373963393735336462653934643430663861353635383935396435373032333533306466633139303163613635646400000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000001000001a96964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934a461b472cb41a9ec3dee5c90cf8e4a78000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d657373616765000000230a036d2d3112080a0664657369676e32060880e2cfaa063a0a68656c6c6f20726f6f6d00000040b0a79bbfa21e23e073feb558739da17b71556a4763ce4d10c678f261146462a66f3b46ff0e6ca0f6053c06c43b54713c0e70ce59041e80eb493c9c0531f2bfd300000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "NotARecipient"
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgNtLTESCAoGZGVzaWduMgYIgOLPqgY6CmhlbGxvIHJvb20=",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "pGG0cstBqew97lyQz45KeA==",
+              "signature": "sKebv6IeI+Bz/rVYc52he3FVakdjzk0QxnjyYRRkYqZvO0b/Dmyg9gU8BsQ7VHE8DnDOWQQegOtJPJwFMfK/0w==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BASQXnUXO6Zgy1T6Asb4zstfXxPrfDVO8nwWaKfbzgwac2PYjPujOf/HnJdT2+lNQPilZYlZ1XAjUw38GQHKZd0=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "N51p3DSJzk7FrkJeM1TUQ0ztXxRwuWR1fUYV+i0rBtjHeIKwTzTry0/fSEBIoG6+i6EipNfheQeuoAYpEbOq/Q==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "not a recipient device",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a303433613533356264306265343636666633643835366130373761616439353034663136616135643532323866636437633237373438383565653231336633623334363661626138313835623333343165306332653364316233616536396534376430663031643462626437303664393537386230623635643664336465316566650000000103000000410404905e75173ba660cb54fa02c6f8cecb5f5f13eb7c354ef27c1668a7dbce0c1a7363d88cfba339ffc79c9753dbe94d40f8a5658959d57023530dfc1901ca65dd0000000000000005000000006553f0fb0000000000000001000001a96964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934a461b472cb41a9ec3dee5c90cf8e4a78000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d657373616765000000230a036d2d3112080a0664657369676e32060880e2cfaa063a0a68656c6c6f20726f6f6d00000040b0a79bbfa21e23e073feb558739da17b71556a4763ce4d10c678f261146462a66f3b46ff0e6ca0f6053c06c43b54713c0e70ce59041e80eb493c9c0531f2bfd300000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "WrongAudience"
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:048987adccdd1ac62d00100b4682c0fc07edcffb69ea3261627e886872af1b191de82ef91327564b4119072cbde9090356d150e7ea84afb5e0cd3a7caaf786a20c",
+              "body": "CgNtLTESCAoGZGVzaWduMgYIgOLPqgY6CmhlbGxvIHJvb20=",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "pGG0cstBqew97lyQz45KeA==",
+              "signature": "SCULsRbdVCfXriQ7BTV5uw2atKgOdNcLmyu4et4dGbmrbA2PUIiTjdXXs+NpSe+Qh5H49lUA4rUPq0rMg23GOw==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "rdKdKiLMDO2kTgQp13zm51TPkSZgUe/Jd+AWRC9OwlzvLKtkD6gN1cvkWV7CwqZ8uEry2seXgoNk4IBq5pnOPg==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "audience is another deliverer",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000001000001a96964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343839383761646363646431616336326430303130306234363832633066633037656463666662363965613332363136323765383836383732616631623139316465383265663931333237353634623431313930373263626465393039303335366431353065376561383461666235653063643361376361616637383661323063a461b472cb41a9ec3dee5c90cf8e4a78000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d657373616765000000230a036d2d3112080a0664657369676e32060880e2cfaa063a0a68656c6c6f20726f6f6d0000004048250bb116dd5427d7ae243b053579bb0d9ab4a80e74d70b9b2bb87ade1d19b9ab6c0d8f5088938dd5d7b3e36949ef908791f8f65500e2b50fab4acc836dc63b00000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "Replay"
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgNtLTESCAoGZGVzaWduMgYIgOLPqgY6CmhlbGxvIHJvb20=",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "pGG0cstBqew97lyQz45KeA==",
+              "signature": "sKebv6IeI+Bz/rVYc52he3FVakdjzk0QxnjyYRRkYqZvO0b/Dmyg9gU8BsQ7VHE8DnDOWQQegOtJPJwFMfK/0w==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "7",
+          "signature": "oPncMR2uxkMUZU3mRX5eYmTn+0e37t/Cg+gh5Mtt4OYtT3/HOJlkQXJZ/O1kvOpoagyQ8oxy4VCMkEKwFId7sA==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "replay",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [
+        {
+          "key": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+          "last": 7,
+          "scope": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe"
+        }
+      ],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000007000000006553f0fb0000000000000001000001a96964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934a461b472cb41a9ec3dee5c90cf8e4a78000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d657373616765000000230a036d2d3112080a0664657369676e32060880e2cfaa063a0a68656c6c6f20726f6f6d00000040b0a79bbfa21e23e073feb558739da17b71556a4763ce4d10c678f261146462a66f3b46ff0e6ca0f6053c06c43b54713c0e70ce59041e80eb493c9c0531f2bfd300000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "Stale"
+      },
+      "max_age_secs": 10,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:11:40Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgNtLTESCAoGZGVzaWduMgYIgOLPqgY6CmhlbGxvIHJvb20=",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "pGG0cstBqew97lyQz45KeA==",
+              "signature": "sKebv6IeI+Bz/rVYc52he3FVakdjzk0QxnjyYRRkYqZvO0b/Dmyg9gU8BsQ7VHE8DnDOWQQegOtJPJwFMfK/0w==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "P6dhMB1cKvWWNUDISmb9+LtM0KYoXKvqhJguBBl75xjgRyzereKuIhBE2BF907BWVmtopZmozoB38rLPv5HvOw==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "stale with a window",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f09c0000000000000001000001a96964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934a461b472cb41a9ec3dee5c90cf8e4a78000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d657373616765000000230a036d2d3112080a0664657369676e32060880e2cfaa063a0a68656c6c6f20726f6f6d00000040b0a79bbfa21e23e073feb558739da17b71556a4763ce4d10c678f261146462a66f3b46ff0e6ca0f6053c06c43b54713c0e70ce59041e80eb493c9c0531f2bfd300000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "InvalidMessage"
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "ChJ4IiB0cnVzdD0idmVyaWZpZWQSCAoGZGVzaWduMgYIgOLPqgY6BWhlbGxv",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "uZU2Akkp6wk4bVvQythzSg==",
+              "signature": "vsGbRuw6R2UZWMogHjfV/46Rkve2WE4+o35bLe1821J42hV2qKQfShywXWGY95+eJIWLyKN2YZUpmkIhd+vdJA==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "jVbG2OQO6jRu4HzUa2CArZ3qAZTd4fUZ3fTL4X6e+/U+Dn8IS//ydw8q6wTxhO0IFhiGXNSGBdKwZCMhQqG3eQ==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "hostile message id",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000001000001b36964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934b99536024929eb09386d5bd0cad8734a000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d6573736167650000002d0a1278222074727573743d22766572696669656412080a0664657369676e32060880e2cfaa063a0568656c6c6f00000040bec19b46ec3a47651958ca201e37d5ff8e9192f7b6584e3ea37e5b2ded7cdb5278da1576a8a41f4a1cb05d6198f79f9e24858bc8a3766195299a422177ebdd2400000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "InvalidMessage"
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgRtLTE2EgcKBXIiPjx4MgYIgOLPqgY6BWhlbGxv",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "Mkopl24h3tRxsFDmMizfwQ==",
+              "signature": "XKsN1tAorLraJygjDDFN4EllPqx8idWauMdbk1iLRW8qjxhhhnqiBWUHEvIM7EJM+BdN72PprqgMsu5sgWCEjQ==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "nnxGjSzuKY6DQdbT1SxkB/CCGPfHdq3BMg12qa18ljXOvphtpBJSOFXV5iOJGFg331xSgAQ/gFCEEMHMh/2SDA==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "r\"><x"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "hostile room id",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000001000001a46964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934324a29976e21ded471b050e6322cdfc1000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d6573736167650000001e0a046d2d313612070a0572223e3c7832060880e2cfaa063a0568656c6c6f000000405cab0dd6d028acbada2728230c314de049653eac7c89d59ab8c75b93588b456f2a8f1861867aa205650712f20cec424cf8174def63e9aea80cb2ee6c8160848d00000001010000000572223e3c78",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "InvalidMessage"
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgRtLTE3EgQKAnIwEgQKAnIxEgQKAnIyEgQKAnIzEgQKAnI0EgQKAnI1EgQKAnI2EgQKAnI3EgQKAnI4EgQKAnI5EgUKA3IxMBIFCgNyMTESBQoDcjEyEgUKA3IxMxIFCgNyMTQSBQoDcjE1EgUKA3IxNhIFCgNyMTcSBQoDcjE4EgUKA3IxORIFCgNyMjASBQoDcjIxEgUKA3IyMhIFCgNyMjMSBQoDcjI0EgUKA3IyNRIFCgNyMjYSBQoDcjI3EgUKA3IyOBIFCgNyMjkSBQoDcjMwEgUKA3IzMRIFCgNyMzISBQoDcjMzEgUKA3IzNBIFCgNyMzUSBQoDcjM2EgUKA3IzNxIFCgNyMzgSBQoDcjM5EgUKA3I0MBIFCgNyNDESBQoDcjQyEgUKA3I0MxIFCgNyNDQSBQoDcjQ1EgUKA3I0NhIFCgNyNDcSBQoDcjQ4EgUKA3I0ORIFCgNyNTASBQoDcjUxEgUKA3I1MhIFCgNyNTMSBQoDcjU0EgUKA3I1NRIFCgNyNTYSBQoDcjU3EgUKA3I1OBIFCgNyNTkSBQoDcjYwEgUKA3I2MRIFCgNyNjISBQoDcjYzEgUKA3I2NDIGCIDiz6oGOgVoZWxsbw==",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "qHslh45NiokyBl7q+yLs5w==",
+              "signature": "JDkQjNIzXn+Onkz7/21dIfDH1fEIodoBGmpBhwx6wj1HnYbUxZPdEGIMXh6ynACVdhrj7mw7s5D7HwHkI2UMNw==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "w9cFTODy3U5+f9ZkRG9Bz1mA8W1GpfS1vdQBl+QXcd8PviptWG6Jy2JwCoD8kqRg8Gg7YyA4OnF5q0vGlTrgqw==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "r0"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "65 targets",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000001000003586964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934a87b25878e4d8a8932065eeafb22ece7000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d657373616765000001d20a046d2d313712040a02723012040a02723112040a02723212040a02723312040a02723412040a02723512040a02723612040a02723712040a02723812040a02723912050a0372313012050a0372313112050a0372313212050a0372313312050a0372313412050a0372313512050a0372313612050a0372313712050a0372313812050a0372313912050a0372323012050a0372323112050a0372323212050a0372323312050a0372323412050a0372323512050a0372323612050a0372323712050a0372323812050a0372323912050a0372333012050a0372333112050a0372333212050a0372333312050a0372333412050a0372333512050a0372333612050a0372333712050a0372333812050a0372333912050a0372343012050a0372343112050a0372343212050a0372343312050a0372343412050a0372343512050a0372343612050a0372343712050a0372343812050a0372343912050a0372353012050a0372353112050a0372353212050a0372353312050a0372353412050a0372353512050a0372353612050a0372353712050a0372353812050a0372353912050a0372363012050a0372363112050a0372363212050a0372363312050a0372363432060880e2cfaa063a0568656c6c6f000000402439108cd2335e7f8e9e4cfbff6d5d21f0c7d5f108a1da011a6a41870c7ac23d479d86d4c593dd10620c5e1eb29c0095761ae3ee6c3bb390fb1f01e423650c370000000101000000027230",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "InvalidVia"
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgRtLTE4EgMKAWEyBgiA4s+qBjoFaGVsbG8=",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "vKXT5HEdkWgofQGn/BtTYA==",
+              "signature": "yU2y22KHEY8f+YYg0UwdJ8f9gaNbTgJPboL+vjxXq1t27AnEBwPUAHbXBXivIrHOS7oG0YrCyXypDu0w5Me8Pw==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "nYcfq4jedSum/8lkEfNtlsTbZmUTT7fQqKroU/LefOjoLfCydZqQgvrzNMp6bDeL8ApfM/xFAldp72n2Elzq9A==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "b"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "via names a target not in to",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000001000001a06964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934bca5d3e4711d9168287d01a7fc1b5360000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d6573736167650000001a0a046d2d313812030a016132060880e2cfaa063a0568656c6c6f00000040c94db2db6287118f1ff98620d14c1d27c7fd81a35b4e024f6e82febe3c57ab5b76ec09c40703d40076d70578af22b1ce4bba06d18ac2c97ca90eed30e4c7bc3f00000001010000000162",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "WrongBodyType"
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "bm90IGEgbWVzc2FnZQ==",
+              "bodyType": "type.googleapis.com/other.v1.Other",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "pGG0cstBqew97lyQz45KeA==",
+              "signature": "SjbEB0gdgaF4CinN8pdNawlWu5TO0eVZ271d+jK0bYLzS9sKT/rtdaI09Erj1B3OVqhPz1ccL+QC68m9AZVrjg==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "r5XKnRWzMGgyAmharFTzcb4qrsm9j4D1Kl72qQuNQ4ik0aKh3R4Wcw3dv2YrJjMh3WTglc/FZ5woItZcQJq11g==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "wrong body type",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000001000001886964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934a461b472cb41a9ec3dee5c90cf8e4a78000000006553f1000000000022747970652e676f6f676c65617069732e636f6d2f6f746865722e76312e4f746865720000000d6e6f742061206d657373616765000000404a36c407481d81a1780a29cdf2974d6b0956bb94ced1e559dbbd5dfa32b46d82f34bdb0a4ffaed75a234f44ae3d41dce56a84fcf571c2fe402ebc9bd01956b8e00000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "EmptyMessages"
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "V4lX8yZx5/Dm9KYybrE9phIgNkFaSWNNEUDkdXuzy96/S8GLUapUwsshe0c6pjhYqb/3dAvLlENxvQy8lmZgpQ==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999900",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "8wpQ+0bW0a5JiBufmr8ianDHeEamnNOdIsVEe0ntYvGNJ5iBydDmwvQxS5/8dMmg5l8JKy2H6WKdAtuCstH+Pg==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": []
+        }
+      },
+      "name": "empty messages",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000000",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "ok": {
+          "messages": [
+            {
+              "author": "p256:043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f583408045239449",
+              "message_id": "m-21"
+            }
+          ],
+          "render": "<incoming-message id=\"m-21\" from=\"p256:043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f583408045239449\" to=\"room:design\" via=\"room:design\" trust=\"verified\">after rotation</incoming-message>"
+        }
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgRtLTIxEggKBmRlc2lnbjIGCIDiz6oGOg5hZnRlciByb3RhdGlvbg==",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "4HsMzs1W8ZBzpEcYjewtrg==",
+              "signature": "xwhttOtc/cf21r9vGMPrSR3I97dsKBmrqbZIKGsLfYEWxR7nZ8amoULcp1pmM5TmMLkg0DBoldzq8+CqCDM7Wg==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "7ReexTetHsc84PaGtnqdOKAOvc8hnIKS4MeaJ0pDz3dbvu3n5W7iR3frbzaTSe5zNbcs9I2vvZKlfFwQ/x7cGw==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BJn4iP8RKz9dYDPGEU9yMtbzeZhxMdXtKX8/scH8Kqv2XWyxQ4AnGyNPNTHZP4s6LeS/orBwasKC/Jg3id/Ob2c=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BGf1aQih0hnY4CpxnNJHOG1LM04z6ukIgFQgJnHOG6kOPEErd0HUh9uU++6ds2nRHppwMG3Zwu9xgSNHXXN+iQA=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699999990",
+            "notAfterUnixSeconds": "1700086400",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "dxWlAJMDcGuZqE79I4fiLLedRi9nVbiUUsPc+w+qqe9Fs7IbR2hs/Wf3xVHFhJZ2GGKG6/VuT+1/UxV6VaKrzQ==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "deliverer device rotated",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f437779403000000410499f888ff112b3f5d6033c6114f7232d6f379987131d5ed297f3fb1c1fc2aabf65d6cb14380271b234f3531d93f8b3a2de4bfa2b0706ac282fc983789dfce6f6700000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000001000001ae6964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934e07b0ccecd56f19073a447188dec2dae000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d657373616765000000280a046d2d323112080a0664657369676e32060880e2cfaa063a0e616674657220726f746174696f6e00000040c7086db4eb5cfdc7f6d6bf6f18c3eb491dc8f7b76c2819aba9b648286b0b7d8116c51ee767c6a6a142dca75a663394e630b920d0306895dceaf3e0aa08333b5a00000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    },
+    {
+      "expected": {
+        "error": "DelivererDevice"
+      },
+      "max_age_secs": null,
+      "meta": {
+        "message-attestation/v2": {
+          "attestedAt": "2023-11-14T22:13:15Z",
+          "deliveryId": "d-1",
+          "messages": [
+            {
+              "audience": "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794",
+              "body": "CgNtLTESCAoGZGVzaWduMgYIgOLPqgY6CmhlbGxvIHJvb20=",
+              "bodyType": "type.googleapis.com/identitycrypto.v1.Message",
+              "issuedAtUnixSeconds": "1700000000",
+              "nonce": "pGG0cstBqew97lyQz45KeA==",
+              "signature": "sKebv6IeI+Bz/rVYc52he3FVakdjzk0QxnjyYRRkYqZvO0b/Dmyg9gU8BsQ7VHE8DnDOWQQegOtJPJwFMfK/0w==",
+              "signer": {
+                "selfRooted": {
+                  "device": {
+                    "delegated": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "delegatedEncryption": {
+                      "key": "BP52VH/6Df9cyrQc6VyYzX2ZT6id9ap5yw9MXIpsINH2P0jl8fuIbwBSg3v3veZmo20pOjSTLXScaqpufwqjPgg=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "issuedAtUnixSeconds": "1699913600",
+                    "notAfterUnixSeconds": "1700864000",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "purpose": "KEY_PURPOSE_DEVICE",
+                    "signature": "0f+sTYo3UNJ8zvUTIyaU3DQ2IME3MoH1diUR6tVNZ74MXZCj8DHKvi8J7zhQHNsapxM3QdQJiukv8nAfP9KS+A==",
+                    "signingRoot": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    }
+                  },
+                  "session": {
+                    "device": {
+                      "key": "BFzzBmwPTczKpC0ApwLC4M7OdC/+Z/bgzA1DG0BVeD6d9WwAK98KyXk2iSe6Y+SA7EjiUE+3QgQ5RxbYy72jzKE=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "notAfterUnixSeconds": "1700003600",
+                    "notBeforeUnixSeconds": "1699996400",
+                    "principalGenesis": {
+                      "key": "BDB4qbyokhWAIdB+rgMZPpMlKuePgVlRbts14QuawLhpbCUAkrNi8fCmITNmU2rGc3AenZ0T2YpT9YNAgEUjlEk=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "session": {
+                      "key": "BDRkOR+t5h6qZg2DZrug6f4ON3JrBF88/g5YcYNsjVinHFxd+V1xg2D4Ypmk17GsAMmkqfljlfvGIwRj6Eg2kGs=",
+                      "scheme": "KEY_SCHEME_ECDSA_P256"
+                    },
+                    "signature": "9DjWDgSWj8mlmZzAHnU7w4BwAfQBE/5TuL7CL55M19EpXQmgQjsiQmOB8wjUfq9dkvSGczxbR6xmX7jP8CQHrQ=="
+                  }
+                }
+              }
+            }
+          ],
+          "recipientDevices": [
+            {
+              "key": "BPcSCgGuPSdCU3GPbzgzYEaWV5PL6kBmH3u/oEIc1MDHv7foPklllYBPB7CYW8UmJfTdkOZU795DxEVNOisXa6Y=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          ],
+          "recipientId": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+          "sequence": "5",
+          "signature": "kC731iH0QonYdtWr2zn1YvUb/TbLwquP8Wa5wEGFJCW3pAasTG+Y6kR0jXi3mDAGB1IaQWcNz+ZR5KuoJk0p/Q==",
+          "signerDevice": {
+            "delegated": {
+              "key": "BM/HRlieShQHhbO/lMcmmtGxetJZ++cXwnauCw50mDOvnuJdAgtb6Xm+T5Nn4nEyLOihAGrvDkH2Eee7GTCXjvg=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "delegatedEncryption": {
+              "key": "BOC7ThEycvfvhbb7xnno/R8eCNetZNJ5Mu+ixCnwFEuesmDJH4Cau8XPAbfWznprXW4V9RnvsHJGquQXA4aXnNM=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "issuedAtUnixSeconds": "1699998000",
+            "notAfterUnixSeconds": "1699999000",
+            "principalGenesis": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            },
+            "purpose": "KEY_PURPOSE_DEVICE",
+            "signature": "M6PcE79/343KeOSaNiVJP2VwvukKwXtRx3APw3vwySxe9IiNYDofqSKNtntTfn6Qh/6GdeUqR8OoQdCZWWk5Kw==",
+            "signingRoot": {
+              "key": "BEkKGVMfFo1cOlrmEAg5uy0dkg145q6sP32oGWbA9yFwu80vIdtYG9UVAxOlfPotneviDZ9GARe1iPz5sPQ3d5Q=",
+              "scheme": "KEY_SCHEME_ECDSA_P256"
+            }
+          },
+          "via": [
+            {
+              "targets": [
+                {
+                  "roomId": "design"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "name": "deliverer device delegation expired",
+      "now_unix": 1700000000,
+      "own_devices": [
+        "04f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba6"
+      ],
+      "prior_sequences": [],
+      "self_id": "p256:043a535bd0be466ff3d856a077aad9504f16aa5d5228fcd7c2774885ee213f3b3466aba8185b3341e0c2e3d1b3ae69e47d0f01d4bbd706d9578b0b65d6d3de1efe",
+      "transcript_hex": "6964656e7469747963727970746f2e64656c69766572792e763100030000004104490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794030000004104cfc746589e4a140785b3bf94c7269ad1b17ad259fbe717c276ae0b0e749833af9ee25d020b5be979be4f9367e271322ce8a1006aef0e41f611e7bb1930978ef800000003642d3100000087703235363a3034336135333562643062653436366666336438353661303737616164393530346631366161356435323238666364376332373734383835656532313366336233343636616261383138356233333431653063326533643162336165363965343764306630316434626264373036643935373862306236356436643364653165666500000001030000004104f7120a01ae3d274253718f6f38336046965793cbea40661f7bbfa0421cd4c0c7bfb7e83e496595804f07b0985bc52625f4dd90e654efde43c4454d3a2b176ba60000000000000005000000006553f0fb0000000000000001000001a96964656e7469747963727970746f2e7369676e65642d6d6573736167652e7631000300000041043078a9bca892158021d07eae03193e93252ae78f8159516edb35e10b9ac0b8696c250092b362f1f0a6213366536ac673701e9d9d13d98a53f5834080452394490300000041043464391fade61eaa660d8366bba0e9fe0e37726b045f3cfe0e5871836c8d58a71c5c5df95d718360f86299a4d7b1ac00c9a4a9f96395fbc6230463e84836906b00000087703235363a30343439306131393533316631363864356333613561653631303038333962623264316439323064373865366165616333663764613831393636633066373231373062626364326632316462353831626435313530333133613537636661326439646562653230643966343630313137623538386663663962306634333737373934a461b472cb41a9ec3dee5c90cf8e4a78000000006553f100000000002d747970652e676f6f676c65617069732e636f6d2f6964656e7469747963727970746f2e76312e4d657373616765000000230a036d2d3112080a0664657369676e32060880e2cfaa063a0a68656c6c6f20726f6f6d00000040b0a79bbfa21e23e073feb558739da17b71556a4763ce4d10c678f261146462a66f3b46ff0e6ca0f6053c06c43b54713c0e70ce59041e80eb493c9c0531f2bfd300000001010000000664657369676e",
+      "trusted": [
+        "p256:04490a19531f168d5c3a5ae6100839bb2d1d920d78e6aeac3f7da81966c0f72170bbcd2f21db581bd5150313a57cfa2d9debe20d9f460117b588fcf9b0f4377794"
+      ]
+    }
+  ]
+}
