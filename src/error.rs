@@ -49,4 +49,10 @@ pub enum AttestationError {
     UnknownRenderVersion(u32),
     #[error("session is not valid at {now} (window ends {not_after})")]
     SessionExpired { not_after: i64, now: i64 },
+    #[error("send: {0}")]
+    Send(String),
+    #[error("send command failed ({status:?}): {stderr}")]
+    SendFailed { status: Option<i32>, stderr: String },
+    #[error("send command timed out after {secs}s")]
+    SendTimeout { secs: u64 },
 }

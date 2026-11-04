@@ -495,9 +495,11 @@ dependencies = [
  "getrandom",
  "hex",
  "identity-crypto",
+ "libc",
  "prost",
  "serde_json",
  "thiserror",
+ "wait-timeout",
 ]
 
 [[package]]
@@ -1041,6 +1043,15 @@ checksum = "f4987bdc12753382e0bec4a65c50738ffaabc998b9cdd1f952fb5f39b0048a96"
 dependencies = [
  "crypto-common",
  "ctutils",
+]
+
+[[package]]
+name = "wait-timeout"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "09ac3b126d3914f9849036f826e054cbabdc8519970b8998ddaf3b5bd3c65f11"
+dependencies = [
+ "libc",
 ]
 
 [[package]]
