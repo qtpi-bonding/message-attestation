@@ -3,7 +3,9 @@ pub mod locate;
 pub mod message;
 pub mod render;
 pub mod replay;
+pub mod reply;
 pub mod sign;
+pub mod tool;
 pub mod verify;
 
 pub use error::AttestationError;
@@ -19,3 +21,8 @@ pub use verify::{
     confirm, verify_delivery, verify_delivery_meta, DeliveryPolicy, PendingSequence, Verified,
     VerifiedDelivery, VerifiedMessage,
 };
+pub use reply::{
+    compose_reply, new_message_id, parse_tool_input, ComposedReply, ReplyDraft, ReplySigner,
+    MAX_BODY_BYTES,
+};
+pub use tool::{send_message_tool, ToolDefinition, SEND_MESSAGE_TOOL};

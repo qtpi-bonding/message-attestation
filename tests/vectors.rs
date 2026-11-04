@@ -33,6 +33,8 @@ fn error_name(e: &AttestationError) -> &'static str {
         AttestationError::NotARecipient => "NotARecipient",
         AttestationError::Stale { .. } => "Stale",
         AttestationError::UnknownRenderVersion(_) => "UnknownRenderVersion",
+        AttestationError::SessionExpired { .. } => "SessionExpired",
+        e => panic!("unnamed error {e:?}"),
     }
 }
 

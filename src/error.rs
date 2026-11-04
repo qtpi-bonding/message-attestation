@@ -1,4 +1,5 @@
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum AttestationError {
     #[error("replay for deliverer {principal}: last {last}, got {got}")]
     Replay { principal: String, last: u64, got: u64 },
@@ -46,4 +47,6 @@ pub enum AttestationError {
     Stale { age: i64, max: i64 },
     #[error("unknown render version {0}")]
     UnknownRenderVersion(u32),
+    #[error("session is not valid at {now} (window ends {not_after})")]
+    SessionExpired { not_after: i64, now: i64 },
 }

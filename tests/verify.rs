@@ -3,81 +3,17 @@ mod common;
 use common::*;
 use identity_crypto::jwk_duo::GenerationService;
 use identity_crypto::{
-    delegate_device, mint_hosted_session, pb, principal_id, HostedAgent, HostingDaemon,
-    PrincipalId, PublicKey, Timestamp,
+    delegate_device, pb, principal_id, PrincipalId, PublicKey,
 };
 use message_attestation::{
     confirm, sign_delivery, sign_hosted_message, sign_message, verify_delivery,
     verify_delivery_meta, AttestationError, DeliveryPolicy, MemoryReplayStore, MessageKey,
-    OutgoingMessage, ReplayStore, UnsignedDelivery, DEFAULT_META_KEY, MESSAGE_BODY_TYPE,
+    OutgoingMessage, ReplayStore, DEFAULT_META_KEY, MESSAGE_BODY_TYPE,
 };
 use prost::Message as _;
 
-struct Fx {
-    dl: Deliverer,
-    recipient: Author,
-    own: Vec<PublicKey>,
-    trusted: Vec<PrincipalId>,
-    msg: pb::Message,
-    via: Vec<pb::Target>,
-    delivery: pb::Delivery,
-}
-
-fn unsigned(recipient: &Author, own: &[PublicKey], seq: u64, at: i64, ms: Vec<OutgoingMessage>) -> UnsignedDelivery {
-    UnsignedDelivery {
-        delivery_id: format!("d-{seq}"),
-        recipient_id: recipient.id.clone(),
-        recipient_devices: own.to_vec(),
-        sequence: seq,
-        attested_at: Timestamp { seconds: at, nanos: 0 },
-        messages: ms,
-    }
-}
-
-fn device_key() -> PublicKey {
-    PublicKey::from(GenerationService::generate_key_duo().signing_key_pair())
-}
-
-fn fx() -> Fx {
-    let dl = deliverer(T0);
-    let a = author(T0);
-    let recipient = author(T0);
-    let own = vec![device_key()];
-    let msg = message("m-1", vec![room("r"), person(&recipient.id)]);
-    let signed = sign_message(&a.session, a.delegation.clone(), &dl.id, T0, &msg).unwrap();
-    let via = vec![room("r")];
-    let delivery = sign_delivery(
-        dl.device.signing_key_pair(),
-        &dl.delegation,
-        unsigned(&recipient, &own, 1, T0, vec![OutgoingMessage { message: signed, via: via.clone() }]),
-    )
-    .unwrap();
-    Fx { trusted: vec![dl.id.clone()], dl, recipient, own, msg, via, delivery }
-}
-
-fn policy(f: &Fx) -> DeliveryPolicy<'_> {
-    DeliveryPolicy {
-        trusted: &f.trusted,
-        self_id: &f.recipient.id,
-        own_devices: &f.own,
-        max_age_secs: None,
-        now_unix: T0,
-    }
-}
-
 fn check(f: &Fx, d: &pb::Delivery) -> Result<(), AttestationError> {
     verify_delivery(d, &policy(f), &MemoryReplayStore::default()).map(|_| ())
-}
-
-/// Re-signs a delivery of `msgs` with the fixture's deliverer.
-fn resign(f: &Fx, msgs: Vec<OutgoingMessage>) -> pb::Delivery {
-    sign_delivery(f.dl.device.signing_key_pair(), &f.dl.delegation, unsigned(&f.recipient, &f.own, 1, T0, msgs))
-        .unwrap()
-}
-
-/// A delivery of one hand-built SignedMessage from a fresh author.
-fn with_signed(f: &Fx, s: pb::SignedMessage, via: Vec<pb::Target>) -> pb::Delivery {
-    resign(f, vec![OutgoingMessage { message: s, via }])
 }
 
 fn raw_sign(a: &Author, aud: &PrincipalId, body_type: &str, body: &[u8]) -> pb::SignedMessage {
@@ -467,22 +403,9 @@ fn deliverer_device_rules() {
 #[test]
 fn hosted_author_verifies() {
     let f = fx();
-    let droot = GenerationService::generate_key_duo();
-    let ddev = GenerationService::generate_key_duo();
-    let did = principal_id(&droot);
-    let ddel = delegate_device(&droot, &did, &ddev, T0, T0 + DAY).unwrap();
-    let aroot = GenerationService::generate_key_duo();
-    let adev = GenerationService::generate_key_duo();
-    let aid = principal_id(&aroot);
-    let adel = delegate_device(&aroot, &aid, &adev, T0, T0 + DAY).unwrap();
-    let session = mint_hosted_session(
-        HostingDaemon { device: ddev.signing_key_pair(), device_delegation: &ddel },
-        HostedAgent { device: adev.signing_key_pair(), device_delegation: &adel, rotations: &[] },
-        &format!("{}/agent", did.short_id()),
-        T0,
-        T0 + 3600,
-    )
-    .unwrap();
+    let h = hosted_author(T0);
+    let aid = h.id.clone();
+    let session = h.session;
     let m = message("h-1", vec![room("r"), person(&f.recipient.id)]);
     let s = sign_hosted_message(&session, &f.dl.id, T0, &m).unwrap();
     let d = with_signed(&f, s, vec![room("r")]);

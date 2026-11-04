@@ -1,10 +1,8 @@
 mod common;
 
 use common::*;
-use identity_crypto::jwk_duo::GenerationService;
 use identity_crypto::{
-    delegate_device, message_nonce, mint_hosted_session, pb, principal_id, verify_carried_message,
-    HostedAgent, HostingDaemon,
+    message_nonce, pb, verify_carried_message,
 };
 use message_attestation::{
     is_valid_id, sign_hosted_message, sign_message, validate_message, AttestationError, MessageKey,
@@ -91,23 +89,9 @@ fn signed_message_carries_the_message_verbatim() {
 #[test]
 fn hosted_message_verifies_as_the_agent() {
     let d = author(T0);
-    let droot = GenerationService::generate_key_duo();
-    let ddev = GenerationService::generate_key_duo();
-    let did = principal_id(&droot);
-    let ddel = delegate_device(&droot, &did, &ddev, T0, T0 + DAY).unwrap();
-    let aroot = GenerationService::generate_key_duo();
-    let adev = GenerationService::generate_key_duo();
-    let aid = principal_id(&aroot);
-    let adel = delegate_device(&aroot, &aid, &adev, T0, T0 + DAY).unwrap();
-    let subject = format!("{}/agent", did.short_id());
-    let session = mint_hosted_session(
-        HostingDaemon { device: ddev.signing_key_pair(), device_delegation: &ddel },
-        HostedAgent { device: adev.signing_key_pair(), device_delegation: &adel, rotations: &[] },
-        &subject,
-        T0,
-        T0 + 3600,
-    )
-    .unwrap();
+    let h = hosted_author(T0);
+    let aid = h.id.clone();
+    let session = h.session;
     let m = message("h-1", vec![room("r")]);
     let s = sign_hosted_message(&session, &d.id, T0, &m).unwrap();
     let v = verify_carried_message(&s, &d.id.to_string()).unwrap();
