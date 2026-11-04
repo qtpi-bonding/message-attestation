@@ -26,6 +26,32 @@ A Message is carried as a `SignedMessage` whose body type is `MESSAGE_BODY_TYPE`
 - `sign_hosted_message(&hosted_session, &audience, issued_at_unix, &message)` is the same for a `HostedSessionCredential`.
 - `sign_delivery(&device, &device_delegation, UnsignedDelivery { delivery_id, recipient_id, recipient_devices, sequence, attested_at, messages })` signs with the deliverer's DEVICE key only; `device_delegation` (root to that device) is carried as `signer_device` and must delegate exactly this device. Each `OutgoingMessage` is `{ message: SignedMessage, via: Vec<Target> }`. Empty `messages` is `EmptyMessages`, empty `recipient_devices` is `NoRecipients`, a bad `delivery_id` is `InvalidDeliveryId`, an empty or invalid `via` is `InvalidVia { index }`. The result is self-verified before it is returned. The authors are not re-verified: the deliverer has done that against its own directory.
 
+## Reply tool
+
+One `send_message` tool for every harness. The model supplies who the message is for and what it says; the harness signs it and pipes the bytes to a configured send command. **The harness signs, never the model**: the model never sees a key, and it cannot supply the audience, the message id, or a timestamp (`authored_at` and `issued_at` are both `now_unix`).
+
+Contract (`send_message_tool()` returns a `ToolDefinition { name, description, input_schema }`):
+
+- name: `SEND_MESSAGE_TOOL` = `"send_message"`.
+- description: sends a message as yourself; `to` lists rooms (`room:<id>`) and agents or people (`p256:<hex>`), at most 64; to reply, pass the message's id as `reply_to`; `mentions` are `p256:` ids; the result is the new message's id.
+- schema: an object with `to` (array of strings, 1 to 64), `body` (string, at least 1 character), optional `reply_to` (string), `references` and `mentions` (arrays of strings). Required: `to`, `body`. `additionalProperties` is false. The schema's `maxLength` on `body` is a character hint for the model; `MAX_BODY_BYTES` (65536 UTF-8 bytes) is what binds.
+
+`parse_tool_input` turns the JSON into a `ReplyDraft`. `room:<id>` becomes a room target with the prefix stripped; `p256:<hex>` becomes a recipient target keeping the full string; anything else is refused. An unknown field (`message_id`, `audience`, `To`) is `InvalidMessage { field: "input", .. }` and nothing is signed. The id, target and mention rules are not repeated here: signing runs `validate_message`.
+
+`ReplySigner` is `Keyed { session: Arc<SessionCredential>, device_delegation }` or `Hosted { session: Arc<HostedSessionCredential> }`. It is owned and `Clone`, so a host keeps one per agent. `compose_reply(&signer, &deliverer, now_unix, draft)` checks the signer is inside its validity window at `now_unix` (the session certificate and, when keyed, the device delegation; `identity_crypto::SKEW_SECONDS` of skew is allowed on the lower bounds), else `SessionExpired` and nothing is signed. It checks the body size, mints the id (`new_message_id`: `m-` plus 32 lowercase hex characters of OS randomness) and signs with `audience = deliverer`. The audience is the deliverer principal the harness is configured with, never anything from the model.
+
+`run_send_message(&input, &signer, &deliverer, now_unix, &cmd)` is parse, compose, send and result in one call. It never panics: every failure is `SendMessageResult::Failed`. The result has `to_json()` (`{"message_id", "status": "sent"|"failed", "output"?, "error"?}`) and `is_error()`. The model-visible `error` is the first non-blank line of the command's stderr, with `\r` stripped, at most 1024 bytes; the full stderr stays in the Rust error (`SendFailed`). A failure after composing still carries the `message_id`.
+
+`send_via_command(&SendCommand { argv, env, timeout }, &composed)` runs the command with the `SignedMessage` protobuf bytes (`send_bytes`) on stdin. The child gets a cleared environment (`env_clear()`, then exactly `env`) and its own process group. Exit 0 is `Ok(SendOutcome { stdout })`; a non-zero exit is `SendFailed { status, stderr }`; a timeout is `SendTimeout`. After the child exits or times out, its whole process group is killed. The pipe threads then get a 1 s grace and are abandoned, keeping what was captured, so a descendant that left the group cannot hold the call open. Stdout and stderr are each capped at `SEND_OUTPUT_CAP` (64 KiB).
+
+`send_via_command` blocks. A tokio host calls `run_send_message` or `send_via_command` inside `spawn_blocking`. To retry, resend the same `ComposedReply`: the message id stays the same and no new one is minted.
+
+Wiring:
+
+- gait handles `send_message` in its spine. It calls `parse_tool_input` and `compose_reply`, then spawns the command itself under its own process group with `send_bytes` on stdin. Its flags are `--send-command`, a repeated `--send-arg`, and `--send-audience <deliverer principal>`.
+- structmuxd exposes it as an MCP tool for Claude Code: `send_message_tool()` for the definition, `run_send_message` for the call, `to_json()` as the content and `is_error()` as `isError`.
+- Neither host nor this crate knows the transport. Concordium's command is `multimatrix submit-message --signed-file - --submit-server-addr <addr>`.
+
 ## Entry point
 
 The Delivery lives in the ACP `_meta` object under the key `DEFAULT_META_KEY` = `"message-attestation/v2"`. `locate` and `attach` take that object itself (the value of `params._meta` in `session/prompt`), not the JSON-RPC request. The crate never walks `params`.
