@@ -220,3 +220,21 @@ fn hosted_signer_works_through_the_entry_point() {
     let r = run_send_message(&input("hi"), &signer, &deliverer(T0).id, T0, &cmd);
     assert!(matches!(r, SendMessageResult::Sent { .. }), "{r:?}");
 }
+
+#[test]
+fn escaped_descendant_holding_pipes_does_not_block() {
+    let s = setup();
+    let script = r#"cat >/dev/null; perl -MPOSIX -e 'exit 0 if fork; POSIX::setsid(); exec "sleep", "30"'"#;
+    let cmd = sh(script, &[], 5000);
+    let t = Instant::now();
+    send_via_command(&cmd, &composed(&s, "hi")).unwrap();
+    assert!(t.elapsed() < Duration::from_secs(3), "{:?}", t.elapsed());
+}
+
+#[test]
+fn error_line_skips_leading_blanks_and_carriage_return() {
+    let s = setup();
+    let cmd = sh("cat >/dev/null; printf '\\n\\nbad target\\r\\nmore\\n' >&2; exit 1", &[], 5000);
+    let r = run_send_message(&input("hi"), &s.signer, &s.deliverer, T0, &cmd);
+    assert_eq!(r.to_json()["error"], "bad target");
+}

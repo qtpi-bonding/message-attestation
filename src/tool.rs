@@ -60,7 +60,7 @@ pub enum SendMessageResult {
 }
 
 fn model_line(text: &str) -> String {
-    let line = text.lines().next().unwrap_or("");
+    let line = text.lines().find(|l| !l.trim().is_empty()).unwrap_or("").trim_end_matches('\r');
     let mut end = line.len().min(MAX_ERROR_BYTES);
     while !line.is_char_boundary(end) {
         end -= 1;
