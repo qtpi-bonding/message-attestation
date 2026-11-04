@@ -7,6 +7,7 @@ use message_attestation::{
     verify_delivery, AttestationError, MemoryReplayStore, ReplyDraft, ReplySigner,
     MAX_BODY_BYTES, SEND_MESSAGE_TOOL,
 };
+use identity_crypto::SKEW_SECONDS;
 use serde_json::{json, Value};
 use std::collections::HashSet;
 use std::sync::Arc;
@@ -202,9 +203,9 @@ fn expired_session_is_refused_keyed() {
     let now = T0 + 3601;
     expired(compose_reply(&signer, &f.dl.id, now, draft_for(&f)), T0 + 3600, now);
     compose_reply(&signer, &f.dl.id, T0 + 3600, draft_for(&f)).unwrap();
-    let before = T0 - 1;
+    compose_reply(&signer, &f.dl.id, T0 - SKEW_SECONDS, draft_for(&f)).unwrap();
     assert!(matches!(
-        compose_reply(&signer, &f.dl.id, before, draft_for(&f)),
+        compose_reply(&signer, &f.dl.id, T0 - SKEW_SECONDS - 1, draft_for(&f)),
         Err(AttestationError::SessionExpired { .. })
     ));
 }
@@ -217,8 +218,9 @@ fn expired_session_is_refused_hosted() {
     let now = T0 + 3601;
     expired(compose_reply(&signer, &f.dl.id, now, draft_for(&f)), T0 + 3600, now);
     compose_reply(&signer, &f.dl.id, T0 + 3600, draft_for(&f)).unwrap();
+    compose_reply(&signer, &f.dl.id, T0 - SKEW_SECONDS, draft_for(&f)).unwrap();
     assert!(matches!(
-        compose_reply(&signer, &f.dl.id, T0 - 1, draft_for(&f)),
+        compose_reply(&signer, &f.dl.id, T0 - SKEW_SECONDS - 1, draft_for(&f)),
         Err(AttestationError::SessionExpired { .. })
     ));
 }
@@ -231,6 +233,36 @@ fn expired_delegation_is_refused_keyed() {
     compose_reply(&signer, &f.dl.id, T0 + 600, draft_for(&f)).unwrap();
     let now = T0 + 601;
     expired(compose_reply(&signer, &f.dl.id, now, draft_for(&f)), T0 + 600, now);
+}
+
+#[test]
+fn future_delegation_is_refused_keyed() {
+    let f = fx();
+    let issued = T0 + SKEW_SECONDS;
+    let a = author_issued(T0, issued, DAY, 3600);
+    let signer = ReplySigner::Keyed { session: Arc::new(a.session), device_delegation: a.delegation };
+    compose_reply(&signer, &f.dl.id, T0, draft_for(&f)).unwrap();
+    let a = author_issued(T0, issued + 1, DAY, 3600);
+    let signer = ReplySigner::Keyed { session: Arc::new(a.session), device_delegation: a.delegation };
+    assert!(matches!(
+        compose_reply(&signer, &f.dl.id, T0, draft_for(&f)),
+        Err(AttestationError::SessionExpired { .. })
+    ));
+}
+
+#[test]
+fn signed_message_names_the_deliverer_and_now() {
+    let f = fx();
+    let now = T0 + 5;
+    let a = author(T0);
+    let keyed = ReplySigner::Keyed { session: Arc::new(a.session), device_delegation: a.delegation };
+    let h = hosted_author(T0);
+    let hosted = ReplySigner::Hosted { session: Arc::new(h.session) };
+    for signer in [keyed, hosted] {
+        let c = compose_reply(&signer, &f.dl.id, now, draft_for(&f)).unwrap();
+        assert_eq!(c.signed.audience, f.dl.id.to_string());
+        assert_eq!(c.signed.issued_at_unix_seconds, now);
+    }
 }
 
 #[test]

@@ -23,10 +23,15 @@ pub fn author(now: i64) -> Author {
 
 /// An author whose device delegation and session last the given seconds from `now`.
 pub fn author_with(now: i64, delegation_secs: i64, session_secs: i64) -> Author {
+    author_issued(now, now, delegation_secs, session_secs)
+}
+
+/// Like `author_with`, but the device delegation is issued at `delegation_at`.
+pub fn author_issued(now: i64, delegation_at: i64, delegation_secs: i64, session_secs: i64) -> Author {
     let root = GenerationService::generate_key_duo();
     let device = GenerationService::generate_key_duo();
     let id = principal_id(&root);
-    let delegation = delegate_device(&root, &id, &device, now, now + delegation_secs).unwrap();
+    let delegation = delegate_device(&root, &id, &device, delegation_at, delegation_at + delegation_secs).unwrap();
     let session = mint_session(device.signing_key_pair(), &signing_public(&root), now, now + session_secs).unwrap();
     Author { id, session, delegation }
 }

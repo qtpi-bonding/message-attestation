@@ -13,6 +13,8 @@ pub struct ToolDefinition {
     pub input_schema: serde_json::Value,
 }
 
+/// The schema'"'"'s `maxLength` counts characters and is only a hint to the model;
+/// `MAX_BODY_BYTES` counts UTF-8 bytes and is what `parse_tool_input` enforces.
 pub fn send_message_tool() -> ToolDefinition {
     ToolDefinition {
         name: SEND_MESSAGE_TOOL,

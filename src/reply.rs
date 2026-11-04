@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use identity_crypto::{
-    pb, HostedSessionCredential, PrincipalId, SessionCredential, Timestamp,
+    pb, HostedSessionCredential, PrincipalId, SessionCredential, Timestamp, SKEW_SECONDS,
 };
 use serde_json::Value;
 
@@ -115,12 +115,10 @@ pub fn new_message_id() -> String {
     id
 }
 
-fn check_window(
-    not_before: i64,
-    not_after: i64,
-    now: i64,
-) -> Result<(), AttestationError> {
-    if now < not_before || now > not_after {
+/// Inside the window, with the same `SKEW_SECONDS` of tolerance on the lower
+/// bound that identity-crypto's verifier allows.
+fn check_window(not_before: i64, not_after: i64, now: i64) -> Result<(), AttestationError> {
+    if now < not_before.saturating_sub(SKEW_SECONDS) || now > not_after {
         return Err(AttestationError::SessionExpired { not_after, now });
     }
     Ok(())
