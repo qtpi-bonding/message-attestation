@@ -6,7 +6,7 @@ The wire types are `identity_crypto::pb::{Message, SignedMessage, Delivery}`; th
 
 ## Pinned dependency
 
-`identity-crypto` 0.9.0, pinned to rev `feb5d585a77c6ba45eedc16fd08c2bd7feeff782`.
+`identity-crypto` 0.10.0, pinned to rev `eeea2904d5bdc976116d94b7ded917009e169784`.
 
 ## Message rules
 
@@ -118,14 +118,10 @@ Scope is the recipient's own id (`self_id`); the key within it is the deliverer 
 
 Version 2 attribute order is `id, from, from-name?, owner?, to, via, reply-to?, references?, mentions?, mentions-you?, trust`. `from-name` appears iff the view has an `author_name`; `owner="true"` appears iff `RenderOptions.owner` is the author's id, and is the only authority marker. With neither, version 2 is byte-identical to version 1. Version 1 still renders as before, but a view with a name or options with an owner is refused (`InvalidMessage { field: "render_version", reason: "needs 2" }`).
 
-## Speaker names
-
-`RegisteredName::parse` accepts 1 to `MAX_NAME_LEN` (64) bytes of `[A-Za-z0-9 ._-]` with no leading or trailing space and no double space; anything else is `InvalidName { reason }`, never repaired. The rule is enforced at `parse`, at `verify_delivery` (`VerifiedMessage::author_name()`, `VerifiedDelivery::names()`) and at `render_message`. This guards against injection, not impersonation: lookalike names are allowed, so only `owner="true"` marks authority. `sign_delivery` takes only `ResolvedPrincipal`s; `ResolvedPrincipal::from_registry` exists only with the `resolver` Cargo feature, which only the registry-owning deliverer should enable.
-
 One message is:
 
 ```
-<incoming-message id="..." from="..." to="..." via="..." [reply-to="..."] [references="..."] [mentions="..." [mentions-you="true"]] trust="verified|relayed|unverified">body</incoming-message>
+<incoming-message id="..." from="..." [from-name="..."] [owner="true"] to="..." via="..." [reply-to="..."] [references="..."] [mentions="..." [mentions-you="true"]] trust="verified|relayed|unverified">body</incoming-message>
 ```
 
 `from` is the author principal. `to` and `via` are comma-space joined targets: a room is `room:<id>`, a recipient equal to `self_id` is `you`, any other recipient is its principal id. `references` and `mentions` are comma-space joined; `mentions-you` appears only when `self_id` is among the mentions. `Trust` is `Verified`, `Relayed` or `Unverified`.
@@ -151,6 +147,10 @@ The body escapes only:
 | `>` | `&gt;` |
 
 Quotes and newlines in a body are kept. A body cannot contain a `<`, so it cannot close the element or open a forged tag; `trust=` therefore occurs only inside the opening tag.
+
+## Speaker names
+
+`RegisteredName::parse` accepts 1 to `MAX_NAME_LEN` (64) bytes of `[A-Za-z0-9 ._-]` with no leading or trailing space and no double space; anything else is `InvalidName { reason }`, never repaired. The rule is enforced at `parse`, at `verify_delivery` (`VerifiedMessage::author_name()`, `VerifiedDelivery::names()`) and at `render_message`. This guards against injection, not impersonation: lookalike names are allowed, so only `owner="true"` marks authority. `sign_delivery` takes only `ResolvedPrincipal`s; `ResolvedPrincipal::from_registry` exists only with the `resolver` Cargo feature, which only the registry-owning deliverer should enable.
 
 ## Shared vectors
 
