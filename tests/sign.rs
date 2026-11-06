@@ -23,6 +23,7 @@ fn unsigned(recipient: &Author, messages: Vec<OutgoingMessage>) -> UnsignedDeliv
         sequence: 1,
         attested_at: Timestamp { seconds: T0, nanos: 0 },
         messages,
+        names: vec![],
     }
 }
 

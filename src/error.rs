@@ -55,4 +55,8 @@ pub enum AttestationError {
     SendFailed { status: Option<i32>, stderr: String },
     #[error("send command timed out after {secs}s")]
     SendTimeout { secs: u64 },
+    #[error("invalid name: {reason}")]
+    InvalidName { reason: &'static str },
+    #[error("name for {principal}, who authors no message in the delivery")]
+    StrayName { principal: String },
 }

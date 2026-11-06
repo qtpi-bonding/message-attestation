@@ -1,6 +1,6 @@
 [package]
 name = "message-attestation"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 rust-version = "1.89"
 description = "Sign, verify, attach and render author-signed Messages inside a deliverer-signed Delivery carried in an ACP prompt's _meta, with two-phase replay protection"
@@ -8,7 +8,7 @@ description = "Sign, verify, attach and render author-signed Messages inside a d
 [dependencies]
 getrandom = "0.4"
 libc = "0.2"
-identity-crypto = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "feb5d585a77c6ba45eedc16fd08c2bd7feeff782" }
+identity-crypto = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "eeea2904d5bdc976116d94b7ded917009e169784" }
 prost = "0.13"
 serde_json = "1"
 thiserror = "2"
@@ -16,3 +16,12 @@ wait-timeout = "0.2"
 
 [dev-dependencies]
 hex = "0.4"
+
+[features]
+# Lets a crate build a ResolvedPrincipal from a registry record. Only the
+# deliverer that owns the registry should enable it.
+resolver = []
+
+[[test]]
+name = "names"
+required-features = ["resolver"]

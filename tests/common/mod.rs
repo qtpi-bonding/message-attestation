@@ -114,6 +114,7 @@ pub fn unsigned(recipient: &Author, own: &[PublicKey], seq: u64, at: i64, ms: Ve
         sequence: seq,
         attested_at: Timestamp { seconds: at, nanos: 0 },
         messages: ms,
+        names: vec![],
     }
 }
 

@@ -4,13 +4,13 @@
 Shares no code with the Rust crate and never runs it. Everything here is
 re-implemented from the specification: the canonical transcripts
 (identity-crypto/src/transcripts.rs: key-delegation.v1, session-delegation.v1,
-signed-message.v1, delivery.v1), the protobuf wire encoding of `Message`
+signed-message.v1, delivery.v2), the protobuf wire encoding of `Message`
 (identity-crypto/proto/identitycrypto/v1/identity.proto), the proto3-JSON
 ("pbjson") form of `Delivery`, the id rules, and the renderer with its two
 escaping tables (message-attestation plan, Task 5). `cryptography` is used only
 to derive public keys from fixed scalars and to sign, deterministically.
 
-Run from the crate root:  .venv/bin/python -I vectors/gen.py
+Run from vectors/:  .venv/bin/python -I gen.py
 """
 import base64
 import hashlib
@@ -132,12 +132,14 @@ def target_transcript(t):
 
 
 def delivery(d):
-    """delivery.v1 := tag || PRINCIPAL(signer) || KEY(signer device) || var(delivery_id)
+    """delivery.v2 := tag || PRINCIPAL(signer) || KEY(signer device) || var(delivery_id)
     || var(recipient_id) || u32 n || KEY(recipient device)... || sequence u64
     || attested_at.seconds i64 || attested_at.nanos i32 || u32 n || ENTRY...
-    ENTRY := var(signed-message.v1) || var(message signature) || u32 n || TARGET..."""
+    || u32 n || NAME...
+    ENTRY := var(signed-message.v1) || var(message signature) || u32 n || TARGET...
+    NAME := var(principal_id) || var(name)"""
     sd = d["signer_device"]
-    out = (b"identitycrypto.delivery.v1\x00" + key(sd["principal"]) + key(sd["delegated"])
+    out = (b"identitycrypto.delivery.v2\x00" + key(sd["principal"]) + key(sd["delegated"])
            + text(d["delivery_id"]) + text(d["recipient_id"]) + u32(len(d["recipient_devices"])))
     for r in d["recipient_devices"]:
         out += key(r)
@@ -146,6 +148,9 @@ def delivery(d):
         out += var(signed_message(m)) + var(m["signature"]) + u32(len(via))
         for t in via:
             out += target_transcript(t)
+    out += u32(len(d["names"]))
+    for principal_id, name in d["names"]:
+        out += text(principal_id) + text(name)
     return out
 
 
@@ -272,6 +277,7 @@ def j_delivery(d):
         "via": [{"targets": [j_target(t) for t in via]} for via in d["via"]],
         "signerDevice": j_delegation(d["signer_device"]),
         "signature": b64(d["signature"]),
+        **({"names": [{"principalId": p, "name": n} for p, n in d["names"]]} if d["names"] else {}),
     }
 
 
@@ -294,9 +300,15 @@ def render_targets(ts, self_id):
     return ", ".join(out)
 
 
-def render_one(author_id, m, via, self_id, trust="verified"):
-    attrs = [("id", m["id"]), ("from", author_id), ("to", render_targets(m["to"], self_id)),
-             ("via", render_targets(via, self_id))]
+def render_one(author_id, m, via, self_id, trust="verified", name=None, owner=None):
+    """RENDER_VERSION 2 attribute order: id, from, from-name?, owner?, to, via, reply-to?,
+    references?, mentions?, mentions-you?, trust. owner="true" iff `owner` is the author."""
+    attrs = [("id", m["id"]), ("from", author_id)]
+    if name is not None:
+        attrs.append(("from-name", name))
+    if owner is not None and owner == author_id:
+        attrs.append(("owner", "true"))
+    attrs += [("to", render_targets(m["to"], self_id)), ("via", render_targets(via, self_id))]
     if m["reply_to"] is not None:
         attrs.append(("reply-to", m["reply_to"]))
     if m["references"]:
@@ -366,7 +378,7 @@ def sign_author_message(author, m, audience, body_type=BODY_TYPE, body=None, cer
 
 
 def build_delivery(deliverer, msgs, via, recipient=SELF, delivery_id="d-1", devices=None,
-                   sequence=5, at=(NOW - 5, 0), window=None, sign=True):
+                   sequence=5, at=(NOW - 5, 0), window=None, sign=True, names=()):
     nb, na = window or (NOW - 100, NOW + DAY)
     sd = delegation(deliverer["root"], deliverer["root"], deliverer["device"],
                     deliverer["encryption"], nb, na)
@@ -374,7 +386,7 @@ def build_delivery(deliverer, msgs, via, recipient=SELF, delivery_id="d-1", devi
          "recipient_id": pid(recipient) if isinstance(recipient, int) else recipient,
          "recipient_devices": [SELF_DEVICE] if devices is None else devices,
          "sequence": sequence, "at_seconds": at[0], "at_nanos": at[1], "messages": msgs,
-         "via": via, "signer_device": sd, "signature": b""}
+         "via": via, "signer_device": sd, "signature": b"", "names": list(names)}
     if sign:
         d["signature"] = sign_r_s(deliverer["device"], delivery(d))
     return d
@@ -385,15 +397,31 @@ def resign(d, deliverer):
     return d
 
 
-def ok_expectation(entries, self_id):
-    """entries: [(author scalar, message dict, via)] in signed order."""
+def ok_expectation(entries, self_id, names=None, owner=None):
+    """entries: [(author scalar, message dict, via)] in signed order. `names` maps an author
+    scalar to its signed name; `owner` is the scalar whose messages render owner="true"."""
+    names = names or {}
+    owner_id = None if owner is None else pid(owner)
+    messages = []
+    for a, m, _ in entries:
+        e = {"author": pid(a), "message_id": m["id"]}
+        if a in names:
+            e["author_name"] = names[a]
+        messages.append(e)
     return {"ok": {
-        "messages": [{"author": pid(a), "message_id": m["id"]} for a, m, _ in entries],
-        "render": "\n".join(render_one(pid(a), m, via, self_id) for a, m, via in entries),
+        "messages": messages,
+        "render": "\n".join(render_one(pid(a), m, via, self_id, name=names.get(a), owner=owner_id)
+                            for a, m, via in entries),
     }}
 
 
-def case(name, d, expected, trusted=None, own=None, now=NOW, max_age=None, prior=None, meta=None):
+def name_entries(names):
+    """Signed names, sorted ascending by principal id bytes as the transcript requires."""
+    return sorted((pid(a), n) for a, n in names.items())
+
+
+def case(name, d, expected, trusted=None, own=None, now=NOW, max_age=None, prior=None, meta=None,
+         owner=None, transcript=True):
     self_id = pid(SELF)
     return {
         "name": name,
@@ -404,7 +432,8 @@ def case(name, d, expected, trusted=None, own=None, now=NOW, max_age=None, prior
         "prior_sequences": prior or [],
         "now_unix": now,
         "max_age_secs": max_age,
-        "transcript_hex": delivery(d).hex() if meta is None else None,
+        "render_owner": None if owner is None else pid(owner),
+        "transcript_hex": delivery(d).hex() if meta is None and transcript else None,
         "expected": expected,
     }
 
@@ -534,7 +563,41 @@ def main():
     d = single(ALICE, m1, [room("design")], window=(NOW - 2000, NOW - 1000))
     cases.append(case("deliverer device delegation expired", d, {"error": "DelivererDevice"}))
 
-    assert len(cases) == 22
+    # 23: a signed name renders from-name.
+    n23 = {ALICE["root"]: "gp"}
+    d = single(ALICE, m1, [room("design")], names=name_entries(n23))
+    cases.append(case("named author renders from-name", d,
+                      ok_expectation([(ALICE["root"], m1, [room("design")])], self_id, names=n23)))
+
+    # 24: only one of two authors is named.
+    n24 = {ALICE["root"]: "Ada L. 2"}
+    d = build_delivery(D, [sign_author_message(BOB, ma, aud), sign_author_message(ALICE, mb, aud)], [va, vb],
+                       names=name_entries(n24))
+    cases.append(case("two authors, one named", d,
+                      ok_expectation([(BOB["root"], ma, va), (ALICE["root"], mb, vb)], self_id, names=n24)))
+
+    # 25: the owner's message renders owner="true"; the other author's does not.
+    n25 = {ALICE["root"]: "gp"}
+    d = build_delivery(D, [sign_author_message(BOB, ma, aud), sign_author_message(ALICE, mb, aud)], [va, vb],
+                       names=name_entries(n25))
+    cases.append(case("owner author renders owner", d,
+                      ok_expectation([(BOB["root"], ma, va), (ALICE["root"], mb, vb)], self_id,
+                                     names=n25, owner=ALICE["root"]), owner=ALICE["root"]))
+
+    # 26: a name outside the charset is refused at verify, under a valid signature.
+    d = single(ALICE, m1, [room("design")], names=name_entries({ALICE["root"]: 'a"b'}))
+    cases.append(case("hostile name refused", d, {"error": "InvalidName"}))
+
+    # 27: a name for a principal that authors no message.
+    d = single(ALICE, m1, [room("design")], names=name_entries({BOB["root"]: "bob"}))
+    cases.append(case("name for a non-author refused", d, {"error": "StrayName"}))
+
+    # 28: names out of order. The transcript itself refuses, so there is no transcript_hex.
+    d = build_delivery(D, [sign_author_message(BOB, ma, aud), sign_author_message(ALICE, mb, aud)], [va, vb],
+                       names=sorted(name_entries({ALICE["root"]: "alice", BOB["root"]: "bob"}), reverse=True))
+    cases.append(case("names unsorted refused", d, {"error": "Transcript"}, transcript=False))
+
+    assert len(cases) == 28
     out = HERE / "delivery.json"
     out.write_text(json.dumps({"cases": cases}, indent=2, sort_keys=True) + "\n")
 

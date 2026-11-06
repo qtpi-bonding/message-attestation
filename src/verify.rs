@@ -9,6 +9,7 @@ use prost::Message as _;
 
 use crate::locate::locate;
 use crate::message::{is_valid_id, validate_message, MessageKey, MESSAGE_BODY_TYPE};
+use crate::names::{RegisteredName, ResolvedPrincipal};
 use crate::render::MessageView;
 use crate::replay::ReplayStore;
 use crate::AttestationError;
@@ -29,6 +30,7 @@ pub struct VerifiedMessage {
     author_id: String,
     message: pb::Message,
     via: Vec<pb::Target>,
+    author_name: Option<RegisteredName>,
 }
 
 impl VerifiedMessage {
@@ -41,6 +43,10 @@ impl VerifiedMessage {
     pub fn via(&self) -> &[pb::Target] {
         &self.via
     }
+    /// The name the deliverer signed for this author, if any.
+    pub fn author_name(&self) -> Option<&RegisteredName> {
+        self.author_name.as_ref()
+    }
     /// The renderer's input, borrowing from this message.
     pub fn view(&self) -> MessageView<'_> {
         let m = &self.message;
@@ -52,6 +58,7 @@ impl VerifiedMessage {
             reply_to: m.reply_to.as_deref(),
             references: &m.references,
             mentions: &m.mentions,
+            author_name: self.author_name.as_ref().map(RegisteredName::as_str),
             body: &m.body,
         }
     }
@@ -69,6 +76,7 @@ pub struct VerifiedDelivery {
     sequence: u64,
     attested_at_unix: i64,
     messages: Vec<VerifiedMessage>,
+    names: Vec<ResolvedPrincipal>,
 }
 
 impl VerifiedDelivery {
@@ -93,6 +101,10 @@ impl VerifiedDelivery {
     /// In signed order.
     pub fn messages(&self) -> &[VerifiedMessage] {
         &self.messages
+    }
+    /// Every signed name, sorted by principal id.
+    pub fn names(&self) -> &[ResolvedPrincipal] {
+        &self.names
     }
 }
 
@@ -207,7 +219,24 @@ pub fn verify_delivery(
             author_id: carried.author().to_string(),
             message,
             via,
+            author_name: None,
         });
+    }
+
+    let mut names = Vec::with_capacity(delivery.names.len());
+    for entry in &delivery.names {
+        let name = RegisteredName::parse(&entry.name)?;
+        let id = PrincipalId::parse_canonical(&entry.principal_id)
+            .map_err(|e| AttestationError::Transcript(e.to_string()))?;
+        let mut authored = false;
+        for m in messages.iter_mut().filter(|m| m.author == id) {
+            m.author_name = Some(name.clone());
+            authored = true;
+        }
+        if !authored {
+            return Err(AttestationError::StrayName { principal: entry.principal_id.clone() });
+        }
+        names.push(ResolvedPrincipal::from_signed(id, name));
     }
 
     Ok(Verified {
@@ -219,6 +248,7 @@ pub fn verify_delivery(
             sequence: delivery.sequence,
             attested_at_unix,
             messages,
+            names,
         },
         pending: PendingSequence { scope, key: deliverer_str, sequence: delivery.sequence },
     })

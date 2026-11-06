@@ -4,11 +4,12 @@
 use identity_crypto::{pb, PrincipalId};
 
 use crate::message::{check_author_and_via, check_fields};
+use crate::names::RegisteredName;
 use crate::verify::VerifiedDelivery;
 use crate::AttestationError;
 
 /// Callers store this with each logged message and re-render with it.
-pub const RENDER_VERSION: u32 = 1;
+pub const RENDER_VERSION: u32 = 2;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Trust {
@@ -38,40 +39,82 @@ pub struct MessageView<'a> {
     pub reply_to: Option<&'a str>,
     pub references: &'a [String],
     pub mentions: &'a [String],
+    /// Version 2 only. Checked by `render_message`.
+    pub author_name: Option<&'a str>,
     pub body: &'a str,
 }
 
+/// Local facts the renderer cannot read from a Delivery.
+#[derive(Clone, Copy, Debug, Default)]
+pub struct RenderOptions<'a> {
+    /// The recipient's owner. A message authored by this principal renders
+    /// `owner="true"`, the only authority marker.
+    pub owner: Option<&'a PrincipalId>,
+}
+
 /// The current version, every message in signed order, joined by "\n".
-pub fn render(delivery: &VerifiedDelivery, self_id: &PrincipalId, trust: Trust) -> String {
+pub fn render(
+    delivery: &VerifiedDelivery,
+    self_id: &PrincipalId,
+    trust: Trust,
+    options: &RenderOptions<'_>,
+) -> String {
     let self_str = self_id.to_string();
     delivery
         .messages()
         .iter()
-        .map(|m| render_v1(&m.view(), &self_str, trust))
+        .map(|m| render_view(&m.view(), &self_str, trust, true, options))
         .collect::<Vec<_>>()
         .join("\n")
 }
 
 /// One message at a stated version; an unknown version is `UnknownRenderVersion(v)`.
-/// A view the Message rules would refuse is `InvalidMessage`.
+/// A view the Message rules would refuse is `InvalidMessage`; an author name
+/// that fails the name rule is `InvalidName`. Version 1 has no place for a
+/// name or an owner, so a view or options carrying one is refused rather than
+/// rendered without it.
 pub fn render_message(
     view: &MessageView<'_>,
     self_id: &str,
     trust: Trust,
     version: u32,
+    options: &RenderOptions<'_>,
 ) -> Result<String, AttestationError> {
-    if version != 1 {
+    if version != 1 && version != 2 {
         return Err(AttestationError::UnknownRenderVersion(version));
+    }
+    if version == 1 && (view.author_name.is_some() || options.owner.is_some()) {
+        return Err(AttestationError::InvalidMessage {
+            field: "render_version",
+            reason: "needs 2",
+        });
     }
     check_fields(view.message_id, view.to, view.reply_to, view.references, view.mentions)?;
     check_author_and_via(view.author_id, view.via)?;
-    Ok(render_v1(view, self_id, trust))
+    if let Some(name) = view.author_name {
+        RegisteredName::parse(name)?;
+    }
+    Ok(render_view(view, self_id, trust, version == 2, options))
 }
 
-fn render_v1(view: &MessageView<'_>, self_id: &str, trust: Trust) -> String {
+fn render_view(
+    view: &MessageView<'_>,
+    self_id: &str,
+    trust: Trust,
+    v2: bool,
+    options: &RenderOptions<'_>,
+) -> String {
     let mut out = String::from("<incoming-message");
     attr(&mut out, "id", view.message_id);
     attr(&mut out, "from", view.author_id);
+    if v2 {
+        if let Some(name) = view.author_name {
+            attr(&mut out, "from-name", name);
+        }
+        if options.owner.is_some_and(|o| o.to_string() == view.author_id) {
+            attr(&mut out, "owner", "true");
+        }
+    }
     attr(&mut out, "to", &targets(view.to, self_id));
     attr(&mut out, "via", &targets(view.via, self_id));
     if let Some(r) = view.reply_to {

@@ -3,7 +3,7 @@
 use identity_crypto::transcripts::delivery_transcript;
 use identity_crypto::{PrincipalId, PublicKey};
 use message_attestation::{
-    locate, render, verify_delivery_meta, AttestationError, DeliveryPolicy, MemoryReplayStore,
+    locate, render, verify_delivery_meta, RenderOptions, AttestationError, DeliveryPolicy, MemoryReplayStore,
     ReplayStore, Trust, DEFAULT_META_KEY, RENDER_VERSION,
 };
 use serde_json::Value;
@@ -34,6 +34,8 @@ fn error_name(e: &AttestationError) -> &'static str {
         AttestationError::Stale { .. } => "Stale",
         AttestationError::UnknownRenderVersion(_) => "UnknownRenderVersion",
         AttestationError::SessionExpired { .. } => "SessionExpired",
+        AttestationError::InvalidName { .. } => "InvalidName",
+        AttestationError::StrayName { .. } => "StrayName",
         e => panic!("unnamed error {e:?}"),
     }
 }
@@ -115,8 +117,17 @@ fn check(case: &Value) -> Result<(), String> {
         if g.message().message_id != str_of(w, "message_id") {
             return Err(format!("message id {} != {}", g.message().message_id, str_of(w, "message_id")));
         }
+        let got_name = g.author_name().map(|n| n.as_str());
+        if got_name != w["author_name"].as_str() {
+            return Err(format!("author name {got_name:?} != {:?}", w["author_name"]));
+        }
     }
-    let rendered = render(&verified.delivery, &self_id, Trust::Verified);
+    let owner = match case["render_owner"].as_str() {
+        Some(o) => Some(PrincipalId::parse_canonical(o).map_err(|e| e.to_string())?),
+        None => None,
+    };
+    let rendered =
+        render(&verified.delivery, &self_id, Trust::Verified, &RenderOptions { owner: owner.as_ref() });
     if rendered != str_of(ok, "render") {
         return Err(format!("render differs:\n  rust {rendered}\n  gen  {}", str_of(ok, "render")));
     }
@@ -125,7 +136,7 @@ fn check(case: &Value) -> Result<(), String> {
 
 #[test]
 fn delivery_vectors_match_the_independent_generator() {
-    assert_eq!(RENDER_VERSION, 1, "vectors were written for render version 1");
+    assert_eq!(RENDER_VERSION, 2, "vectors were written for render version 2");
     let file = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/vectors/delivery.json"))
         .expect("vectors/delivery.json");
     let doc: Value = serde_json::from_str(&file).unwrap();
@@ -138,5 +149,5 @@ fn delivery_vectors_match_the_independent_generator() {
         }
     }
     assert!(failures.is_empty(), "{} failing:\n{}", failures.len(), failures.join("\n"));
-    assert_eq!(checked, 22);
+    assert_eq!(checked, 28);
 }
