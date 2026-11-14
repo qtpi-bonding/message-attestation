@@ -6,7 +6,7 @@ The wire types are `identity_crypto::pb::{Message, SignedMessage, Delivery}`; th
 
 ## Pinned dependency
 
-`identity-crypto` 0.10.0, pinned to rev `c0590e594ddcc0f2577580c1048b5159b1985dd6`.
+`identity-crypto` 0.10.0, pinned to rev `14c6abb5d4b56b1c8dc6b6ce74d871bd03eea223`.
 
 ## Message rules
 

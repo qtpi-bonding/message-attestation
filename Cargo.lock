@@ -406,7 +406,7 @@ dependencies = [
 [[package]]
 name = "identity-crypto"
 version = "0.10.0"
-source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=c0590e594ddcc0f2577580c1048b5159b1985dd6#c0590e594ddcc0f2577580c1048b5159b1985dd6"
+source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=14c6abb5d4b56b1c8dc6b6ce74d871bd03eea223#14c6abb5d4b56b1c8dc6b6ce74d871bd03eea223"
 dependencies = [
  "chrono",
  "hex",
@@ -490,7 +490,7 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
 name = "message-attestation"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "getrandom",
  "hex",
