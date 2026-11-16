@@ -115,6 +115,8 @@ pub struct PendingSequence {
     scope: String,
     key: String,
     sequence: u64,
+    attested_at_unix: i64,
+    forget_before_unix: Option<i64>,
 }
 
 #[derive(Debug)]
@@ -261,7 +263,15 @@ pub fn verify_delivery(
             messages,
             names,
         },
-        pending: PendingSequence { scope, key: deliverer_str, sequence: delivery.sequence },
+        pending: PendingSequence {
+            forget_before_unix: policy
+                .max_age_secs
+                .map(|m| policy.now_unix.saturating_sub(m)),
+            scope,
+            key: deliverer_str,
+            sequence: delivery.sequence,
+            attested_at_unix,
+        },
     })
 }
 
@@ -279,7 +289,13 @@ pub fn verify_delivery_meta(
 }
 
 pub fn confirm(replay: &dyn ReplayStore, pending: PendingSequence) -> Result<(), AttestationError> {
-    if replay.record(&pending.scope, &pending.key, pending.sequence, 0, None)? {
+    if replay.record(
+        &pending.scope,
+        &pending.key,
+        pending.sequence,
+        pending.attested_at_unix,
+        pending.forget_before_unix,
+    )? {
         return Ok(());
     }
     let last = replay.last_seen(&pending.scope, &pending.key)?.unwrap_or(0);

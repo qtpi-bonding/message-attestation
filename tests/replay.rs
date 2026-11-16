@@ -522,3 +522,48 @@ fn malformed_entries_fail_closed() {
         fs::remove_dir_all(directory).expect("clean up");
     }
 }
+
+// --- Task 9 extra: the write path honours the read cap ---
+
+#[test]
+fn record_refuses_a_state_that_would_exceed_the_read_cap() {
+    let (directory, path) = test_path("write-cap");
+    let store = FileReplayStore::open(&path).expect("open");
+    let mut accepted = Vec::new();
+    let mut refusal = None;
+    // Long keys fill the cap in a handful of records.
+    for i in 0..64usize {
+        let key = format!("{i:03}{}", "k".repeat(60_000));
+        let before = fs::read(&path).ok();
+        match store.record("s", &key, 1, 0, None) {
+            Ok(true) => accepted.push(key),
+            Ok(false) => panic!("a fresh key was reported as a replay"),
+            Err(error) => {
+                refusal = Some((error, before));
+                break;
+            }
+        }
+    }
+    let (error, before) = refusal.expect("the record that crosses the cap must be refused");
+    assert!(!accepted.is_empty(), "the cap was hit before any record was written");
+    assert!(
+        matches!(
+            keyfile_error(&error),
+            KeyfileError::TooLarge { cap: 1_048_576, .. }
+        ),
+        "{error:?}"
+    );
+    // The previously written file is intact, within the cap, and readable.
+    let after = fs::read(&path).expect("state file still exists");
+    assert_eq!(Some(after.clone()), before, "the refused record must not touch the file");
+    assert!(after.len() <= REPLAY_STATE_MAX_BYTES);
+    assert_eq!(mode_of(&path), 0o600);
+    let reopened = FileReplayStore::open(&path).expect("the store is not bricked");
+    for key in &accepted {
+        assert_eq!(reopened.last_seen("s", key).unwrap(), Some(1));
+    }
+    // The refused key was not recorded.
+    let refused_key = format!("{:03}{}", accepted.len(), "k".repeat(60_000));
+    assert_eq!(reopened.last_seen("s", &refused_key).unwrap(), None);
+    fs::remove_dir_all(directory).expect("clean up");
+}

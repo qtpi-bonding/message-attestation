@@ -23,6 +23,10 @@
 //! (a clock step backwards never shortens retention), and a rejected record
 //! (`seq <= last`) forgets nothing and does not write.
 //!
+//! The write path refuses to produce a state file larger than
+//! `REPLAY_STATE_MAX_BYTES`, so an oversized state can never be written and
+//! brick the store on the next read.
+//!
 //! ## File layout
 //!
 //! `{"<scope>":{"<key>":{"sequence":N,"attested_at":T}}}`. An entry that is a
@@ -188,6 +192,12 @@ impl FileReplayStore {
 
     fn write_state(&self, state: &Map<String, Value>) -> Result<(), AttestationError> {
         let contents = serde_json::to_vec(state).map_err(store_error)?;
+        if contents.len() > REPLAY_STATE_MAX_BYTES {
+            return Err(AttestationError::Store(Box::new(KeyfileError::TooLarge {
+                path: self.path.clone(),
+                cap: REPLAY_STATE_MAX_BYTES,
+            })));
+        }
         write_private_atomic(&self.path, &contents, 0o600).map_err(store_error)
     }
 }

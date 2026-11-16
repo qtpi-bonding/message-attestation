@@ -11,6 +11,7 @@ use message_attestation::{
     OutgoingMessage, ReplayStore, DEFAULT_META_KEY, MESSAGE_BODY_TYPE,
 };
 use prost::Message as _;
+use std::path::PathBuf;
 
 fn check(f: &Fx, d: &pb::Delivery) -> Result<(), AttestationError> {
     verify_delivery(d, &policy(f), &MemoryReplayStore::default()).map(|_| ())
@@ -522,4 +523,180 @@ fn too_many_names_is_refused() {
         check(&f, &d),
         Err(AttestationError::TooManyMessages { count: 257, max: 256 })
     ));
+}
+
+// --- Task 9: pending carries its time; confirm forgets only stale entries ---
+
+const MAX_AGE: i64 = 3600;
+
+/// A memory store, and a file store with its directory to clean up.
+fn stores() -> Vec<(Box<dyn ReplayStore>, Option<PathBuf>)> {
+    use std::os::unix::fs::DirBuilderExt;
+    let directory = std::env::temp_dir().join(format!(
+        "message-attestation-verify-{}-{}",
+        std::process::id(),
+        T0 + std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos() as i64
+    ));
+    std::fs::DirBuilder::new().recursive(true).mode(0o700).create(&directory).unwrap();
+    let file = message_attestation::FileReplayStore::open(&directory.join("replay.json")).unwrap();
+    vec![(Box::new(MemoryReplayStore::default()), None), (Box::new(file), Some(directory))]
+}
+
+fn finish(dir: Option<PathBuf>) {
+    if let Some(dir) = dir {
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+}
+
+/// Two trusted deliverers (D from `fx`, and E) delivering to one recipient.
+struct Two {
+    f: Fx,
+    d: Deliverer,
+    e: Deliverer,
+    trusted: Vec<PrincipalId>,
+}
+
+type Deliverer = common::Deliverer;
+
+fn two() -> Two {
+    let f = fx();
+    let d = deliverer(T0);
+    let e = deliverer(T0);
+    let trusted = vec![d.id.clone(), e.id.clone()];
+    Two { f, d, e, trusted }
+}
+
+impl Two {
+    fn policy(&self, now: i64, max_age_secs: Option<i64>) -> DeliveryPolicy<'_> {
+        DeliveryPolicy {
+            trusted: &self.trusted,
+            self_id: &self.f.recipient.id,
+            own_devices: &self.f.own,
+            max_age_secs,
+            now_unix: now,
+        }
+    }
+
+    /// A one-message delivery from `dl` with the given sequence and attestation time.
+    fn delivery(&self, dl: &Deliverer, seq: u64, at: i64) -> pb::Delivery {
+        let a = author(T0);
+        let m = message(&format!("m-{seq}"), vec![room("r"), person(&self.f.recipient.id)]);
+        let signed = sign_message(&a.session, Some(a.delegation.clone()), &dl.id.to_string(), T0, &m).unwrap();
+        sign_delivery(
+            &dl.device,
+            &dl.delegation,
+            unsigned(&self.f.recipient, &self.f.own, seq, at, vec![OutgoingMessage { message: signed, via: vec![room("r")] }]),
+        )
+        .unwrap()
+    }
+}
+
+fn scope(t: &Two) -> String {
+    t.f.recipient.id.to_string()
+}
+
+/// D delivers seq 5 at T0 (confirmed), then E confirms a delivery at `e_now`.
+fn d_then_e(t: &Two, store: &dyn ReplayStore, max: Option<i64>, e_now: i64) -> pb::Delivery {
+    let d5 = t.delivery(&t.d, 5, T0);
+    let v = verify_delivery(&d5, &t.policy(T0, max), store).unwrap();
+    confirm(store, v.pending).unwrap();
+    let e1 = t.delivery(&t.e, 1, e_now);
+    let v = verify_delivery(&e1, &t.policy(e_now, max), store).unwrap();
+    confirm(store, v.pending).unwrap();
+    d5
+}
+
+#[test]
+fn a_pruned_id_is_still_refused() {
+    for (store, dir) in stores() {
+        let t = two();
+        let now = T0 + MAX_AGE + 1 + 1;
+        let d5 = d_then_e(&t, store.as_ref(), Some(MAX_AGE), now);
+        assert_eq!(store.last_seen(&scope(&t), &t.d.id.to_string()).unwrap(), None, "forgotten");
+        assert_eq!(store.last_seen(&scope(&t), &t.e.id.to_string()).unwrap(), Some(1));
+        let again = verify_delivery(&d5, &t.policy(now, Some(MAX_AGE)), store.as_ref());
+        assert!(matches!(again, Err(AttestationError::Stale { .. })), "{again:?}");
+        finish(dir);
+    }
+}
+
+#[test]
+fn age_equal_to_max_is_kept_and_refused_as_replay() {
+    for (store, dir) in stores() {
+        let t = two();
+        let now = T0 + MAX_AGE;
+        let d5 = d_then_e(&t, store.as_ref(), Some(MAX_AGE), now);
+        assert_eq!(store.last_seen(&scope(&t), &t.d.id.to_string()).unwrap(), Some(5), "kept");
+        let again = verify_delivery(&d5, &t.policy(now, Some(MAX_AGE)), store.as_ref());
+        assert!(
+            matches!(&again, Err(AttestationError::Replay { last: 5, got: 5, .. })),
+            "{again:?}"
+        );
+        finish(dir);
+    }
+}
+
+#[test]
+fn no_max_age_never_forgets() {
+    for (store, dir) in stores() {
+        // Device delegations last at most 31 days, so E is minted at the late time.
+        let now = T0 + 10 * 365 * DAY;
+        let mut t = two();
+        t.e = deliverer(now);
+        t.trusted = vec![t.d.id.clone(), t.e.id.clone()];
+        let d5 = d_then_e(&t, store.as_ref(), None, now);
+        assert_eq!(store.last_seen(&scope(&t), &t.d.id.to_string()).unwrap(), Some(5));
+        // D's own delegation is still valid half a day on: the replay reaches the store.
+        let again = verify_delivery(&d5, &t.policy(T0 + DAY / 2, None), store.as_ref());
+        assert!(matches!(&again, Err(AttestationError::Replay { last: 5, got: 5, .. })), "{again:?}");
+        finish(dir);
+    }
+}
+
+#[test]
+fn a_fresh_replayed_delivery_inside_the_window_is_refused() {
+    for (store, dir) in stores() {
+        let t = two();
+        let d5 = t.delivery(&t.d, 5, T0);
+        let v = verify_delivery(&d5, &t.policy(T0, Some(MAX_AGE)), store.as_ref()).unwrap();
+        confirm(store.as_ref(), v.pending).unwrap();
+        let again = verify_delivery(&d5, &t.policy(T0 + 10, Some(MAX_AGE)), store.as_ref());
+        assert!(matches!(&again, Err(AttestationError::Replay { last: 5, got: 5, .. })), "{again:?}");
+        finish(dir);
+    }
+}
+
+#[test]
+fn another_scope_is_not_forgotten() {
+    for (store, dir) in stores() {
+        let t = two();
+        // A second recipient, same deliverer D, entry at T0 in its own scope.
+        let other = author(T0);
+        let other_own = vec![device_key()];
+        let a = author(T0);
+        let m = message("m-o", vec![room("r"), person(&other.id)]);
+        let signed = sign_message(&a.session, Some(a.delegation.clone()), &t.d.id.to_string(), T0, &m).unwrap();
+        let od = sign_delivery(
+            &t.d.device,
+            &t.d.delegation,
+            unsigned(&other, &other_own, 7, T0, vec![OutgoingMessage { message: signed, via: vec![room("r")] }]),
+        )
+        .unwrap();
+        let op = DeliveryPolicy {
+            trusted: &t.trusted,
+            self_id: &other.id,
+            own_devices: &other_own,
+            max_age_secs: Some(MAX_AGE),
+            now_unix: T0,
+        };
+        confirm(store.as_ref(), verify_delivery(&od, &op, store.as_ref()).unwrap().pending).unwrap();
+        // Confirming for the first recipient long after forgets only its own scope.
+        let _ = d_then_e(&t, store.as_ref(), Some(MAX_AGE), T0 + MAX_AGE + 2);
+        assert_eq!(store.last_seen(&scope(&t), &t.d.id.to_string()).unwrap(), None);
+        assert_eq!(store.last_seen(&other.id.to_string(), &t.d.id.to_string()).unwrap(), Some(7));
+        finish(dir);
+    }
 }
