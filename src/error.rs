@@ -20,16 +20,16 @@ pub enum AttestationError {
         field: &'static str,
         reason: &'static str,
     },
-    #[error("sign failed")]
+    #[error("sign: {0}")]
     #[coded(code = "sign", class = Infrastructure, grpc = Unavailable)]
     Sign(#[source] Source),
     #[error("delivery is not a JSON object")]
     #[coded(code = "not_object", class = Logical, grpc = InvalidArgument)]
     NotObject,
-    #[error("decode failed")]
+    #[error("decode: {0}")]
     #[coded(code = "decode", class = Logical, grpc = InvalidArgument)]
     Decode(#[source] Source),
-    #[error("encode failed")]
+    #[error("encode: {0}")]
     #[coded(code = "encode", class = Infrastructure, grpc = Unavailable)]
     Encode(#[source] Source),
     #[error("delivery has no messages")]
@@ -38,7 +38,7 @@ pub enum AttestationError {
     #[error("delivery has no recipient devices")]
     #[coded(code = "no_recipients", class = Logical, grpc = InvalidArgument)]
     NoRecipients,
-    #[error("transcript failed")]
+    #[error("transcript: {0}")]
     #[coded(code = "transcript", class = Logical, grpc = InvalidArgument)]
     Transcript(#[source] Source),
     #[error("delivery_id must be 1-128 of [A-Za-z0-9._:-]")]
@@ -50,7 +50,7 @@ pub enum AttestationError {
     #[error("deliverer {0} is not trusted")]
     #[coded(code = "unknown_deliverer", class = Logical, grpc = Unauthenticated)]
     UnknownDeliverer(String),
-    #[error("deliverer device failed")]
+    #[error("deliverer device: {0}")]
     #[coded(code = "deliverer_device", class = Logical, grpc = Unauthenticated)]
     DelivererDevice(#[source] Source),
     #[error("delivery is for another recipient")]
@@ -86,7 +86,7 @@ pub enum AttestationError {
     #[error("session is not valid at {now} (window ends {not_after})")]
     #[coded(code = "session_expired", class = Logical, grpc = FailedPrecondition)]
     SessionExpired { not_after: i64, now: i64 },
-    #[error("send failed")]
+    #[error("send: {0}")]
     #[coded(code = "send", class = Infrastructure, grpc = Unavailable)]
     Send(#[source] Source),
     #[error("send command failed ({status:?}): {stderr}")]

@@ -278,3 +278,23 @@ fn sign_failure_keeps_its_source() {
 fn max_messages_is_exported() {
     assert_eq!(message_attestation::MAX_MESSAGES, 256);
 }
+
+#[test]
+fn sourced_variants_display_their_cause() {
+    use AttestationError as E;
+    let cause = || -> Box<dyn Error + Send + Sync> { "the cause".into() };
+    assert_eq!(E::Sign(cause()).to_string(), "sign: the cause");
+    assert_eq!(E::Decode(cause()).to_string(), "decode: the cause");
+    assert_eq!(E::Encode(cause()).to_string(), "encode: the cause");
+    assert_eq!(E::Transcript(cause()).to_string(), "transcript: the cause");
+    assert_eq!(
+        E::DelivererDevice(cause()).to_string(),
+        "deliverer device: the cause"
+    );
+    assert_eq!(E::Send(cause()).to_string(), "send: the cause");
+    // Only Store and Randomness keep a fixed text.
+    assert_eq!(E::Store(cause()).to_string(), "store failed");
+    assert_eq!(E::Randomness(cause()).to_string(), "no OS randomness");
+    // The cause is still reachable through source().
+    assert_eq!(E::Sign(cause()).source().unwrap().to_string(), "the cause");
+}

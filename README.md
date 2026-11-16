@@ -136,7 +136,7 @@ All three must be owned by the effective user. A loose, foreign-owned, symlinked
 
 ## Errors
 
-`AttestationError` is `#[non_exhaustive]` and derives `coded_error::CodedError` with namespace `message.attestation`: `error.code()` is `message.attestation.<code>`, and `class()` is `Logical`, `Infrastructure` or `Transient`. Sources are boxed (`Source = Box<dyn Error + Send + Sync>`) and reachable through `std::error::Error::source()`; for example `Sign` wraps an `identity_crypto::SignerError`, so a UI can downcast `Cancelled`. `Store` displays `store failed` with the path-bearing cause in `source()`.
+`AttestationError` is `#[non_exhaustive]` and derives `coded_error::CodedError` with namespace `message.attestation`: `error.code()` is `message.attestation.<code>`, and `class()` is `Logical`, `Infrastructure` or `Transient`. Sources are boxed (`Source = Box<dyn Error + Send + Sync>`) and reachable through `std::error::Error::source()`; for example `Sign` wraps an `identity_crypto::SignerError`, so a UI can downcast `Cancelled`. `Sign`, `Decode`, `Encode`, `Transcript`, `DelivererDevice` and `Send` display their cause (`sign: {cause}`, `decode: ..`, `encode: ..`, `transcript: ..`, `deliverer device: ..`, `send: ..`), as before 0.5.0, and still expose it through `source()`. Only `Store` is pathless: it displays `store failed` with the path-bearing cause in `source()`. `Randomness` displays the fixed text `no OS randomness`.
 
 | variant | code | class |
 | --- | --- | --- |
