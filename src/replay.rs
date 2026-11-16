@@ -23,6 +23,12 @@
 //! (a clock step backwards never shortens retention), and a rejected record
 //! (`seq <= last`) forgets nothing and does not write.
 //!
+//! The argument also assumes the policy is stable for the life of the store:
+//! `now_unix` must not step backwards (or differ between processes sharing the
+//! store) and `max_age_secs` must not grow or become `None` later. Otherwise a
+//! forgotten entry's delivery can look fresh again and be accepted a second
+//! time. Callers own that; the store keeps no clock floor.
+//!
 //! The write path refuses to produce a state file larger than
 //! `REPLAY_STATE_MAX_BYTES`, so an oversized state can never be written and
 //! brick the store on the next read.
