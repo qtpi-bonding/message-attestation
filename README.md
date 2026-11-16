@@ -22,8 +22,8 @@ A Message is carried as a `SignedMessage` whose body type is `MESSAGE_BODY_TYPE`
 
 ## Signing
 
-- `sign_message(&session, device_delegation, &audience, issued_at_unix, &message)` signs with a `SessionCredential`. `device_delegation` (root to device) is taken by value and carried; a recipient refuses a `SelfRooted` chain without it.
-- `sign_hosted_message(&hosted_session, &audience, issued_at_unix, &message)` is the same for a `HostedSessionCredential`.
+- `sign_message(&session, delegation: Option<KeyDelegation>, audience: &str, issued_at_unix, &message)` signs with a `SessionCredential`. `Some(delegation)` (root to device) is carried; `None` carries no device delegation, and a recipient's carried-message verifier refuses such a `SelfRooted` chain, so pass `None` only for a consumer that does not use it.
+- `sign_hosted_message(&hosted_session, audience: &str, issued_at_unix, &message)` is the same for a `HostedSessionCredential`.
 - `sign_delivery(&device, &device_delegation, UnsignedDelivery { delivery_id, recipient_id, recipient_devices, sequence, attested_at, messages, names })` signs with the deliverer's DEVICE key only; `device_delegation` (root to that device) is carried as `signer_device` and must delegate exactly this device. Each `OutgoingMessage` is `{ message: SignedMessage, via: Vec<Target> }`. Empty `messages` is `EmptyMessages`, empty `recipient_devices` is `NoRecipients`, a bad `delivery_id` is `InvalidDeliveryId`, an empty or invalid `via` is `InvalidVia { index }`. The result is self-verified before it is returned. `names` are `ResolvedPrincipal`s (a registry-bound name); they are sorted by id and written to field 10 of the Delivery, and a name for a principal that authors no message is `StrayName { principal }`. The authors are not re-verified, except to find who wrote each message when `names` is non-empty: the deliverer has done that against its own directory.
 
 ## Reply tool

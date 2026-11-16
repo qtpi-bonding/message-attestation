@@ -87,7 +87,7 @@ fn attach_then_locate_round_trips() {
 }
 
 #[test]
-fn sign_message_with_none_delegation_verifies_self_rooted() {
+fn sign_message_with_none_delegation_is_not_carried_verifiable() {
     // identity-crypto's carried-message verifier requires `self_rooted.device`, so a
     // None-delegation message (root key as its own device) is not carried-verifiable:
     // pin that it signs, carries no device delegation, and names the root as genesis.

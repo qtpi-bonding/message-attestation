@@ -99,6 +99,8 @@ pub fn validate_message(m: &pb::Message) -> Result<(), AttestationError> {
     Ok(())
 }
 
+/// `delegation` (root to device) is carried in the chain. `None` carries none, and
+/// identity-crypto's `verify_carried_message` refuses that chain (`self_rooted.device` missing).
 pub fn sign_message(
     session: &SessionCredential,
     delegation: Option<pb::KeyDelegation>,
