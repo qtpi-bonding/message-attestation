@@ -31,7 +31,7 @@ pub fn author_issued(now: i64, delegation_at: i64, delegation_secs: i64, session
     let root = GenerationService::generate_key_duo();
     let device = GenerationService::generate_key_duo();
     let id = principal_id(&root);
-    let delegation = delegate_device(&root, &id, &device, delegation_at, delegation_at + delegation_secs).unwrap();
+    let delegation = delegate_device(&root, &id, &identity_crypto::PublicKeyDuo::from(&device), delegation_at, delegation_at + delegation_secs).unwrap();
     let session = mint_session(device.signing_key_pair(), &signing_public(&root), now, now + session_secs).unwrap();
     Author { id, session, delegation }
 }
@@ -66,7 +66,7 @@ pub fn deliverer(now: i64) -> Deliverer {
     let root = GenerationService::generate_key_duo();
     let device = GenerationService::generate_key_duo();
     let id = principal_id(&root);
-    let delegation = delegate_device(&root, &id, &device, now, now + DAY).unwrap();
+    let delegation = delegate_device(&root, &id, &identity_crypto::PublicKeyDuo::from(&device), now, now + DAY).unwrap();
     Deliverer { id, device, delegation }
 }
 
@@ -80,11 +80,11 @@ pub fn hosted_author(now: i64) -> HostedAuthor {
     let droot = GenerationService::generate_key_duo();
     let ddev = GenerationService::generate_key_duo();
     let did = principal_id(&droot);
-    let ddel = delegate_device(&droot, &did, &ddev, now, now + DAY).unwrap();
+    let ddel = delegate_device(&droot, &did, &identity_crypto::PublicKeyDuo::from(&ddev), now, now + DAY).unwrap();
     let aroot = GenerationService::generate_key_duo();
     let adev = GenerationService::generate_key_duo();
     let id = principal_id(&aroot);
-    let adel = delegate_device(&aroot, &id, &adev, now, now + DAY).unwrap();
+    let adel = delegate_device(&aroot, &id, &identity_crypto::PublicKeyDuo::from(&adev), now, now + DAY).unwrap();
     let session = mint_hosted_session(
         HostingDaemon { device: ddev.signing_key_pair(), device_delegation: &ddel },
         HostedAgent { device: adev.signing_key_pair(), device_delegation: &adel, rotations: &[] },

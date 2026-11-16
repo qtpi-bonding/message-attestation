@@ -331,8 +331,8 @@ fn rotated_deliverer_device_needs_no_reconfiguration() {
     let id = principal_id(&root);
     let dev1 = GenerationService::generate_key_duo();
     let dev2 = GenerationService::generate_key_duo();
-    let del1 = delegate_device(&root, &id, &dev1, T0, T0 + DAY).unwrap();
-    let del2 = delegate_device(&root, &id, &dev2, T0, T0 + DAY).unwrap();
+    let del1 = delegate_device(&root, &id, &identity_crypto::PublicKeyDuo::from(&dev1), T0, T0 + DAY).unwrap();
+    let del2 = delegate_device(&root, &id, &identity_crypto::PublicKeyDuo::from(&dev2), T0, T0 + DAY).unwrap();
     let trusted = vec![id.clone()];
     let a = author(T0);
     let mk = |dev: &identity_crypto::jwk_duo::KeyDuo, del: &pb::KeyDelegation, seq: u64, aud: &PrincipalId| {
@@ -364,7 +364,7 @@ fn deliverer_device_rules() {
     // signer_device names the trusted genesis but is signed by another root.
     let imposter_root = GenerationService::generate_key_duo();
     let dev = GenerationService::generate_key_duo();
-    let mut forged = delegate_device(&imposter_root, &principal_id(&imposter_root), &dev, T0, T0 + DAY).unwrap();
+    let mut forged = delegate_device(&imposter_root, &principal_id(&imposter_root), &identity_crypto::PublicKeyDuo::from(&dev), T0, T0 + DAY).unwrap();
     forged.principal_genesis = f.dl.delegation.principal_genesis.clone();
     forged.signing_root = f.dl.delegation.signing_root.clone();
     let signed_by_dev = {
