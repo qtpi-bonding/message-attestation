@@ -103,16 +103,22 @@ fn check_body_size(body: &str) -> Result<(), AttestationError> {
 }
 
 /// "m-" followed by 32 lowercase hex characters of OS randomness.
-pub fn new_message_id() -> String {
+pub fn new_message_id() -> Result<String, AttestationError> {
+    message_id_from(getrandom::fill)
+}
+
+pub(crate) fn message_id_from(
+    fill: impl FnOnce(&mut [u8]) -> Result<(), getrandom::Error>,
+) -> Result<String, AttestationError> {
     let mut bytes = [0u8; 16];
-    getrandom::fill(&mut bytes).expect("OS randomness is available");
+    fill(&mut bytes).map_err(|e| AttestationError::Randomness(Box::new(e)))?;
     let mut id = String::with_capacity(34);
     id.push_str("m-");
     for b in bytes {
         id.push(char::from_digit(u32::from(b >> 4), 16).expect("nibble"));
         id.push(char::from_digit(u32::from(b & 15), 16).expect("nibble"));
     }
-    id
+    Ok(id)
 }
 
 /// Inside the window, with the same `SKEW_SECONDS` of tolerance on the lower
@@ -135,7 +141,7 @@ pub fn compose_reply(
 ) -> Result<ComposedReply, AttestationError> {
     signer.check_valid_at(now_unix)?;
     check_body_size(&draft.body)?;
-    let message_id = new_message_id();
+    let message_id = new_message_id()?;
     let message = pb::Message {
         message_id: message_id.clone(),
         to: draft.to,
@@ -176,5 +182,16 @@ impl ReplySigner {
             }
             ReplySigner::Hosted { session } => sign_hosted_message(session, audience, issued_at, m),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn message_id_from_reports_rng_failure() {
+        let r = message_id_from(|_| Err(getrandom::Error::UNSUPPORTED));
+        assert!(matches!(r, Err(AttestationError::Randomness(_))), "{r:?}");
     }
 }

@@ -84,15 +84,24 @@ pub fn send_via_command(cmd: &SendCommand, reply: &ComposedReply) -> Result<Send
     let pgid = child.id() as libc::pid_t;
 
     let (done_tx, done_rx) = mpsc::channel::<()>();
-    let mut stdin = child.stdin.take().expect("piped stdin");
+    let mut stdin = child
+        .stdin
+        .take()
+        .ok_or_else(|| stdio_not_piped(&mut child))?;
     let bytes = send_bytes(&reply.signed);
     let tx = done_tx.clone();
     thread::spawn(move || {
         let _ = stdin.write_all(&bytes);
         let _ = tx.send(());
     });
-    let stdout_pipe = child.stdout.take().expect("piped stdout");
-    let stderr_pipe = child.stderr.take().expect("piped stderr");
+    let stdout_pipe = child
+        .stdout
+        .take()
+        .ok_or_else(|| stdio_not_piped(&mut child))?;
+    let stderr_pipe = child
+        .stderr
+        .take()
+        .ok_or_else(|| stdio_not_piped(&mut child))?;
     let out_buf = Arc::new(Mutex::new(Vec::new()));
     let err_buf = Arc::new(Mutex::new(Vec::new()));
     spawn_reader(stdout_pipe, out_buf.clone(), done_tx.clone());
@@ -129,4 +138,15 @@ pub fn send_via_command(cmd: &SendCommand, reply: &ComposedReply) -> Result<Send
         Some(s) if s.success() => Ok(SendOutcome { stdout }),
         Some(s) => Err(AttestationError::SendFailed { status: s.code(), stderr }),
     }
+}
+
+fn stdio_not_piped(child: &mut std::process::Child) -> AttestationError {
+    // SAFETY: kill(2) with a negative pid signals the group we created with
+    // process_group(0); it takes no pointers.
+    unsafe {
+        libc::kill(-(child.id() as libc::pid_t), libc::SIGKILL);
+    }
+    let _ = child.kill();
+    let _ = child.wait();
+    AttestationError::Send("child stdio was not piped".into())
 }

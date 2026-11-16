@@ -7,7 +7,7 @@ use crate::send::{send_via_command, SendCommand};
 
 pub const SEND_MESSAGE_TOOL: &str = "send_message";
 
-const DESCRIPTION: &str = "Send a message as yourself. `to` lists rooms (`room:<id>`) and agents or people (`p256:<hex>`), at most 64. To reply, pass the message's id as `reply_to` and usually the same `to` list. `mentions` are `p256:` ids you want to notify. Returns the new message's id.";
+const DESCRIPTION: &str = "Send a message as yourself. `to` lists rooms (`room:<id>`) and agents or people (`p256:<hex>`), at most 64. To reply, pass the message's id as `reply_to` and usually the same `to` list. `mentions` are `p256:` ids you want to notify. Returns the new message's id. The body is at most 65536 bytes of UTF-8.";
 
 /// What a host registers with its model: the tool's name, description and
 /// JSON Schema input.
@@ -18,8 +18,8 @@ pub struct ToolDefinition {
     pub input_schema: serde_json::Value,
 }
 
-/// The schema'"'"'s `maxLength` counts characters and is only a hint to the model;
-/// `MAX_BODY_BYTES` counts UTF-8 bytes and is what `parse_tool_input` enforces.
+/// The schema has no `maxLength`: `MAX_BODY_BYTES` counts UTF-8 bytes and is
+/// what `parse_tool_input` enforces; the limit is stated in the description.
 pub fn send_message_tool() -> ToolDefinition {
     ToolDefinition {
         name: SEND_MESSAGE_TOOL,
@@ -36,7 +36,6 @@ pub fn send_message_tool() -> ToolDefinition {
                 "body": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": crate::reply::MAX_BODY_BYTES,
                 },
                 "reply_to": { "type": "string" },
                 "references": { "type": "array", "items": { "type": "string" } },

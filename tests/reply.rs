@@ -12,7 +12,7 @@ use serde_json::{json, Value};
 use std::collections::HashSet;
 use std::sync::Arc;
 
-const DESCRIPTION: &str = "Send a message as yourself. `to` lists rooms (`room:<id>`) and agents or people (`p256:<hex>`), at most 64. To reply, pass the message's id as `reply_to` and usually the same `to` list. `mentions` are `p256:` ids you want to notify. Returns the new message's id.";
+const DESCRIPTION: &str = "Send a message as yourself. `to` lists rooms (`room:<id>`) and agents or people (`p256:<hex>`), at most 64. To reply, pass the message's id as `reply_to` and usually the same `to` list. `mentions` are `p256:` ids you want to notify. Returns the new message's id. The body is at most 65536 bytes of UTF-8.";
 
 fn field_of(r: Result<ReplyDraft, AttestationError>) -> (&'static str, &'static str) {
     match r.unwrap_err() {
@@ -41,7 +41,7 @@ fn tool_definition_matches() {
     assert_eq!(s["properties"]["to"]["maxItems"], 64);
     assert_eq!(s["properties"]["body"]["type"], "string");
     assert_eq!(s["properties"]["body"]["minLength"], 1);
-    assert_eq!(s["properties"]["body"]["maxLength"], 65536);
+    assert!(s["properties"]["body"].get("maxLength").is_none());
     assert_eq!(s["properties"]["reply_to"]["type"], "string");
     for k in ["references", "mentions"] {
         assert_eq!(s["properties"][k]["type"], "array");
@@ -282,7 +282,7 @@ fn compose_refuses_hostile_reply_to_and_65_targets() {
 
 #[test]
 fn message_ids_are_fresh_and_well_formed() {
-    let ids: Vec<String> = (0..1000).map(|_| new_message_id()).collect();
+    let ids: Vec<String> = (0..1000).map(|_| new_message_id().unwrap()).collect();
     let set: HashSet<&String> = ids.iter().collect();
     assert_eq!(set.len(), 1000);
     for id in &ids {
@@ -290,5 +290,31 @@ fn message_ids_are_fresh_and_well_formed() {
         assert!(id.starts_with("m-"), "{id}");
         assert!(id[2..].bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')), "{id}");
         assert!(is_valid_id(id), "{id}");
+    }
+}
+
+#[test]
+fn tool_schema_has_no_body_max_length() {
+    let t = send_message_tool();
+    let body = &t.input_schema["properties"]["body"];
+    assert!(body.get("maxLength").is_none());
+    assert_eq!(body["minLength"], 1);
+}
+
+#[test]
+fn description_states_the_byte_limit() {
+    assert!(send_message_tool().description.contains("at most 65536 bytes of UTF-8"));
+    assert_eq!(MAX_BODY_BYTES, 65536);
+}
+
+#[test]
+fn message_id_has_the_documented_shape() {
+    let a = new_message_id().unwrap();
+    let b = new_message_id().unwrap();
+    assert_ne!(a, b);
+    for id in [&a, &b] {
+        assert!(id.starts_with("m-"), "{id}");
+        assert_eq!(id.len(), 34, "{id}");
+        assert!(id[2..].bytes().all(|c| matches!(c, b'0'..=b'9' | b'a'..=b'f')), "{id}");
     }
 }
