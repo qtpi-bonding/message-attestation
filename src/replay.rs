@@ -182,8 +182,8 @@ fn lookup(
         .ok_or_else(|| store_message("sequence is not an unsigned integer"))
 }
 
-fn store_error(error: impl std::fmt::Display) -> AttestationError {
-    AttestationError::Store(error.to_string().into())
+fn store_error(error: impl std::error::Error + Send + Sync + 'static) -> AttestationError {
+    AttestationError::Store(Box::new(error))
 }
 
 fn store_message(message: &str) -> AttestationError {

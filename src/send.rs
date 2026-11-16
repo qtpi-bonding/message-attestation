@@ -80,7 +80,7 @@ pub fn send_via_command(cmd: &SendCommand, reply: &ComposedReply) -> Result<Send
         .stderr(Stdio::piped())
         .process_group(0)
         .spawn()
-        .map_err(|e| AttestationError::Send(format!("spawn {program}: {e}").into()))?;
+        .map_err(|e| AttestationError::Send(Box::new(e)))?;
     let pgid = child.id() as libc::pid_t;
 
     let (done_tx, done_rx) = mpsc::channel::<()>();

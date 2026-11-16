@@ -114,6 +114,6 @@ pub fn sign_delivery(
     delivery.signature = signature.to_vec();
 
     verify_p256(&device_key, &transcript, &delivery.signature)
-        .map_err(|error| AttestationError::Sign(format!("self-verification failed: {error}").into()))?;
+        .map_err(|error| AttestationError::Sign(Box::new(error)))?;
     Ok(delivery)
 }

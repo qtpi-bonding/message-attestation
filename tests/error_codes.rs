@@ -262,7 +262,7 @@ fn store_display_holds_no_path() {
     let text = e.to_string();
     assert_eq!(text, "store failed");
     assert!(!text.contains('/') && !text.contains("secret"));
-    assert!(e.source().is_some());
+    assert!(e.source().expect("source").to_string().contains("denied"));
 }
 
 #[test]
