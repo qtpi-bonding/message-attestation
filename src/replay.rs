@@ -51,7 +51,8 @@ pub trait ReplayStore: Send + Sync {
 
     /// Records `seq` with the delivery's `attested_at_unix`. Returns false when `seq <= last`.
     /// When `forget_before_unix` is Some(t), in the same write every OTHER entry of `scope`
-    /// whose stored time is `< t` is removed.
+    /// whose stored time is `< t` is removed. Callers must pass `now - max_age` (see the module
+    /// doc); a larger value drops entries that still guard fresh deliveries.
     fn record(
         &self,
         scope: &str,

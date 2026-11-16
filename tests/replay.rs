@@ -487,3 +487,38 @@ fn the_old_bare_number_layout_fails_closed() {
     assert!(matches!(error, AttestationError::Store(_)), "{error:?}");
     fs::remove_dir_all(directory).expect("clean up");
 }
+
+#[test]
+fn forgetting_persists_across_a_reopen() {
+    let (directory, path) = test_path("forget-reopen");
+    {
+        let store = FileReplayStore::open(&path).expect("open");
+        assert!(store.record("s", "old", 3, 10, None).unwrap());
+        assert!(store.record("s", "new", 1, 100, Some(50)).unwrap());
+    }
+    let store = FileReplayStore::open(&path).expect("reopen");
+    assert_eq!(store.last_seen("s", "old").unwrap(), None);
+    assert_eq!(store.last_seen("s", "new").unwrap(), Some(1));
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+#[test]
+fn malformed_entries_fail_closed() {
+    for body in [
+        r#"{"s":{"k":{"sequence":1}}}"#,
+        r#"{"s":{"k":{"attested_at":1}}}"#,
+        r#"{"s":{"k":{"sequence":-1,"attested_at":1}}}"#,
+        r#"{"s":{"k":{"sequence":1,"attested_at":1.5}}}"#,
+        r#"{"s":5}"#,
+    ] {
+        let (directory, path) = test_path("malformed");
+        fs::write(&path, body).expect("write");
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).expect("mode");
+        let error = FileReplayStore::open(&path).expect_err(body);
+        assert!(
+            matches!(error, AttestationError::Store(_)),
+            "{body}: {error:?}"
+        );
+        fs::remove_dir_all(directory).expect("clean up");
+    }
+}
