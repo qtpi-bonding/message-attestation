@@ -200,7 +200,7 @@ fn render_joins_messages_in_signed_order() {
     let out_msgs: Vec<OutgoingMessage> = [&m1, &m2]
         .iter()
         .map(|m| OutgoingMessage {
-            message: sign_message(&a.session, a.delegation.clone(), &dl.id, T0, m).unwrap(),
+            message: sign_message(&a.session, Some(a.delegation.clone()), &dl.id.to_string(), T0, m).unwrap(),
             via: vec![room("r")],
         })
         .collect();

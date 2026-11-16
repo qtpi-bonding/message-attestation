@@ -101,16 +101,16 @@ pub fn validate_message(m: &pb::Message) -> Result<(), AttestationError> {
 
 pub fn sign_message(
     session: &SessionCredential,
-    device_delegation: pb::KeyDelegation,
-    audience: &PrincipalId,
+    delegation: Option<pb::KeyDelegation>,
+    audience: &str,
     issued_at_unix: i64,
     message: &pb::Message,
 ) -> Result<pb::SignedMessage, AttestationError> {
     validate_message(message)?;
     session
         .sign_message(
-            Some(device_delegation),
-            &audience.to_string(),
+            delegation,
+            audience,
             message_nonce(&message.message_id),
             issued_at_unix,
             None,
@@ -122,14 +122,14 @@ pub fn sign_message(
 
 pub fn sign_hosted_message(
     session: &HostedSessionCredential,
-    audience: &PrincipalId,
+    audience: &str,
     issued_at_unix: i64,
     message: &pb::Message,
 ) -> Result<pb::SignedMessage, AttestationError> {
     validate_message(message)?;
     session
         .sign_message(
-            &audience.to_string(),
+            audience,
             message_nonce(&message.message_id),
             issued_at_unix,
             None,

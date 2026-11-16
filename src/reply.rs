@@ -133,21 +133,7 @@ pub fn compose_reply(
     now_unix: i64,
     draft: ReplyDraft,
 ) -> Result<ComposedReply, AttestationError> {
-    match signer {
-        ReplySigner::Keyed { session, device_delegation } => {
-            let cert = session.cert();
-            check_window(cert.not_before_unix_seconds, cert.not_after_unix_seconds, now_unix)?;
-            check_window(
-                device_delegation.issued_at_unix_seconds,
-                device_delegation.not_after_unix_seconds,
-                now_unix,
-            )?;
-        }
-        ReplySigner::Hosted { session } => {
-            let cert = session.cert();
-            check_window(cert.not_before_unix_seconds, cert.not_after_unix_seconds, now_unix)?;
-        }
-    }
+    signer.check_valid_at(now_unix)?;
     check_body_size(&draft.body)?;
     let message_id = new_message_id();
     let message = pb::Message {
@@ -159,11 +145,36 @@ pub fn compose_reply(
         authored_at: Some(Timestamp { seconds: now_unix, nanos: 0 }),
         body: draft.body,
     };
-    let signed = match signer {
-        ReplySigner::Keyed { session, device_delegation } => {
-            sign_message(session, device_delegation.clone(), deliverer, now_unix, &message)?
-        }
-        ReplySigner::Hosted { session } => sign_hosted_message(session, deliverer, now_unix, &message)?,
-    };
+    let signed = signer.sign(&deliverer.to_string(), now_unix, &message)?;
     Ok(ComposedReply { message_id, signed })
+}
+
+impl ReplySigner {
+    fn check_valid_at(&self, now_unix: i64) -> Result<(), AttestationError> {
+        match self {
+            ReplySigner::Keyed { session, device_delegation } => {
+                let cert = session.cert();
+                check_window(cert.not_before_unix_seconds, cert.not_after_unix_seconds, now_unix)?;
+                check_window(
+                    device_delegation.issued_at_unix_seconds,
+                    device_delegation.not_after_unix_seconds,
+                    now_unix,
+                )?;
+            }
+            ReplySigner::Hosted { session } => {
+                let cert = session.cert();
+                check_window(cert.not_before_unix_seconds, cert.not_after_unix_seconds, now_unix)?;
+            }
+        }
+        Ok(())
+    }
+
+    fn sign(&self, audience: &str, issued_at: i64, m: &pb::Message) -> Result<pb::SignedMessage, AttestationError> {
+        match self {
+            ReplySigner::Keyed { session, device_delegation } => {
+                sign_message(session, Some(device_delegation.clone()), audience, issued_at, m)
+            }
+            ReplySigner::Hosted { session } => sign_hosted_message(session, audience, issued_at, m),
+        }
+    }
 }

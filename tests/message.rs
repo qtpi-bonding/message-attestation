@@ -76,7 +76,7 @@ fn signed_message_carries_the_message_verbatim() {
     let a = author(T0);
     let d = author(T0);
     let m = message("m-1", vec![room("r")]);
-    let s = sign_message(&a.session, a.delegation.clone(), &d.id, T0, &m).unwrap();
+    let s = sign_message(&a.session, Some(a.delegation.clone()), &d.id.to_string(), T0, &m).unwrap();
     assert_eq!(s.body_type, MESSAGE_BODY_TYPE);
     assert_eq!(pb::Message::decode(&*s.body).unwrap(), m);
     assert_eq!(s.nonce, message_nonce("m-1").to_vec());
@@ -93,7 +93,7 @@ fn hosted_message_verifies_as_the_agent() {
     let aid = h.id.clone();
     let session = h.session;
     let m = message("h-1", vec![room("r")]);
-    let s = sign_hosted_message(&session, &d.id, T0, &m).unwrap();
+    let s = sign_hosted_message(&session, &d.id.to_string(), T0, &m).unwrap();
     let v = verify_carried_message(&s, &d.id.to_string()).unwrap();
     assert_eq!(v.author(), &aid);
 }
@@ -103,7 +103,7 @@ fn signing_refuses_an_invalid_message() {
     let a = author(T0);
     let d = author(T0);
     let m = message("m-1", vec![]);
-    let e = sign_message(&a.session, a.delegation.clone(), &d.id, T0, &m).unwrap_err();
+    let e = sign_message(&a.session, Some(a.delegation.clone()), &d.id.to_string(), T0, &m).unwrap_err();
     assert!(matches!(e, AttestationError::InvalidMessage { field: "to", .. }));
 }
 

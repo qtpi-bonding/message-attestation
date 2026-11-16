@@ -40,7 +40,7 @@ impl Setup {
     fn outgoing(&self, a: &Author, id: &str) -> OutgoingMessage {
         let m = message(id, vec![room("r")]);
         OutgoingMessage {
-            message: sign_message(&a.session, a.delegation.clone(), &self.dl.id, T0, &m).unwrap(),
+            message: sign_message(&a.session, Some(a.delegation.clone()), &self.dl.id.to_string(), T0, &m).unwrap(),
             via: vec![room("r")],
         }
     }

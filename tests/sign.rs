@@ -10,7 +10,7 @@ use message_attestation::{
 
 fn outgoing(a: &Author, recipient: &identity_crypto::PrincipalId, id: &str) -> OutgoingMessage {
     let m = message(id, vec![person(recipient)]);
-    let message = sign_message(&a.session, a.delegation.clone(), recipient, T0, &m).unwrap();
+    let message = sign_message(&a.session, Some(a.delegation.clone()), &recipient.to_string(), T0, &m).unwrap();
     OutgoingMessage { message, via: vec![room("r")] }
 }
 
@@ -84,4 +84,69 @@ fn attach_then_locate_round_trips() {
     assert_eq!(locate(&v, "other-key").unwrap(), None);
     let s = serde_json::json!({ DEFAULT_META_KEY: "x" });
     assert!(matches!(locate(&s, DEFAULT_META_KEY), Err(AttestationError::NotObject)));
+}
+
+#[test]
+fn sign_message_with_none_delegation_verifies_self_rooted() {
+    // identity-crypto's carried-message verifier requires `self_rooted.device`, so a
+    // None-delegation message (root key as its own device) is not carried-verifiable:
+    // pin that it signs, carries no device delegation, and names the root as genesis.
+    let a = author_self_rooted(T0);
+    let recipient = author(T0);
+    let m = message("m-1", vec![person(&recipient.id)]);
+    let aud = recipient.id.to_string();
+    let signed = sign_message(&a.session, None, &aud, T0, &m).unwrap();
+    let Some(identity_crypto::pb::signer_chain::Chain::SelfRooted(s)) =
+        signed.signer.as_ref().and_then(|s| s.chain.clone())
+    else {
+        panic!("not self-rooted")
+    };
+    assert!(s.device.is_none());
+    let genesis = s.session.unwrap().principal_genesis.unwrap();
+    assert_eq!(
+        identity_crypto::PrincipalId::from_genesis(identity_crypto::PublicKey::try_from(&genesis).unwrap()),
+        a.id
+    );
+    assert!(identity_crypto::verify_carried_message(&signed, &aud).is_err());
+}
+
+#[test]
+fn sign_message_with_some_delegation_verifies_delegated() {
+    let a = author(T0);
+    let recipient = author(T0);
+    let m = message("m-1", vec![person(&recipient.id)]);
+    let aud = recipient.id.to_string();
+    let signed = sign_message(&a.session, Some(a.delegation.clone()), &aud, T0, &m).unwrap();
+    let v = identity_crypto::verify_carried_message(&signed, &aud).unwrap();
+    assert_eq!(v.author(), &a.id);
+}
+
+#[test]
+fn string_audience_mismatch_is_wrong_audience() {
+    let f = fx();
+    let a = author(T0);
+    let m = message("m-1", vec![room("r"), person(&f.recipient.id)]);
+    let s = sign_message(&a.session, Some(a.delegation.clone()), "p256:aaa", T0, &m).unwrap();
+    let d = with_signed(&f, s, vec![room("r")]);
+    let r = message_attestation::verify_delivery(&d, &policy(&f), &message_attestation::MemoryReplayStore::default());
+    assert!(matches!(r, Err(AttestationError::WrongAudience { index: 0 })), "{r:?}");
+}
+
+#[test]
+fn invalid_message_is_refused_before_signing() {
+    let a = author(T0);
+    let m = message("m-1", vec![]);
+    let e = sign_message(&a.session, None, "p256:aaa", T0, &m).unwrap_err();
+    assert!(matches!(e, AttestationError::InvalidMessage { field: "to", .. }), "{e:?}");
+}
+
+#[test]
+fn hosted_signature_takes_a_string_audience() {
+    let h = hosted_author(T0);
+    let d = author(T0);
+    let m = message("h-1", vec![room("r")]);
+    let aud = d.id.to_string();
+    let s = message_attestation::sign_hosted_message(&h.session, &aud, T0, &m).unwrap();
+    let v = identity_crypto::verify_carried_message(&s, &aud).unwrap();
+    assert_eq!(v.author(), &h.id);
 }
