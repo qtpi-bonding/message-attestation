@@ -60,25 +60,6 @@ pub fn author_issued(
     }
 }
 
-/// An author whose session is minted by the root key itself (no device delegation).
-pub fn author_self_rooted(now: i64) -> Author {
-    let root = GenerationService::generate_key_duo();
-    let id = principal_id(&root);
-    let delegation = pb::KeyDelegation::default();
-    let session = mint_session(
-        root.signing_key_pair(),
-        &signing_public(&root),
-        now,
-        now + 3600,
-    )
-    .unwrap();
-    Author {
-        id,
-        session,
-        delegation,
-    }
-}
-
 pub fn message(id: &str, to: Vec<pb::Target>) -> pb::Message {
     pb::Message {
         message_id: id.to_string(),
@@ -221,7 +202,7 @@ pub fn fx() -> Fx {
     let msg = message("m-1", vec![room("r"), person(&recipient.id)]);
     let signed = sign_message(
         &a.session,
-        Some(a.delegation.clone()),
+        a.delegation.clone(),
         &dl.id.to_string(),
         T0,
         &msg,

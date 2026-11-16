@@ -13,7 +13,7 @@ fn outgoing(a: &Author, recipient: &identity_crypto::PrincipalId, id: &str) -> O
     let m = message(id, vec![person(recipient)]);
     let message = sign_message(
         &a.session,
-        Some(a.delegation.clone()),
+        a.delegation.clone(),
         &recipient.to_string(),
         T0,
         &m,
@@ -121,38 +121,12 @@ fn attach_then_locate_round_trips() {
 }
 
 #[test]
-fn sign_message_with_none_delegation_is_not_carried_verifiable() {
-    // identity-crypto's carried-message verifier requires `self_rooted.device`, so a
-    // None-delegation message (root key as its own device) is not carried-verifiable:
-    // pin that it signs, carries no device delegation, and names the root as genesis.
-    let a = author_self_rooted(T0);
-    let recipient = author(T0);
-    let m = message("m-1", vec![person(&recipient.id)]);
-    let aud = recipient.id.to_string();
-    let signed = sign_message(&a.session, None, &aud, T0, &m).unwrap();
-    let Some(identity_crypto::pb::signer_chain::Chain::SelfRooted(s)) =
-        signed.signer.as_ref().and_then(|s| s.chain.clone())
-    else {
-        panic!("not self-rooted")
-    };
-    assert!(s.device.is_none());
-    let genesis = s.session.unwrap().principal_genesis.unwrap();
-    assert_eq!(
-        identity_crypto::PrincipalId::from_genesis(
-            identity_crypto::PublicKey::try_from(&genesis).unwrap()
-        ),
-        a.id
-    );
-    assert!(identity_crypto::verify_carried_message(&signed, &aud).is_err());
-}
-
-#[test]
 fn sign_message_with_some_delegation_verifies_delegated() {
     let a = author(T0);
     let recipient = author(T0);
     let m = message("m-1", vec![person(&recipient.id)]);
     let aud = recipient.id.to_string();
-    let signed = sign_message(&a.session, Some(a.delegation.clone()), &aud, T0, &m).unwrap();
+    let signed = sign_message(&a.session, a.delegation.clone(), &aud, T0, &m).unwrap();
     let v = identity_crypto::verify_carried_message(&signed, &aud).unwrap();
     assert_eq!(v.author(), &a.id);
 }
@@ -162,7 +136,7 @@ fn string_audience_mismatch_is_wrong_audience() {
     let f = fx();
     let a = author(T0);
     let m = message("m-1", vec![room("r"), person(&f.recipient.id)]);
-    let s = sign_message(&a.session, Some(a.delegation.clone()), "p256:aaa", T0, &m).unwrap();
+    let s = sign_message(&a.session, a.delegation.clone(), "p256:aaa", T0, &m).unwrap();
     let d = with_signed(&f, s, vec![room("r")]);
     let r = message_attestation::verify_delivery(
         &d,
@@ -179,7 +153,7 @@ fn string_audience_mismatch_is_wrong_audience() {
 fn invalid_message_is_refused_before_signing() {
     let a = author(T0);
     let m = message("m-1", vec![]);
-    let e = sign_message(&a.session, None, "p256:aaa", T0, &m).unwrap_err();
+    let e = sign_message(&a.session, a.delegation.clone(), "p256:aaa", T0, &m).unwrap_err();
     assert!(
         matches!(e, AttestationError::InvalidMessage { field: "to", .. }),
         "{e:?}"
@@ -236,7 +210,7 @@ fn a_fake_signer_is_called_once_and_the_delivery_verifies() {
     };
     let signed = sign_message(
         &a.session,
-        Some(a.delegation.clone()),
+        a.delegation.clone(),
         &f.dl.id.to_string(),
         T0,
         &f.msg,

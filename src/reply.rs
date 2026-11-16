@@ -219,13 +219,7 @@ impl ReplySigner {
             ReplySigner::Keyed {
                 session,
                 device_delegation,
-            } => sign_message(
-                session,
-                Some(device_delegation.clone()),
-                audience,
-                issued_at,
-                m,
-            ),
+            } => sign_message(session, device_delegation.clone(), audience, issued_at, m),
             ReplySigner::Hosted { session } => sign_hosted_message(session, audience, issued_at, m),
         }
     }

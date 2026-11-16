@@ -268,14 +268,7 @@ fn message_for_another_deliverer_is_refused() {
     let b = deliverer(T0);
     let a = author(T0);
     let m = message("m-1", vec![room("r"), person(&f.recipient.id)]);
-    let s = sign_message(
-        &a.session,
-        Some(a.delegation.clone()),
-        &b.id.to_string(),
-        T0,
-        &m,
-    )
-    .unwrap();
+    let s = sign_message(&a.session, a.delegation.clone(), &b.id.to_string(), T0, &m).unwrap();
     let d = with_signed(&f, s, vec![room("r")]);
     assert!(matches!(
         check(&f, &d),
@@ -453,14 +446,7 @@ fn expired_author_session_still_verifies() {
     let recipient = author(T0);
     let own = vec![device_key()];
     let m = message("m-1", vec![room("r"), person(&recipient.id)]);
-    let s = sign_message(
-        &a.session,
-        Some(a.delegation.clone()),
-        &dl.id.to_string(),
-        T0,
-        &m,
-    )
-    .unwrap();
+    let s = sign_message(&a.session, a.delegation.clone(), &dl.id.to_string(), T0, &m).unwrap();
     let d = sign_delivery(
         dl.device.signing_key_pair(),
         &dl.delegation,
@@ -526,14 +512,7 @@ fn rotated_deliverer_device_needs_no_reconfiguration() {
             &format!("m-{seq}"),
             vec![room("r"), person(&f.recipient.id)],
         );
-        let s = sign_message(
-            &a.session,
-            Some(a.delegation.clone()),
-            &aud.to_string(),
-            T0,
-            &m,
-        )
-        .unwrap();
+        let s = sign_message(&a.session, a.delegation.clone(), &aud.to_string(), T0, &m).unwrap();
         sign_delivery(
             dev.signing_key_pair(),
             del,
@@ -605,7 +584,7 @@ fn deliverer_device_rules() {
     let m = message("m-1", vec![room("r"), person(&f.recipient.id)]);
     let s = sign_message(
         &a.session,
-        Some(a.delegation.clone()),
+        a.delegation.clone(),
         &short.id.to_string(),
         T0,
         &m,
@@ -710,7 +689,7 @@ fn n_messages(f: &Fx, n: usize) -> Vec<OutgoingMessage> {
             let m = message(&format!("m-{i}"), vec![room("r"), person(&f.recipient.id)]);
             let signed = sign_message(
                 &a.session,
-                Some(a.delegation.clone()),
+                a.delegation.clone(),
                 &f.dl.id.to_string(),
                 T0,
                 &m,
@@ -884,14 +863,8 @@ impl Two {
             &format!("m-{seq}"),
             vec![room("r"), person(&self.f.recipient.id)],
         );
-        let signed = sign_message(
-            &a.session,
-            Some(a.delegation.clone()),
-            &dl.id.to_string(),
-            T0,
-            &m,
-        )
-        .unwrap();
+        let signed =
+            sign_message(&a.session, a.delegation.clone(), &dl.id.to_string(), T0, &m).unwrap();
         sign_delivery(
             &dl.device,
             &dl.delegation,
@@ -1040,7 +1013,7 @@ fn another_scope_is_not_forgotten() {
         let m = message("m-o", vec![room("r"), person(&other.id)]);
         let signed = sign_message(
             &a.session,
-            Some(a.delegation.clone()),
+            a.delegation.clone(),
             &t.d.id.to_string(),
             T0,
             &m,

@@ -42,7 +42,7 @@ impl Setup {
         OutgoingMessage {
             message: sign_message(
                 &a.session,
-                Some(a.delegation.clone()),
+                a.delegation.clone(),
                 &self.dl.id.to_string(),
                 T0,
                 &m,
