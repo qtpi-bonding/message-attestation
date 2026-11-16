@@ -1,17 +1,29 @@
+use std::error::Error as _;
+use std::ffi::CString;
 use std::fs;
-use std::path::PathBuf;
+use std::os::unix::ffi::OsStrExt;
+use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
+use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::thread;
 
-use message_attestation::{FileReplayStore, MemoryReplayStore, ReplayStore};
+use identity_keyfile::KeyfileError;
+use message_attestation::{AttestationError, FileReplayStore, MemoryReplayStore, ReplayStore};
 
 static NEXT_TEST_ID: AtomicU64 = AtomicU64::new(0);
 
 fn test_path(name: &str) -> (PathBuf, PathBuf) {
     let id = NEXT_TEST_ID.fetch_add(1, Ordering::Relaxed);
-    let directory = std::env::temp_dir().join(format!("message-attestation-{name}-{}-{id}", std::process::id()));
-    fs::create_dir_all(&directory).expect("create test directory");
+    let directory = std::env::temp_dir().join(format!(
+        "message-attestation-{name}-{}-{id}",
+        std::process::id()
+    ));
+    fs::DirBuilder::new()
+        .recursive(true)
+        .mode(0o700)
+        .create(&directory)
+        .expect("create test directory");
     let path = directory.join("replay.json");
     (directory, path)
 }
@@ -31,9 +43,17 @@ fn memory_store_accepts_only_increasing_sequences() {
 fn scopes_are_independent() {
     let store = MemoryReplayStore::default();
     assert!(store.record("first", "key", 3).expect("record first scope"));
-    assert!(store.record("second", "key", 1).expect("record second scope"));
-    assert_eq!(store.last_seen("first", "key").expect("read first"), Some(3));
-    assert_eq!(store.last_seen("second", "key").expect("read second"), Some(1));
+    assert!(store
+        .record("second", "key", 1)
+        .expect("record second scope"));
+    assert_eq!(
+        store.last_seen("first", "key").expect("read first"),
+        Some(3)
+    );
+    assert_eq!(
+        store.last_seen("second", "key").expect("read second"),
+        Some(1)
+    );
 }
 
 #[test]
@@ -74,8 +94,13 @@ fn two_stores_on_one_file_do_not_both_accept_the_same_sequence() {
     for sequence in 1..=50 {
         let left = Arc::clone(&first);
         let right = Arc::clone(&second);
-        let left_thread = thread::spawn(move || left.record("scope", "key", sequence).expect("left record"));
-        let right_thread = thread::spawn(move || right.record("scope", "key", sequence).expect("right record"));
+        let left_thread =
+            thread::spawn(move || left.record("scope", "key", sequence).expect("left record"));
+        let right_thread = thread::spawn(move || {
+            right
+                .record("scope", "key", sequence)
+                .expect("right record")
+        });
         let accepted = [
             left_thread.join().expect("left thread"),
             right_thread.join().expect("right thread"),
@@ -91,6 +116,220 @@ fn a_stale_temp_file_does_not_wedge_the_store() {
     let store = FileReplayStore::open(&path).expect("open");
     let stale = directory.join(format!(".replay.json.{}.tmp", std::process::id()));
     fs::write(&stale, b"leftover from a crash").expect("write stale temp");
-    assert!(store.record("scope", "key", 1).expect("record despite stale temp"));
+    assert!(store
+        .record("scope", "key", 1)
+        .expect("record despite stale temp"));
     assert_eq!(store.last_seen("scope", "key").expect("read"), Some(1));
+}
+
+fn mode_of(path: &Path) -> u32 {
+    fs::symlink_metadata(path)
+        .expect("metadata")
+        .permissions()
+        .mode()
+        & 0o777
+}
+
+fn keyfile_error(error: &AttestationError) -> &KeyfileError {
+    assert!(
+        matches!(error, AttestationError::Store(_)),
+        "not Store: {error:?}"
+    );
+    assert_eq!(error.to_string(), "store failed");
+    error
+        .source()
+        .and_then(|source| source.downcast_ref::<KeyfileError>())
+        .unwrap_or_else(|| panic!("Store source is not a KeyfileError: {error:?}"))
+}
+
+fn lock_path(path: &Path) -> PathBuf {
+    let mut name = path.as_os_str().to_owned();
+    name.push(".lock");
+    PathBuf::from(name)
+}
+
+#[test]
+fn state_and_lock_files_are_0600_and_the_parent_0700() {
+    let (directory, path) = test_path("modes");
+    let store = FileReplayStore::open(&path).expect("open");
+    assert!(store.record("scope", "key", 1).expect("record"));
+    assert_eq!(mode_of(&path), 0o600);
+    assert_eq!(mode_of(&lock_path(&path)), 0o600);
+    assert_eq!(mode_of(&directory), 0o700);
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+#[test]
+fn a_missing_parent_is_created_0700() {
+    let (directory, _) = test_path("new-parent");
+    let nested = directory.join("a").join("b");
+    let path = nested.join("replay.json");
+    let store = FileReplayStore::open(&path).expect("open creates the parent");
+    assert!(store.record("scope", "key", 1).expect("record"));
+    assert_eq!(mode_of(&nested), 0o700);
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+#[test]
+fn a_group_writable_parent_is_refused() {
+    let (directory, path) = test_path("loose-parent");
+    fs::set_permissions(&directory, fs::Permissions::from_mode(0o775)).expect("loosen");
+    let error = FileReplayStore::open(&path).expect_err("loose parent must be refused");
+    assert!(
+        matches!(keyfile_error(&error), KeyfileError::InsecureDir(_)),
+        "{error:?}"
+    );
+    assert_eq!(mode_of(&directory), 0o775, "the library must never tighten");
+    assert!(!path.exists());
+    assert!(!lock_path(&path).exists());
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+#[test]
+fn a_loose_state_file_is_refused_not_tightened() {
+    let (directory, path) = test_path("loose-state");
+    fs::write(&path, b"{}").expect("write state");
+    fs::set_permissions(&path, fs::Permissions::from_mode(0o644)).expect("loosen");
+    let error = FileReplayStore::open(&path).expect_err("loose state must be refused");
+    assert!(
+        matches!(keyfile_error(&error), KeyfileError::InsecureFile(_)),
+        "{error:?}"
+    );
+    assert_eq!(mode_of(&path), 0o644, "the library must never tighten");
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+#[test]
+fn a_loose_lock_file_is_refused_not_tightened() {
+    let (directory, path) = test_path("loose-lock");
+    let lock = lock_path(&path);
+    fs::write(&lock, b"").expect("write lock");
+    fs::set_permissions(&lock, fs::Permissions::from_mode(0o644)).expect("loosen");
+    let error = FileReplayStore::open(&path).expect_err("loose lock must be refused");
+    assert!(
+        matches!(keyfile_error(&error), KeyfileError::InsecureFile(_)),
+        "{error:?}"
+    );
+    assert_eq!(mode_of(&lock), 0o644, "the library must never tighten");
+    assert!(!path.exists());
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+#[test]
+fn a_loose_lock_file_is_refused_on_every_operation() {
+    let (directory, path) = test_path("loosened-lock");
+    let store = FileReplayStore::open(&path).expect("open");
+    let lock = lock_path(&path);
+    fs::set_permissions(&lock, fs::Permissions::from_mode(0o666)).expect("loosen");
+    assert!(store.last_seen("scope", "key").is_err());
+    assert!(store.record("scope", "key", 1).is_err());
+    assert_eq!(mode_of(&lock), 0o666);
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+#[test]
+fn a_symlinked_lock_or_state_file_is_refused() {
+    let (directory, path) = test_path("symlinks");
+    let target = directory.join("target");
+    fs::write(&target, b"{}").expect("write target");
+    fs::set_permissions(&target, fs::Permissions::from_mode(0o600)).expect("tighten");
+    std::os::unix::fs::symlink(&target, lock_path(&path)).expect("symlink lock");
+    assert!(
+        FileReplayStore::open(&path).is_err(),
+        "symlinked lock must be refused"
+    );
+    fs::remove_file(lock_path(&path)).expect("remove lock link");
+    std::os::unix::fs::symlink(&target, &path).expect("symlink state");
+    let error = FileReplayStore::open(&path).expect_err("symlinked state must be refused");
+    assert!(
+        matches!(keyfile_error(&error), KeyfileError::InsecureFile(_)),
+        "{error:?}"
+    );
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+#[test]
+fn a_missing_state_file_is_the_empty_store() {
+    let (directory, path) = test_path("missing-state");
+    let store = FileReplayStore::open(&path).expect("open");
+    assert_eq!(store.last_seen("scope", "key").expect("read"), None);
+    assert!(!path.exists(), "reading a missing state must not create it");
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+#[test]
+fn a_fifo_at_the_state_path_is_refused_without_hanging() {
+    let (directory, path) = test_path("fifo");
+    let c_path = CString::new(path.as_os_str().as_bytes()).expect("c path");
+    // SAFETY: c_path is a valid NUL-terminated path.
+    assert_eq!(unsafe { libc::mkfifo(c_path.as_ptr(), 0o600) }, 0);
+    let (sender, receiver) = std::sync::mpsc::channel();
+    let open_path = path.clone();
+    thread::spawn(move || {
+        let _ = sender.send(FileReplayStore::open(&open_path).map(|_| ()));
+    });
+    let result = receiver
+        .recv_timeout(std::time::Duration::from_secs(10))
+        .expect("open on a FIFO must not hang");
+    let error = result.expect_err("a FIFO must be refused");
+    assert!(
+        matches!(keyfile_error(&error), KeyfileError::NotAFile(_)),
+        "{error:?}"
+    );
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+fn padded_state(len: usize) -> Vec<u8> {
+    let mut bytes = b"{}".to_vec();
+    bytes.resize(len, b' ');
+    bytes
+}
+
+#[test]
+fn an_oversize_state_file_is_refused_and_one_at_the_cap_is_read() {
+    let (directory, path) = test_path("oversize");
+    fs::write(&path, padded_state(1_048_576 + 1)).expect("write state");
+    fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).expect("tighten");
+    let error = FileReplayStore::open(&path).expect_err("oversize must be refused");
+    assert!(
+        matches!(
+            keyfile_error(&error),
+            KeyfileError::TooLarge { cap: 1_048_576, .. }
+        ),
+        "{error:?}"
+    );
+    fs::write(&path, padded_state(1_048_576)).expect("write state at the cap");
+    FileReplayStore::open(&path).expect("a state exactly at the cap is read");
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+#[test]
+fn the_temp_file_is_removed_when_the_write_fails() {
+    let (directory, path) = test_path("temp-removed");
+    let store = FileReplayStore::open(&path).expect("open");
+    fs::create_dir(&path).expect("make the state path a directory");
+    fs::set_permissions(&path, fs::Permissions::from_mode(0o700)).expect("mode");
+    assert!(store.record("scope", "key", 1).is_err());
+    let leftovers: Vec<_> = fs::read_dir(&directory)
+        .expect("list")
+        .map(|entry| {
+            entry
+                .expect("entry")
+                .file_name()
+                .to_string_lossy()
+                .into_owned()
+        })
+        .filter(|name| name.ends_with(".tmp"))
+        .collect();
+    assert!(
+        leftovers.is_empty(),
+        "temp files left behind: {leftovers:?}"
+    );
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+#[test]
+fn memory_store_is_debug() {
+    let store = MemoryReplayStore::default();
+    assert!(format!("{store:?}").contains("MemoryReplayStore"));
 }
