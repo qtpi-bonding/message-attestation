@@ -8,6 +8,7 @@ use crate::error::AttestationError;
 pub const MESSAGE_BODY_TYPE: &str = "type.googleapis.com/identitycrypto.v1.Message";
 pub const MAX_TARGETS: usize = 64;
 pub const MAX_ID_LEN: usize = 128;
+pub const MAX_MESSAGES: usize = 256;
 
 const ID_REASON: &str = "must be 1-128 of [A-Za-z0-9._:-]";
 
@@ -116,7 +117,7 @@ pub fn sign_message(
             MESSAGE_BODY_TYPE,
             &message.encode_to_vec(),
         )
-        .map_err(|e| AttestationError::Sign(e.to_string()))
+        .map_err(|e| AttestationError::Sign(Box::new(e)))
 }
 
 pub fn sign_hosted_message(
@@ -135,7 +136,7 @@ pub fn sign_hosted_message(
             MESSAGE_BODY_TYPE,
             &message.encode_to_vec(),
         )
-        .map_err(|e| AttestationError::Sign(e.to_string()))
+        .map_err(|e| AttestationError::Sign(Box::new(e)))
 }
 
 /// The one spelling of a message's identity for a recipient's seen set.

@@ -67,7 +67,10 @@ fn captured(kept: &Mutex<Vec<u8>>) -> String {
 ///
 /// Blocking by design: tokio hosts call it inside `spawn_blocking`.
 pub fn send_via_command(cmd: &SendCommand, reply: &ComposedReply) -> Result<SendOutcome, AttestationError> {
-    let (program, args) = cmd.argv.split_first().ok_or_else(|| AttestationError::Send("empty argv".into()))?;
+    let (program, args) = cmd
+        .argv
+        .split_first()
+        .ok_or_else(|| AttestationError::Send("empty argv".into()))?;
     let mut child = Command::new(program)
         .args(args)
         .env_clear()
@@ -77,7 +80,7 @@ pub fn send_via_command(cmd: &SendCommand, reply: &ComposedReply) -> Result<Send
         .stderr(Stdio::piped())
         .process_group(0)
         .spawn()
-        .map_err(|e| AttestationError::Send(format!("spawn {program}: {e}")))?;
+        .map_err(|e| AttestationError::Send(format!("spawn {program}: {e}").into()))?;
     let pgid = child.id() as libc::pid_t;
 
     let (done_tx, done_rx) = mpsc::channel::<()>();

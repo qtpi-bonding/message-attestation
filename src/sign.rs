@@ -55,7 +55,7 @@ pub fn sign_delivery(
     let device_key = PublicKey::from(device);
     if device_delegation.delegated != Some(pb::PublicKey::from(&device_key)) {
         return Err(AttestationError::Sign(
-            "device_delegation does not delegate this device".to_string(),
+            "device_delegation does not delegate this device".into(),
         ));
     }
 
@@ -67,7 +67,7 @@ pub fn sign_delivery(
     let mut names = unsigned.names;
     if !names.is_empty() {
         let deliverer = device_principal.ok_or_else(|| {
-            AttestationError::Sign("device_delegation has no principal_genesis".to_string())
+            AttestationError::Sign("device_delegation has no principal_genesis".into())
         })?;
         let mut authors = Vec::with_capacity(unsigned.messages.len());
         for (index, m) in unsigned.messages.iter().enumerate() {
@@ -107,13 +107,13 @@ pub fn sign_delivery(
     };
 
     let transcript = delivery_transcript(&delivery)
-        .map_err(|error| AttestationError::Transcript(error.to_string()))?;
+        .map_err(|error| AttestationError::Transcript(Box::new(error)))?;
     let signature = device
         .sign_bytes(&transcript)
-        .map_err(|error| AttestationError::Sign(error.to_string()))?;
+        .map_err(|error| AttestationError::Sign(Box::new(error)))?;
     delivery.signature = signature.to_vec();
 
     verify_p256(&device_key, &transcript, &delivery.signature)
-        .map_err(|error| AttestationError::Sign(format!("self-verification failed: {error}")))?;
+        .map_err(|error| AttestationError::Sign(format!("self-verification failed: {error}").into()))?;
     Ok(delivery)
 }

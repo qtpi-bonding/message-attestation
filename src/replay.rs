@@ -24,7 +24,7 @@ impl ReplayStore for MemoryReplayStore {
         let entries = self
             .entries
             .lock()
-            .map_err(|error| AttestationError::Store(error.to_string()))?;
+            .map_err(|error| AttestationError::Store(error.to_string().into()))?;
         Ok(entries
             .get(&(scope.to_owned(), key_id.to_owned()))
             .copied())
@@ -34,7 +34,7 @@ impl ReplayStore for MemoryReplayStore {
         let mut entries = self
             .entries
             .lock()
-            .map_err(|error| AttestationError::Store(error.to_string()))?;
+            .map_err(|error| AttestationError::Store(error.to_string().into()))?;
         let key = (scope.to_owned(), key_id.to_owned());
         if let Some(last) = entries.get(&key) {
             if seq <= *last {
@@ -183,9 +183,9 @@ fn lookup(
 }
 
 fn store_error(error: impl std::fmt::Display) -> AttestationError {
-    AttestationError::Store(error.to_string())
+    AttestationError::Store(error.to_string().into())
 }
 
 fn store_message(message: &str) -> AttestationError {
-    AttestationError::Store(message.to_owned())
+    AttestationError::Store(message.to_owned().into())
 }

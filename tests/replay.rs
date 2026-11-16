@@ -62,7 +62,7 @@ fn a_corrupt_file_fails_closed() {
     let (directory, path) = test_path("corrupt");
     fs::write(&path, b"not json").expect("write corrupt state");
     let error = FileReplayStore::open(&path).expect_err("corrupt state must fail");
-    assert!(error.to_string().starts_with("store:"));
+    assert_eq!(error.to_string(), "store failed");
     fs::remove_dir_all(directory).expect("clean up");
 }
 

@@ -22,7 +22,7 @@ pub fn locate(
     }
     serde_json::from_value::<pb::Delivery>(value.clone())
         .map(Some)
-        .map_err(|error| AttestationError::Decode(error.to_string()))
+        .map_err(|error| AttestationError::Decode(Box::new(error)))
 }
 
 /// Writes `delivery` into `meta` under `meta_key` as its proto3-JSON object,
@@ -33,7 +33,7 @@ pub fn attach(
     delivery: &pb::Delivery,
 ) -> Result<(), AttestationError> {
     let value = serde_json::to_value(delivery)
-        .map_err(|error| AttestationError::Encode(error.to_string()))?;
+        .map_err(|error| AttestationError::Encode(Box::new(error)))?;
     meta.insert(meta_key.to_owned(), value);
     Ok(())
 }

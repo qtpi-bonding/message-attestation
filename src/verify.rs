@@ -131,22 +131,23 @@ pub fn verify_delivery(
     if delivery.messages.is_empty() {
         return Err(AttestationError::EmptyMessages);
     }
-    let transcript_err = |e: identity_crypto::Error| AttestationError::Transcript(e.to_string());
+    let transcript_err =
+        |e: identity_crypto::Error| AttestationError::Transcript(Box::new(e));
     let signer_device = delivery
         .signer_device
         .as_ref()
-        .ok_or_else(|| AttestationError::Transcript("missing signer_device".to_string()))?;
+        .ok_or_else(|| AttestationError::Transcript("missing signer_device".into()))?;
     let genesis = signer_device
         .principal_genesis
         .as_ref()
-        .ok_or_else(|| AttestationError::Transcript("missing signer_device.principal_genesis".to_string()))?;
+        .ok_or_else(|| AttestationError::Transcript("missing signer_device.principal_genesis".into()))?;
     let deliverer = PrincipalId::from_genesis(PublicKey::try_from(genesis).map_err(transcript_err)?);
     let deliverer_str = deliverer.to_string();
     if !policy.trusted.contains(&deliverer) {
         return Err(AttestationError::UnknownDeliverer(deliverer_str));
     }
     let device = verify_root_device_delegation(signer_device, &deliverer, policy.now_unix)
-        .map_err(|e| AttestationError::DelivererDevice(e.to_string()))?;
+        .map_err(|e| AttestationError::DelivererDevice(Box::new(e)))?;
 
     let transcript = delivery_transcript(delivery).map_err(transcript_err)?;
     verify_p256(&device, &transcript, &delivery.signature)
@@ -171,7 +172,7 @@ pub fn verify_delivery(
     let attested_at_unix = delivery
         .attested_at
         .as_ref()
-        .ok_or_else(|| AttestationError::Transcript("missing attested_at".to_string()))?
+        .ok_or_else(|| AttestationError::Transcript("missing attested_at".into()))?
         .seconds;
     if let Some(max) = policy.max_age_secs {
         // A delivery may be dated up to the clock skew identity-crypto allows
@@ -203,7 +204,7 @@ pub fn verify_delivery(
             return Err(AttestationError::WrongBodyType { index });
         }
         let message = pb::Message::decode(carried.body())
-            .map_err(|e| AttestationError::Decode(e.to_string()))?;
+            .map_err(|e| AttestationError::Decode(Box::new(e)))?;
         validate_message(&message)?;
         let via = delivery
             .via
@@ -227,7 +228,7 @@ pub fn verify_delivery(
     for entry in &delivery.names {
         let name = RegisteredName::parse(&entry.name)?;
         let id = PrincipalId::parse_canonical(&entry.principal_id)
-            .map_err(|e| AttestationError::Transcript(e.to_string()))?;
+            .map_err(|e| AttestationError::Transcript(Box::new(e)))?;
         let mut authored = false;
         for m in messages.iter_mut().filter(|m| m.author == id) {
             m.author_name = Some(name.clone());
