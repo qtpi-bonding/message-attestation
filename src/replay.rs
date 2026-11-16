@@ -37,8 +37,9 @@
 //!
 //! `{"<scope>":{"<key>":{"sequence":N,"attested_at":T}}}`. An entry that is a
 //! bare number (the old layout), or an entry missing `attested_at` or
-//! `sequence`, fails closed with `Store("replay entry has no attested_at")`;
-//! the one-time migration rewrites live files.
+//! `sequence`, fails closed with `Store` whose source is a typed
+//! [`ReplayStateError`] (`OldLayout` for the old layout); the one-time
+//! migration rewrites live files.
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -54,6 +55,39 @@ use crate::AttestationError;
 
 /// Maximum accepted size of a replay state file.
 pub const REPLAY_STATE_MAX_BYTES: usize = 1_048_576;
+
+/// Why a replay state file was refused. It is the `source()` of
+/// `AttestationError::Store`, so consumers can classify by type with
+/// `downcast_ref::<ReplayStateError>()`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum ReplayStateError {
+    /// An entry is a bare number or has no `attested_at`: the pre-0.5.0 layout,
+    /// which needs the one-time migration.
+    OldLayout,
+    /// The state file's top level is not a JSON object.
+    StateNotObject,
+    /// A scope's value is not a JSON object.
+    ScopeNotObject,
+    /// An entry's `sequence` is missing or not an unsigned integer.
+    InvalidSequence,
+    /// An entry's `attested_at` is present but not an integer.
+    InvalidAttestedAt,
+}
+
+impl std::fmt::Display for ReplayStateError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::OldLayout => "replay entry is in the old layout (no attested_at)",
+            Self::StateNotObject => "replay state is not an object",
+            Self::ScopeNotObject => "scope state is not an object",
+            Self::InvalidSequence => "replay entry sequence is missing or not an unsigned integer",
+            Self::InvalidAttestedAt => "replay entry attested_at is not an integer",
+        })
+    }
+}
+
+impl std::error::Error for ReplayStateError {}
 
 pub trait ReplayStore: Send + Sync {
     fn last_seen(&self, scope: &str, key_id: &str) -> Result<Option<u64>, AttestationError>;
@@ -174,7 +208,7 @@ impl FileReplayStore {
         let state = value
             .as_object()
             .cloned()
-            .ok_or_else(|| store_message("replay state is not an object"))?;
+            .ok_or_else(|| ReplayStateError::StateNotObject.into_store())?;
         validate_state(&state)?;
         Ok(state)
     }
@@ -225,7 +259,7 @@ impl ReplayStore for FileReplayStore {
                 .entry(scope.to_owned())
                 .or_insert_with(|| Value::Object(Map::new()))
                 .as_object_mut()
-                .ok_or_else(|| store_message("scope state is not an object"))?;
+                .ok_or_else(|| ReplayStateError::ScopeNotObject.into_store())?;
             scopes.insert(key_id.to_owned(), entry_value(seq, time));
             if let Some(forget_before) = forget_before_unix {
                 let stale: Vec<String> = scopes
@@ -249,20 +283,15 @@ impl ReplayStore for FileReplayStore {
     }
 }
 
-/// A malformed entry fails closed: a bare number (the old layout) or an entry
-/// missing "sequence"/"attested_at" is refused, with the message the migration
-/// step keys on.
+/// A malformed entry fails closed with a typed `ReplayStateError`: a bare number
+/// or an entry without "attested_at" is `OldLayout`.
 fn validate_state(state: &Map<String, Value>) -> Result<(), AttestationError> {
     for scope_value in state.values() {
         let Some(scope_map) = scope_value.as_object() else {
-            return Err(store_message("scope state is not an object"));
+            return Err(ReplayStateError::ScopeNotObject.into_store());
         };
         for value in scope_map.values() {
-            if value.get("sequence").and_then(Value::as_u64).is_none()
-                || value.get("attested_at").and_then(Value::as_i64).is_none()
-            {
-                return Err(store_message("replay entry has no attested_at"));
-            }
+            entry_fields(value)?;
         }
     }
     Ok(())
@@ -277,7 +306,7 @@ fn scope_map<'a>(
         Some(scope_value) => scope_value
             .as_object()
             .map(Some)
-            .ok_or_else(|| store_message("scope state is not an object")),
+            .ok_or_else(|| ReplayStateError::ScopeNotObject.into_store()),
     }
 }
 
@@ -294,14 +323,7 @@ fn lookup(
     let Some(value) = scope_map.get(key_id) else {
         return Ok(None);
     };
-    let sequence = value
-        .get("sequence")
-        .and_then(Value::as_u64)
-        .ok_or_else(|| store_message("replay entry has no attested_at"))?;
-    if value.get("attested_at").and_then(Value::as_i64).is_none() {
-        return Err(store_message("replay entry has no attested_at"));
-    }
-    Ok(Some(sequence))
+    Ok(Some(entry_fields(value)?.0))
 }
 
 /// The stored time of an entry, if it exists. Malformed entries fail closed.
@@ -316,11 +338,23 @@ fn entry_time(
     let Some(value) = scope_map.get(key_id) else {
         return Ok(None);
     };
-    value
-        .get("attested_at")
-        .and_then(Value::as_i64)
-        .map(Some)
-        .ok_or_else(|| store_message("replay entry has no attested_at"))
+    Ok(Some(entry_fields(value)?.1))
+}
+
+/// The `(sequence, attested_at)` of an entry. A bare number or an entry without
+/// `attested_at` is the old layout; a missing or ill-typed field is its own error.
+fn entry_fields(value: &Value) -> Result<(u64, i64), AttestationError> {
+    let Some(attested_at) = value.get("attested_at") else {
+        return Err(ReplayStateError::OldLayout.into_store());
+    };
+    let sequence = value
+        .get("sequence")
+        .and_then(Value::as_u64)
+        .ok_or_else(|| ReplayStateError::InvalidSequence.into_store())?;
+    let attested_at = attested_at
+        .as_i64()
+        .ok_or_else(|| ReplayStateError::InvalidAttestedAt.into_store())?;
+    Ok((sequence, attested_at))
 }
 
 fn entry_value(sequence: u64, attested_at: i64) -> Value {
@@ -334,6 +368,8 @@ fn store_error(error: impl std::error::Error + Send + Sync + 'static) -> Attesta
     AttestationError::Store(Box::new(error))
 }
 
-fn store_message(message: &str) -> AttestationError {
-    AttestationError::Store(message.to_owned().into())
+impl ReplayStateError {
+    fn into_store(self) -> AttestationError {
+        AttestationError::Store(Box::new(self))
+    }
 }

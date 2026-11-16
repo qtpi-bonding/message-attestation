@@ -22,7 +22,9 @@ pub use message::{
 };
 pub use names::{RegisteredName, ResolvedPrincipal, MAX_NAME_LEN};
 pub use render::{render, render_message, MessageView, RenderOptions, Trust, RENDER_VERSION};
-pub use replay::{FileReplayStore, MemoryReplayStore, ReplayStore, REPLAY_STATE_MAX_BYTES};
+pub use replay::{
+    FileReplayStore, MemoryReplayStore, ReplayStateError, ReplayStore, REPLAY_STATE_MAX_BYTES,
+};
 pub use reply::{
     compose_reply, new_message_id, parse_tool_input, ComposedReply, ReplyDraft, ReplySigner,
     MAX_BODY_BYTES,

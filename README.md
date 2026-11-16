@@ -106,6 +106,8 @@ Scope is the recipient's own id (`self_id`); the key within it is the deliverer 
 
 `MemoryReplayStore` is for tests and short-lived consumers.
 
+A state file that is refused (the old bare-number layout, or a malformed entry) is `Store` whose `source()` is the public, `#[non_exhaustive]` `ReplayStateError`: `OldLayout` (bare number or no `attested_at`), `StateNotObject`, `ScopeNotObject`, `InvalidSequence`, `InvalidAttestedAt`. Classify with `err.source().and_then(|s| s.downcast_ref::<ReplayStateError>())`; `Store` still displays `store failed`.
+
 ```rust
 pub trait ReplayStore: Send + Sync {
     fn last_seen(&self, scope: &str, key_id: &str) -> Result<Option<u64>, AttestationError>;

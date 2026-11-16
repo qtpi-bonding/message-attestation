@@ -8,7 +8,8 @@ use std::thread;
 
 use identity_keyfile::KeyfileError;
 use message_attestation::{
-    AttestationError, FileReplayStore, MemoryReplayStore, ReplayStore, REPLAY_STATE_MAX_BYTES,
+    AttestationError, FileReplayStore, MemoryReplayStore, ReplayStateError, ReplayStore,
+    REPLAY_STATE_MAX_BYTES,
 };
 
 static NEXT_TEST_ID: AtomicU64 = AtomicU64::new(0);
@@ -588,4 +589,71 @@ fn record_refuses_a_state_that_would_exceed_the_read_cap() {
     let refused_key = format!("{:03}{}", accepted.len(), "k".repeat(60_000));
     assert_eq!(reopened.last_seen("s", &refused_key).unwrap(), None);
     fs::remove_dir_all(directory).expect("clean up");
+}
+
+// --- Typed source for the old layout and malformed entries ---
+
+fn replay_state_error(error: &AttestationError) -> &ReplayStateError {
+    assert!(
+        matches!(error, AttestationError::Store(_)),
+        "not Store: {error:?}"
+    );
+    assert_eq!(error.to_string(), "store failed");
+    error
+        .source()
+        .and_then(|source| source.downcast_ref::<ReplayStateError>())
+        .unwrap_or_else(|| panic!("Store source is not a ReplayStateError: {error:?}"))
+}
+
+fn write_state_file(path: &Path, body: &str) {
+    fs::write(path, body).expect("write state");
+    fs::set_permissions(path, fs::Permissions::from_mode(0o600)).expect("mode");
+}
+
+#[test]
+fn old_layout_and_malformed_entries_have_a_typed_source() {
+    type Check = fn(&ReplayStateError) -> bool;
+    let cases: [(&str, Check); 7] = [
+        (r#"{"s":{"k":5}}"#, |e| {
+            matches!(e, ReplayStateError::OldLayout)
+        }),
+        (r#"{"s":{"k":{"sequence":1}}}"#, |e| {
+            matches!(e, ReplayStateError::OldLayout)
+        }),
+        (r#"{"s":{"k":{"attested_at":1}}}"#, |e| {
+            matches!(e, ReplayStateError::InvalidSequence)
+        }),
+        (r#"{"s":{"k":{"sequence":-1,"attested_at":1}}}"#, |e| {
+            matches!(e, ReplayStateError::InvalidSequence)
+        }),
+        (r#"{"s":{"k":{"sequence":1,"attested_at":1.5}}}"#, |e| {
+            matches!(e, ReplayStateError::InvalidAttestedAt)
+        }),
+        (r#"{"s":5}"#, |e| {
+            matches!(e, ReplayStateError::ScopeNotObject)
+        }),
+        ("[1]", |e| matches!(e, ReplayStateError::StateNotObject)),
+    ];
+    for (body, expected) in cases {
+        // open
+        let (directory, path) = test_path("typed-open");
+        write_state_file(&path, body);
+        let error = FileReplayStore::open(&path).expect_err(body);
+        let typed = replay_state_error(&error);
+        assert!(expected(typed), "open {body}: {typed:?}");
+        assert!(!typed.to_string().is_empty());
+        fs::remove_dir_all(directory).expect("clean up");
+
+        // last_seen and record: the file goes bad after a successful open.
+        let (directory, path) = test_path("typed-ops");
+        let store = FileReplayStore::open(&path).expect("open");
+        write_state_file(&path, body);
+        let error = store.last_seen("s", "k").expect_err(body);
+        let typed = replay_state_error(&error);
+        assert!(expected(typed), "last_seen {body}: {typed:?}");
+        let error = store.record("s", "k", 9, 1, None).expect_err(body);
+        let typed = replay_state_error(&error);
+        assert!(expected(typed), "record {body}: {typed:?}");
+        fs::remove_dir_all(directory).expect("clean up");
+    }
 }
