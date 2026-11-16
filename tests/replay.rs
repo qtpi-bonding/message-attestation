@@ -9,7 +9,9 @@ use std::sync::Arc;
 use std::thread;
 
 use identity_keyfile::KeyfileError;
-use message_attestation::{AttestationError, FileReplayStore, MemoryReplayStore, ReplayStore};
+use message_attestation::{
+    AttestationError, FileReplayStore, MemoryReplayStore, ReplayStore, REPLAY_STATE_MAX_BYTES,
+};
 
 static NEXT_TEST_ID: AtomicU64 = AtomicU64::new(0);
 
@@ -288,7 +290,7 @@ fn padded_state(len: usize) -> Vec<u8> {
 #[test]
 fn an_oversize_state_file_is_refused_and_one_at_the_cap_is_read() {
     let (directory, path) = test_path("oversize");
-    fs::write(&path, padded_state(1_048_576 + 1)).expect("write state");
+    fs::write(&path, padded_state(REPLAY_STATE_MAX_BYTES + 1)).expect("write state");
     fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).expect("tighten");
     let error = FileReplayStore::open(&path).expect_err("oversize must be refused");
     assert!(
@@ -298,7 +300,7 @@ fn an_oversize_state_file_is_refused_and_one_at_the_cap_is_read() {
         ),
         "{error:?}"
     );
-    fs::write(&path, padded_state(1_048_576)).expect("write state at the cap");
+    fs::write(&path, padded_state(REPLAY_STATE_MAX_BYTES)).expect("write state at the cap");
     FileReplayStore::open(&path).expect("a state exactly at the cap is read");
     fs::remove_dir_all(directory).expect("clean up");
 }
@@ -325,6 +327,40 @@ fn the_temp_file_is_removed_when_the_write_fails() {
         leftovers.is_empty(),
         "temp files left behind: {leftovers:?}"
     );
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+#[test]
+fn a_write_that_cannot_create_its_temp_fails_and_leaves_none() {
+    let (directory, path) = test_path("temp-readonly");
+    let store = FileReplayStore::open(&path).expect("open");
+    fs::set_permissions(&directory, fs::Permissions::from_mode(0o500)).expect("read-only parent");
+    assert!(store.record("scope", "key", 1).is_err());
+    fs::set_permissions(&directory, fs::Permissions::from_mode(0o700)).expect("restore");
+    assert!(!path.exists());
+    assert!(fs::read_dir(&directory).expect("list").all(|entry| !entry
+        .expect("entry")
+        .file_name()
+        .to_string_lossy()
+        .ends_with(".tmp")));
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+#[test]
+fn a_fifo_or_directory_at_the_lock_path_is_refused() {
+    let (directory, path) = test_path("lock-fifo");
+    let lock = lock_path(&path);
+    let c_path = CString::new(lock.as_os_str().as_bytes()).expect("c path");
+    // SAFETY: c_path is a valid NUL-terminated path.
+    assert_eq!(unsafe { libc::mkfifo(c_path.as_ptr(), 0o600) }, 0);
+    let error = FileReplayStore::open(&path).expect_err("a FIFO lock must be refused");
+    assert!(
+        matches!(keyfile_error(&error), KeyfileError::InsecureFile(_)),
+        "{error:?}"
+    );
+    fs::remove_file(&lock).expect("remove fifo");
+    fs::create_dir(&lock).expect("directory lock");
+    assert!(FileReplayStore::open(&path).is_err());
     fs::remove_dir_all(directory).expect("clean up");
 }
 
