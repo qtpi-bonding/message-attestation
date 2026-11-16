@@ -4,7 +4,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::thread;
 
-use message_attestation::replay::{FileReplayStore, MemoryReplayStore, ReplayStore};
+use message_attestation::{FileReplayStore, MemoryReplayStore, ReplayStore};
 
 static NEXT_TEST_ID: AtomicU64 = AtomicU64::new(0);
 

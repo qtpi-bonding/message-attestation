@@ -2,7 +2,7 @@ mod common;
 
 use common::*;
 use identity_crypto::{pb, PrincipalId};
-use message_attestation::send::{send_bytes, send_via_command, SendCommand, SEND_OUTPUT_CAP};
+use message_attestation::{send_bytes, send_via_command, SendCommand, SEND_OUTPUT_CAP};
 use message_attestation::{
     run_send_message, AttestationError, ComposedReply, ReplySigner, SendMessageResult,
 };
