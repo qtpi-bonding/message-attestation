@@ -5,6 +5,7 @@ mod error;
 mod locate;
 mod message;
 mod names;
+mod principal;
 mod render;
 mod replay;
 mod reply;

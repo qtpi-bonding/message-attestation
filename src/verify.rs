@@ -2,14 +2,15 @@
 
 use identity_crypto::transcripts::delivery_transcript;
 use identity_crypto::{
-    pb, verify_carried_message, verify_p256, verify_root_device_delegation, PrincipalId, PublicKey,
-    SKEW_SECONDS,
+    pb, verify_carried_message, verify_root_device_delegation, verify_signature, PrincipalId,
+    PublicKey, Signature, SKEW_SECONDS,
 };
 use prost::Message as _;
 
 use crate::locate::locate;
 use crate::message::{is_valid_id, validate_message, MessageKey, MESSAGE_BODY_TYPE};
 use crate::names::{RegisteredName, ResolvedPrincipal};
+use crate::principal::delegation_principal;
 use crate::render::MessageView;
 use crate::replay::ReplayStore;
 use crate::AttestationError;
@@ -137,11 +138,7 @@ pub fn verify_delivery(
         .signer_device
         .as_ref()
         .ok_or_else(|| AttestationError::Transcript("missing signer_device".into()))?;
-    let genesis = signer_device
-        .principal_genesis
-        .as_ref()
-        .ok_or_else(|| AttestationError::Transcript("missing signer_device.principal_genesis".into()))?;
-    let deliverer = PrincipalId::from_genesis(PublicKey::try_from(genesis).map_err(transcript_err)?);
+    let deliverer = delegation_principal(signer_device)?;
     let deliverer_str = deliverer.to_string();
     if !policy.trusted.contains(&deliverer) {
         return Err(AttestationError::UnknownDeliverer(deliverer_str));
@@ -150,7 +147,7 @@ pub fn verify_delivery(
         .map_err(|e| AttestationError::DelivererDevice(Box::new(e)))?;
 
     let transcript = delivery_transcript(delivery).map_err(transcript_err)?;
-    verify_p256(&device, &transcript, &delivery.signature)
+    verify_signature(&device, &transcript, &Signature::from_bytes(delivery.signature.clone()))
         .map_err(|_| AttestationError::BadSignature)?;
 
     if !is_valid_id(&delivery.delivery_id) {

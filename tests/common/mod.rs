@@ -140,7 +140,7 @@ pub fn fx() -> Fx {
     let signed = sign_message(&a.session, Some(a.delegation.clone()), &dl.id.to_string(), T0, &msg).unwrap();
     let via = vec![room("r")];
     let delivery = sign_delivery(
-        dl.device.signing_key_pair(),
+        &dl.device,
         &dl.delegation,
         unsigned(&recipient, &own, 1, T0, vec![OutgoingMessage { message: signed, via: via.clone() }]),
     )
@@ -160,7 +160,7 @@ pub fn policy(f: &Fx) -> DeliveryPolicy<'_> {
 
 /// Re-signs a delivery of `msgs` with the fixture's deliverer.
 pub fn resign(f: &Fx, msgs: Vec<OutgoingMessage>) -> pb::Delivery {
-    sign_delivery(f.dl.device.signing_key_pair(), &f.dl.delegation, unsigned(&f.recipient, &f.own, 1, T0, msgs))
+    sign_delivery(&f.dl.device, &f.dl.delegation, unsigned(&f.recipient, &f.own, 1, T0, msgs))
         .unwrap()
 }
 

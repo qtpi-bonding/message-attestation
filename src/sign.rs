@@ -1,12 +1,15 @@
 //! Signing a Delivery. The signer is a caller-owned device key; the crate
 //! holds no key storage, reads no clock and persists nothing.
 
-use identity_crypto::jwk_duo::SigningKeyPair;
 use identity_crypto::transcripts::delivery_transcript;
-use identity_crypto::{pb, verify_carried_message, verify_p256, PrincipalId, PublicKey, Timestamp};
+use identity_crypto::{
+    pb, verify_carried_message, verify_signature, PrincipalId, PublicKey, Signature, Signer,
+    Timestamp,
+};
 
-use crate::message::{check_target, is_valid_id};
+use crate::message::{check_target, is_valid_id, MAX_MESSAGES};
 use crate::names::ResolvedPrincipal;
+use crate::principal::delegation_principal;
 use crate::AttestationError;
 
 pub const DEFAULT_META_KEY: &str = "message-attestation/v2";
@@ -33,10 +36,22 @@ pub struct UnsignedDelivery {
 /// root to that device) is carried as `signer_device`. The authors are not
 /// re-verified: the deliverer has done that against its own directory.
 pub fn sign_delivery(
-    device: &SigningKeyPair,
+    device: &dyn Signer,
     device_delegation: &pb::KeyDelegation,
     unsigned: UnsignedDelivery,
 ) -> Result<pb::Delivery, AttestationError> {
+    if unsigned.messages.len() > MAX_MESSAGES {
+        return Err(AttestationError::TooManyMessages {
+            count: unsigned.messages.len(),
+            max: MAX_MESSAGES,
+        });
+    }
+    if unsigned.names.len() > MAX_MESSAGES {
+        return Err(AttestationError::TooManyMessages {
+            count: unsigned.names.len(),
+            max: MAX_MESSAGES,
+        });
+    }
     if unsigned.messages.is_empty() {
         return Err(AttestationError::EmptyMessages);
     }
@@ -52,31 +67,37 @@ pub fn sign_delivery(
         }
     }
 
-    let device_key = PublicKey::from(device);
+    let device_key = device.public_key();
     if device_delegation.delegated != Some(pb::PublicKey::from(&device_key)) {
         return Err(AttestationError::Sign(
             "device_delegation does not delegate this device".into(),
         ));
     }
 
-    let device_principal = device_delegation
-        .principal_genesis
-        .as_ref()
-        .and_then(|g| PublicKey::try_from(g).ok())
-        .map(PrincipalId::from_genesis);
+    if unsigned.attested_at.seconds > device_delegation.not_after_unix_seconds {
+        return Err(AttestationError::DelivererDevice(
+            "device delegation expired at attestation time".into(),
+        ));
+    }
+
     let mut names = unsigned.names;
     if !names.is_empty() {
-        let deliverer = device_principal.ok_or_else(|| {
-            AttestationError::Sign("device_delegation has no principal_genesis".into())
-        })?;
+        let deliverer = delegation_principal(device_delegation)?;
         let mut authors = Vec::with_capacity(unsigned.messages.len());
         for (index, m) in unsigned.messages.iter().enumerate() {
-            let carried = verify_carried_message(&m.message, &deliverer.to_string())
-                .map_err(|e| AttestationError::MessageSignature { index, reason: e.to_string() })?;
+            let carried =
+                verify_carried_message(&m.message, &deliverer.to_string()).map_err(|e| {
+                    AttestationError::MessageSignature {
+                        index,
+                        reason: e.to_string(),
+                    }
+                })?;
             authors.push(carried.author().clone());
         }
         if let Some(stray) = names.iter().find(|n| !authors.contains(n.id())) {
-            return Err(AttestationError::StrayName { principal: stray.id().to_string() });
+            return Err(AttestationError::StrayName {
+                principal: stray.id().to_string(),
+            });
         }
         names.sort_by_key(|n| n.id().to_string());
     }
@@ -96,7 +117,11 @@ pub fn sign_delivery(
     let mut delivery = pb::Delivery {
         delivery_id: unsigned.delivery_id,
         recipient_id: unsigned.recipient_id.to_string(),
-        recipient_devices: unsigned.recipient_devices.iter().map(pb::PublicKey::from).collect(),
+        recipient_devices: unsigned
+            .recipient_devices
+            .iter()
+            .map(pb::PublicKey::from)
+            .collect(),
         sequence: unsigned.sequence,
         attested_at: Some(unsigned.attested_at),
         messages,
@@ -109,11 +134,15 @@ pub fn sign_delivery(
     let transcript = delivery_transcript(&delivery)
         .map_err(|error| AttestationError::Transcript(Box::new(error)))?;
     let signature = device
-        .sign_bytes(&transcript)
+        .sign(&transcript)
         .map_err(|error| AttestationError::Sign(Box::new(error)))?;
-    delivery.signature = signature.to_vec();
+    delivery.signature = signature.into_bytes();
 
-    verify_p256(&device_key, &transcript, &delivery.signature)
-        .map_err(|error| AttestationError::Sign(Box::new(error)))?;
+    verify_signature(
+        &device_key,
+        &transcript,
+        &Signature::from_bytes(delivery.signature.clone()),
+    )
+    .map_err(|error| AttestationError::Sign(Box::new(error)))?;
     Ok(delivery)
 }

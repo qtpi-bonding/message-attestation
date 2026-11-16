@@ -58,7 +58,7 @@ impl Setup {
     }
 
     fn sign(&self, u: UnsignedDelivery) -> Result<pb::Delivery, AttestationError> {
-        sign_delivery(self.dl.device.signing_key_pair(), &self.dl.delegation, u)
+        sign_delivery(&self.dl.device, &self.dl.delegation, u)
     }
 
     fn policy(&self) -> DeliveryPolicy<'_> {
