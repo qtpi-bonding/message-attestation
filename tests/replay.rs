@@ -34,19 +34,29 @@ fn test_path(name: &str) -> (PathBuf, PathBuf) {
 fn memory_store_accepts_only_increasing_sequences() {
     let store = MemoryReplayStore::default();
     assert_eq!(store.last_seen("scope", "key").expect("read"), None);
-    assert!(store.record("scope", "key", 1).expect("record first"));
-    assert!(!store.record("scope", "key", 1).expect("reject duplicate"));
-    assert!(!store.record("scope", "key", 0).expect("reject lower"));
-    assert!(store.record("scope", "key", 2).expect("record higher"));
+    assert!(store
+        .record("scope", "key", 1, 0, None)
+        .expect("record first"));
+    assert!(!store
+        .record("scope", "key", 1, 0, None)
+        .expect("reject duplicate"));
+    assert!(!store
+        .record("scope", "key", 0, 0, None)
+        .expect("reject lower"));
+    assert!(store
+        .record("scope", "key", 2, 0, None)
+        .expect("record higher"));
     assert_eq!(store.last_seen("scope", "key").expect("read"), Some(2));
 }
 
 #[test]
 fn scopes_are_independent() {
     let store = MemoryReplayStore::default();
-    assert!(store.record("first", "key", 3).expect("record first scope"));
     assert!(store
-        .record("second", "key", 1)
+        .record("first", "key", 3, 0, None)
+        .expect("record first scope"));
+    assert!(store
+        .record("second", "key", 1, 0, None)
         .expect("record second scope"));
     assert_eq!(
         store.last_seen("first", "key").expect("read first"),
@@ -63,11 +73,13 @@ fn file_store_survives_a_reopen() {
     let (directory, path) = test_path("reopen");
     {
         let store = FileReplayStore::open(&path).expect("open empty store");
-        assert!(store.record("scope", "key", 5).expect("record"));
+        assert!(store.record("scope", "key", 5, 0, None).expect("record"));
     }
     let store = FileReplayStore::open(&path).expect("reopen store");
     assert_eq!(store.last_seen("scope", "key").expect("read"), Some(5));
-    assert!(!store.record("scope", "key", 4).expect("reject lower"));
+    assert!(!store
+        .record("scope", "key", 4, 0, None)
+        .expect("reject lower"));
     fs::remove_dir_all(directory).expect("clean up");
 }
 
@@ -96,11 +108,13 @@ fn two_stores_on_one_file_do_not_both_accept_the_same_sequence() {
     for sequence in 1..=50 {
         let left = Arc::clone(&first);
         let right = Arc::clone(&second);
-        let left_thread =
-            thread::spawn(move || left.record("scope", "key", sequence).expect("left record"));
+        let left_thread = thread::spawn(move || {
+            left.record("scope", "key", sequence, 0, None)
+                .expect("left record")
+        });
         let right_thread = thread::spawn(move || {
             right
-                .record("scope", "key", sequence)
+                .record("scope", "key", sequence, 0, None)
                 .expect("right record")
         });
         let accepted = [
@@ -119,7 +133,7 @@ fn a_stale_temp_file_does_not_wedge_the_store() {
     let stale = directory.join(format!(".replay.json.{}.tmp", std::process::id()));
     fs::write(&stale, b"leftover from a crash").expect("write stale temp");
     assert!(store
-        .record("scope", "key", 1)
+        .record("scope", "key", 1, 0, None)
         .expect("record despite stale temp"));
     assert_eq!(store.last_seen("scope", "key").expect("read"), Some(1));
 }
@@ -154,7 +168,7 @@ fn lock_path(path: &Path) -> PathBuf {
 fn state_and_lock_files_are_0600_and_the_parent_0700() {
     let (directory, path) = test_path("modes");
     let store = FileReplayStore::open(&path).expect("open");
-    assert!(store.record("scope", "key", 1).expect("record"));
+    assert!(store.record("scope", "key", 1, 0, None).expect("record"));
     assert_eq!(mode_of(&path), 0o600);
     assert_eq!(mode_of(&lock_path(&path)), 0o600);
     assert_eq!(mode_of(&directory), 0o700);
@@ -167,7 +181,7 @@ fn a_missing_parent_is_created_0700() {
     let nested = directory.join("a").join("b");
     let path = nested.join("replay.json");
     let store = FileReplayStore::open(&path).expect("open creates the parent");
-    assert!(store.record("scope", "key", 1).expect("record"));
+    assert!(store.record("scope", "key", 1, 0, None).expect("record"));
     assert_eq!(mode_of(&nested), 0o700);
     fs::remove_dir_all(directory).expect("clean up");
 }
@@ -224,7 +238,7 @@ fn a_loose_lock_file_is_refused_on_every_operation() {
     let lock = lock_path(&path);
     fs::set_permissions(&lock, fs::Permissions::from_mode(0o666)).expect("loosen");
     assert!(store.last_seen("scope", "key").is_err());
-    assert!(store.record("scope", "key", 1).is_err());
+    assert!(store.record("scope", "key", 1, 0, None).is_err());
     assert_eq!(mode_of(&lock), 0o666);
     fs::remove_dir_all(directory).expect("clean up");
 }
@@ -311,7 +325,7 @@ fn the_temp_file_is_removed_when_the_write_fails() {
     let store = FileReplayStore::open(&path).expect("open");
     fs::create_dir(&path).expect("make the state path a directory");
     fs::set_permissions(&path, fs::Permissions::from_mode(0o700)).expect("mode");
-    assert!(store.record("scope", "key", 1).is_err());
+    assert!(store.record("scope", "key", 1, 0, None).is_err());
     let leftovers: Vec<_> = fs::read_dir(&directory)
         .expect("list")
         .map(|entry| {
@@ -335,7 +349,7 @@ fn a_write_that_cannot_create_its_temp_fails_and_leaves_none() {
     let (directory, path) = test_path("temp-readonly");
     let store = FileReplayStore::open(&path).expect("open");
     fs::set_permissions(&directory, fs::Permissions::from_mode(0o500)).expect("read-only parent");
-    assert!(store.record("scope", "key", 1).is_err());
+    assert!(store.record("scope", "key", 1, 0, None).is_err());
     fs::set_permissions(&directory, fs::Permissions::from_mode(0o700)).expect("restore");
     assert!(!path.exists());
     assert!(fs::read_dir(&directory).expect("list").all(|entry| !entry
@@ -368,4 +382,108 @@ fn a_fifo_or_directory_at_the_lock_path_is_refused() {
 fn memory_store_is_debug() {
     let store = MemoryReplayStore::default();
     assert!(format!("{store:?}").contains("MemoryReplayStore"));
+}
+
+// --- Task 8: entries carry their time; safe forgetting ---
+
+fn stores() -> Vec<(Box<dyn ReplayStore>, Option<PathBuf>)> {
+    let (directory, path) = test_path("both");
+    let file = FileReplayStore::open(&path).expect("open file store");
+    vec![
+        (Box::new(MemoryReplayStore::default()), None),
+        (Box::new(file), Some(directory)),
+    ]
+}
+
+fn finish(directory: Option<PathBuf>) {
+    if let Some(directory) = directory {
+        fs::remove_dir_all(directory).expect("clean up");
+    }
+}
+
+#[test]
+fn record_stores_the_time_and_an_older_time_never_lowers_it() {
+    for (store, dir) in stores() {
+        assert!(store.record("s", "k", 1, 100, None).unwrap());
+        assert!(store.record("s", "k", 2, 50, None).unwrap());
+        // Another key's record forgets entries older than 75; "k" kept time 100.
+        assert!(store.record("s", "other", 1, 200, Some(75)).unwrap());
+        assert_eq!(store.last_seen("s", "k").unwrap(), Some(2));
+        finish(dir);
+    }
+}
+
+#[test]
+fn forgetting_is_strict_and_per_scope() {
+    for (store, dir) in stores() {
+        assert!(store.record("A", "old", 4, 10, None).unwrap());
+        assert!(store.record("A", "edge", 5, 20, None).unwrap());
+        assert!(store.record("B", "old", 6, 10, None).unwrap());
+        assert!(store.record("A", "new", 7, 5, Some(20)).unwrap());
+        assert_eq!(store.last_seen("A", "old").unwrap(), None);
+        assert_eq!(store.last_seen("A", "edge").unwrap(), Some(5));
+        assert_eq!(store.last_seen("B", "old").unwrap(), Some(6));
+        assert_eq!(
+            store.last_seen("A", "new").unwrap(),
+            Some(7),
+            "the entry just written is never forgotten by its own call"
+        );
+        finish(dir);
+    }
+}
+
+#[test]
+fn no_forget_when_none() {
+    for (store, dir) in stores() {
+        assert!(store.record("A", "old", 4, 1, None).unwrap());
+        assert!(store.record("A", "new", 1, 1_000_000, None).unwrap());
+        assert_eq!(store.last_seen("A", "old").unwrap(), Some(4));
+        finish(dir);
+    }
+}
+
+#[test]
+fn a_rejected_record_forgets_nothing() {
+    for (store, dir) in stores() {
+        assert!(store.record("A", "old", 4, 1, None).unwrap());
+        assert!(store.record("A", "k", 5, 100, None).unwrap());
+        assert!(!store.record("A", "k", 5, 100, Some(50)).unwrap());
+        assert_eq!(store.last_seen("A", "old").unwrap(), Some(4));
+        finish(dir);
+    }
+}
+
+#[test]
+fn a_forgotten_key_can_record_again_from_sequence_one() {
+    for (store, dir) in stores() {
+        assert!(store.record("A", "old", 9, 10, None).unwrap());
+        assert!(store.record("A", "new", 1, 100, Some(50)).unwrap());
+        assert_eq!(store.last_seen("A", "old").unwrap(), None);
+        assert!(store.record("A", "old", 1, 100, None).unwrap());
+        finish(dir);
+    }
+}
+
+#[test]
+fn the_file_layout_is_sequence_and_attested_at() {
+    let (directory, path) = test_path("layout");
+    let store = FileReplayStore::open(&path).expect("open");
+    assert!(store.record("s", "k", 3, 77, None).unwrap());
+    let value: serde_json::Value =
+        serde_json::from_slice(&fs::read(&path).expect("read")).expect("json");
+    assert_eq!(
+        value,
+        serde_json::json!({"s": {"k": {"sequence": 3, "attested_at": 77}}})
+    );
+    fs::remove_dir_all(directory).expect("clean up");
+}
+
+#[test]
+fn the_old_bare_number_layout_fails_closed() {
+    let (directory, path) = test_path("bare-number");
+    fs::write(&path, br#"{"s":{"k":5}}"#).expect("write old layout");
+    fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).expect("mode");
+    let error = FileReplayStore::open(&path).expect_err("old layout must fail closed");
+    assert!(matches!(error, AttestationError::Store(_)), "{error:?}");
+    fs::remove_dir_all(directory).expect("clean up");
 }

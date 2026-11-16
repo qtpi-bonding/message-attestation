@@ -62,7 +62,7 @@ fn check(case: &Value) -> Result<(), String> {
     let store = MemoryReplayStore::default();
     for p in case["prior_sequences"].as_array().ok_or("prior_sequences")? {
         store
-            .record(str_of(p, "scope"), str_of(p, "key"), p["last"].as_u64().unwrap())
+            .record(str_of(p, "scope"), str_of(p, "key"), p["last"].as_u64().unwrap(), 0, None)
             .map_err(|e| e.to_string())?;
     }
     let policy = DeliveryPolicy {

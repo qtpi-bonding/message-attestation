@@ -279,7 +279,7 @@ pub fn verify_delivery_meta(
 }
 
 pub fn confirm(replay: &dyn ReplayStore, pending: PendingSequence) -> Result<(), AttestationError> {
-    if replay.record(&pending.scope, &pending.key, pending.sequence)? {
+    if replay.record(&pending.scope, &pending.key, pending.sequence, 0, None)? {
         return Ok(());
     }
     let last = replay.last_seen(&pending.scope, &pending.key)?.unwrap_or(0);

@@ -171,11 +171,11 @@ fn stale_with_window() {
 fn replayed_sequence() {
     let f = fx();
     let store = MemoryReplayStore::default();
-    store.record(&f.recipient.id.to_string(), &f.dl.id.to_string(), 1).unwrap();
+    store.record(&f.recipient.id.to_string(), &f.dl.id.to_string(), 1, 0, None).unwrap();
     let r = verify_delivery(&f.delivery, &policy(&f), &store);
     assert!(matches!(r, Err(AttestationError::Replay { .. })), "{r:?}");
     let store = MemoryReplayStore::default();
-    store.record(&f.recipient.id.to_string(), &f.dl.id.to_string(), 7).unwrap();
+    store.record(&f.recipient.id.to_string(), &f.dl.id.to_string(), 7, 0, None).unwrap();
     assert!(matches!(verify_delivery(&f.delivery, &policy(&f), &store), Err(AttestationError::Replay { .. })));
 }
 

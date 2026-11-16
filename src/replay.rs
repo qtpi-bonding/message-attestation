@@ -1,3 +1,35 @@
+//! # Replay store: entries carry their time; safe forgetting
+//!
+//! Each replay entry records the sequence number it saw *and* the delivery's
+//! `attested_at` time. `record` accepts a `forget_before_unix` deadline: in the
+//! same write, every OTHER entry of the same scope whose stored time is
+//! strictly `< forget_before_unix` is removed. The entry just recorded is never
+//! forgotten by its own call.
+//!
+//! ## Safety argument
+//!
+//! Forgetting a replay entry means a replayed delivery with that key but a
+//! *fresh* sequence could be accepted again. This is safe because the verifier
+//! refuses a delivery as `Stale` when `now - attested_at > max_age`, before it
+//! ever consults the store. So an entry whose recorded time `T` satisfies
+//! `now - T > max_age` can only guard deliveries that are already stale —
+//! provided a deliverer's `attested_at` does not run ahead of its sequence by
+//! more than `max_age`. That holds for an honest, trusted deliverer, the only
+//! kind `verify_delivery` accepts. Callers therefore pass
+//! `forget_before_unix = now_unix - max_age_secs`, and the comparison here is
+//! strict `<`, so an entry whose time is exactly at the deadline is kept.
+//!
+//! A stored entry's time is `max(old, new)` when a higher sequence is recorded
+//! (a clock step backwards never shortens retention), and a rejected record
+//! (`seq <= last`) forgets nothing and does not write.
+//!
+//! ## File layout
+//!
+//! `{"<scope>":{"<key>":{"sequence":N,"attested_at":T}}}`. An entry that is a
+//! bare number (the old layout), or an entry missing `attested_at` or
+//! `sequence`, fails closed with `Store("replay entry has no attested_at")`;
+//! the one-time migration rewrites live files.
+
 use std::collections::HashMap;
 use std::fs::{File, OpenOptions};
 use std::io;
@@ -17,12 +49,22 @@ pub const REPLAY_STATE_MAX_BYTES: usize = 1_048_576;
 pub trait ReplayStore: Send + Sync {
     fn last_seen(&self, scope: &str, key_id: &str) -> Result<Option<u64>, AttestationError>;
 
-    fn record(&self, scope: &str, key_id: &str, seq: u64) -> Result<bool, AttestationError>;
+    /// Records `seq` with the delivery's `attested_at_unix`. Returns false when `seq <= last`.
+    /// When `forget_before_unix` is Some(t), in the same write every OTHER entry of `scope`
+    /// whose stored time is `< t` is removed.
+    fn record(
+        &self,
+        scope: &str,
+        key_id: &str,
+        seq: u64,
+        attested_at_unix: i64,
+        forget_before_unix: Option<i64>,
+    ) -> Result<bool, AttestationError>;
 }
 
 #[derive(Debug, Default)]
 pub struct MemoryReplayStore {
-    entries: Mutex<HashMap<(String, String), u64>>,
+    entries: Mutex<HashMap<(String, String), (u64, i64)>>,
 }
 
 impl ReplayStore for MemoryReplayStore {
@@ -31,21 +73,40 @@ impl ReplayStore for MemoryReplayStore {
             .entries
             .lock()
             .map_err(|error| AttestationError::Store(error.to_string().into()))?;
-        Ok(entries.get(&(scope.to_owned(), key_id.to_owned())).copied())
+        Ok(entries
+            .get(&(scope.to_owned(), key_id.to_owned()))
+            .map(|(seq, _time)| *seq))
     }
 
-    fn record(&self, scope: &str, key_id: &str, seq: u64) -> Result<bool, AttestationError> {
+    fn record(
+        &self,
+        scope: &str,
+        key_id: &str,
+        seq: u64,
+        attested_at_unix: i64,
+        forget_before_unix: Option<i64>,
+    ) -> Result<bool, AttestationError> {
         let mut entries = self
             .entries
             .lock()
             .map_err(|error| AttestationError::Store(error.to_string().into()))?;
         let key = (scope.to_owned(), key_id.to_owned());
-        if let Some(last) = entries.get(&key) {
+        if let Some((last, _time)) = entries.get(&key) {
             if seq <= *last {
+                // A rejected record forgets nothing and does not write.
                 return Ok(false);
             }
         }
-        entries.insert(key, seq);
+        let time = match entries.get(&key) {
+            Some(&(_seq, old_time)) => old_time.max(attested_at_unix),
+            None => attested_at_unix,
+        };
+        entries.insert(key, (seq, time));
+        if let Some(forget_before) = forget_before_unix {
+            entries.retain(|(entry_scope, entry_key), &mut (_seq, entry_time)| {
+                entry_scope != scope || entry_key.as_str() == key_id || entry_time >= forget_before
+            });
+        }
         Ok(true)
     }
 }
@@ -116,10 +177,12 @@ impl FileReplayStore {
             Err(error) => return Err(store_error(error)),
         };
         let value: Value = serde_json::from_slice(&bytes).map_err(store_error)?;
-        value
+        let state = value
             .as_object()
             .cloned()
-            .ok_or_else(|| store_message("replay state is not an object"))
+            .ok_or_else(|| store_message("replay state is not an object"))?;
+        validate_state(&state)?;
+        Ok(state)
     }
 
     fn write_state(&self, state: &Map<String, Value>) -> Result<(), AttestationError> {
@@ -162,44 +225,135 @@ impl ReplayStore for FileReplayStore {
         })
     }
 
-    fn record(&self, scope: &str, key_id: &str, seq: u64) -> Result<bool, AttestationError> {
+    fn record(
+        &self,
+        scope: &str,
+        key_id: &str,
+        seq: u64,
+        attested_at_unix: i64,
+        forget_before_unix: Option<i64>,
+    ) -> Result<bool, AttestationError> {
         self.with_lock(|store| {
             let mut state = store.read_state()?;
             if let Some(last) = lookup(&state, scope, key_id)? {
                 if seq <= last {
+                    // A rejected record forgets nothing and does not write.
                     return Ok(false);
                 }
             }
+            // The stored time never lowers: a clock step backwards does not
+            // shorten retention. It only applies to an existing entry.
+            let time = match entry_time(&state, scope, key_id)? {
+                Some(old_time) => old_time.max(attested_at_unix),
+                None => attested_at_unix,
+            };
             let scopes = state
                 .entry(scope.to_owned())
                 .or_insert_with(|| Value::Object(Map::new()))
                 .as_object_mut()
                 .ok_or_else(|| store_message("scope state is not an object"))?;
-            scopes.insert(key_id.to_owned(), Value::from(seq));
+            scopes.insert(key_id.to_owned(), entry_value(seq, time));
+            if let Some(forget_before) = forget_before_unix {
+                let stale: Vec<String> = scopes
+                    .iter()
+                    .filter(|(other_key, value)| {
+                        other_key.as_str() != key_id
+                            && value
+                                .get("attested_at")
+                                .and_then(Value::as_i64)
+                                .is_some_and(|other_time| other_time < forget_before)
+                    })
+                    .map(|(other_key, _)| other_key.clone())
+                    .collect();
+                for other_key in stale {
+                    scopes.remove(&other_key);
+                }
+            }
             store.write_state(&state)?;
             Ok(true)
         })
     }
 }
 
+/// A malformed entry fails closed: a bare number (the old layout) or an entry
+/// missing "sequence"/"attested_at" is refused, with the message the migration
+/// step keys on.
+fn validate_state(state: &Map<String, Value>) -> Result<(), AttestationError> {
+    for scope_value in state.values() {
+        let Some(scope_map) = scope_value.as_object() else {
+            return Err(store_message("scope state is not an object"));
+        };
+        for value in scope_map.values() {
+            if value.get("sequence").and_then(Value::as_u64).is_none()
+                || value.get("attested_at").and_then(Value::as_i64).is_none()
+            {
+                return Err(store_message("replay entry has no attested_at"));
+            }
+        }
+    }
+    Ok(())
+}
+
+fn scope_map<'a>(
+    state: &'a Map<String, Value>,
+    scope: &str,
+) -> Result<Option<&'a Map<String, Value>>, AttestationError> {
+    match state.get(scope) {
+        None => Ok(None),
+        Some(scope_value) => scope_value
+            .as_object()
+            .map(Some)
+            .ok_or_else(|| store_message("scope state is not an object")),
+    }
+}
+
+/// The sequence of an entry. Missing "attested_at"/"sequence" or a bare-number
+/// (old layout) entry fails closed.
 fn lookup(
     state: &Map<String, Value>,
     scope: &str,
     key_id: &str,
 ) -> Result<Option<u64>, AttestationError> {
-    let Some(scope_value) = state.get(scope) else {
+    let Some(scope_map) = scope_map(state, scope)? else {
         return Ok(None);
     };
-    let scope_map = scope_value
-        .as_object()
-        .ok_or_else(|| store_message("scope state is not an object"))?;
+    let Some(value) = scope_map.get(key_id) else {
+        return Ok(None);
+    };
+    let sequence = value
+        .get("sequence")
+        .and_then(Value::as_u64)
+        .ok_or_else(|| store_message("replay entry has no attested_at"))?;
+    if value.get("attested_at").and_then(Value::as_i64).is_none() {
+        return Err(store_message("replay entry has no attested_at"));
+    }
+    Ok(Some(sequence))
+}
+
+/// The stored time of an entry, if it exists. Malformed entries fail closed.
+fn entry_time(
+    state: &Map<String, Value>,
+    scope: &str,
+    key_id: &str,
+) -> Result<Option<i64>, AttestationError> {
+    let Some(scope_map) = scope_map(state, scope)? else {
+        return Ok(None);
+    };
     let Some(value) = scope_map.get(key_id) else {
         return Ok(None);
     };
     value
-        .as_u64()
+        .get("attested_at")
+        .and_then(Value::as_i64)
         .map(Some)
-        .ok_or_else(|| store_message("sequence is not an unsigned integer"))
+        .ok_or_else(|| store_message("replay entry has no attested_at"))
+}
+
+fn entry_value(sequence: u64, attested_at: i64) -> Value {
+    let mut entry = Map::new();
+    entry.insert("sequence".to_owned(), Value::from(sequence));
+    entry.insert("attested_at".to_owned(), Value::from(attested_at));
+    Value::Object(entry)
 }
 
 fn store_error(error: impl std::error::Error + Send + Sync + 'static) -> AttestationError {
