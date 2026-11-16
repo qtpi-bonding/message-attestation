@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
-# Full gate. Every cargo call goes through cargo-slot.
+# Full gate. Runs anywhere: uses cargo-slot when it is on PATH, plain cargo otherwise.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-if [ -z "${CARGO_TARGET_DIR:-}" ]; then
-    . /home/concordium/workshop/gait-worker/targets/message-attestation.env
+if command -v cargo-slot >/dev/null 2>&1; then
+    run() { cargo-slot cargo "$@"; }
+else
+    run() { cargo "$@"; }
 fi
 
-cargo-slot cargo fmt --all -- --check
-cargo-slot cargo clippy --all-targets -- -D warnings
-cargo-slot cargo clippy --all-targets --all-features -- -D warnings
-cargo-slot cargo test
-cargo-slot cargo test --all-features
-cargo-slot cargo check --no-default-features
+run fmt --all -- --check
+run clippy --all-targets -- -D warnings
+run clippy --all-targets --all-features -- -D warnings
+run test
+run test --all-features
+run check --no-default-features
 
 echo "check: ok"

@@ -8,7 +8,6 @@ description = "Sign, verify, attach and render author-signed Messages inside a d
 [dependencies]
 getrandom = "0.4"
 coded-error = { git = "https://github.com/qtpi-bonding/coded-error.git", rev = "ffeaf3949230a8883b56c75e7031346a4f28ed4d", default-features = false }
-libc = "0.2"
 identity-crypto = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "14c6abb5d4b56b1c8dc6b6ce74d871bd03eea223" }
 identity-keyfile = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "14c6abb5d4b56b1c8dc6b6ce74d871bd03eea223" }
 prost = "0.13"

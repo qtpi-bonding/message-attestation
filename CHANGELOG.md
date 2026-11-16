@@ -29,7 +29,7 @@ Breaking release. Every item below can fail a consumer's build or change its beh
 ### Build
 
 - Unix only: the crate fails to compile elsewhere.
-- New dependencies: `coded-error` (pinned by full rev) and `identity-keyfile` (same repository and rev as `identity-crypto`); `libc` (constants only) and `rustix` (safe process-group kill; `fs` feature as a dev-dependency for tests).
+- New dependencies: `coded-error` (pinned by full rev) and `identity-keyfile` (same repository and rev as `identity-crypto`); `rustix` (safe process-group kill; `fs` feature as a dev-dependency for tests).
 - The crate contains no `unsafe` and sets `unsafe_code = "forbid"` in `[lints.rust]`. The replay lock's handle check and effective-uid lookup are `identity_keyfile::private_fs::check_private_file_handle` (which uses `effective_uid` internally); this crate no longer carries its own copies.
 - `scripts/check.sh` is the full gate (fmt, clippy, tests with default and all features, `--no-default-features` check).
 - README: removed the "Pinned dependency" section (the pin lives in `Cargo.toml`).

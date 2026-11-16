@@ -41,13 +41,11 @@
 //! the one-time migration rewrites live files.
 
 use std::collections::HashMap;
-use std::fs::OpenOptions;
-use std::os::unix::fs::OpenOptionsExt;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
 use identity_keyfile::private_fs::{
-    check_private_file_handle, create_private_dir, read_private_file, write_private_atomic,
+    create_private_dir, open_private_lock_file, read_private_file, write_private_atomic,
 };
 use identity_keyfile::KeyfileError;
 use serde_json::{Map, Value};
@@ -152,28 +150,9 @@ impl FileReplayStore {
     ) -> Result<T, AttestationError> {
         // A fresh handle per operation: flock on one shared handle would not
         // exclude other threads using the same store.
-        let lock = OpenOptions::new()
-            .create(true)
-            .truncate(false)
-            .read(true)
-            .write(true)
-            .mode(0o600)
-            .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
-            .open(&self.lock_path)
-            .map_err(|error| {
-                // ELOOP: the lock path is a symlink (O_NOFOLLOW refused it).
-                if error.raw_os_error() == Some(libc::ELOOP) {
-                    KeyfileError::InsecureFile(self.lock_path.clone())
-                } else {
-                    KeyfileError::Io {
-                        path: self.lock_path.clone(),
-                        source: error,
-                    }
-                }
-            })
-            .map_err(store_error)?;
-        // The handle checks run before flock so an insecure lock is never used.
-        check_private_file_handle(&lock, &self.lock_path).map_err(store_error)?;
+        // Opened O_NOFOLLOW, created 0600, and mode/owner checked on the handle
+        // before flock, so an insecure lock is never used.
+        let lock = open_private_lock_file(&self.lock_path).map_err(store_error)?;
         lock.lock().map_err(store_error)?;
         let result = operation(self);
         let unlock_result = lock.unlock().map_err(store_error);

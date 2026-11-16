@@ -134,9 +134,10 @@ pub(crate) fn message_id_from(
     fill(&mut bytes).map_err(|e| AttestationError::Randomness(Box::new(e)))?;
     let mut id = String::with_capacity(34);
     id.push_str("m-");
+    const HEX: &[u8; 16] = b"0123456789abcdef";
     for b in bytes {
-        id.push(char::from_digit(u32::from(b >> 4), 16).expect("nibble"));
-        id.push(char::from_digit(u32::from(b & 15), 16).expect("nibble"));
+        id.push(char::from(HEX[usize::from(b >> 4)]));
+        id.push(char::from(HEX[usize::from(b & 15)]));
     }
     Ok(id)
 }
