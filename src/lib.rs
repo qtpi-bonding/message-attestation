@@ -1,3 +1,6 @@
+#[cfg(not(unix))]
+compile_error!("message-attestation needs a unix target");
+
 pub mod error;
 pub mod locate;
 pub mod message;

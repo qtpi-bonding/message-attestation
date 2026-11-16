@@ -1,14 +1,16 @@
 [package]
 name = "message-attestation"
-version = "0.4.1"
+version = "0.5.0"
 edition = "2021"
 rust-version = "1.89"
 description = "Sign, verify, attach and render author-signed Messages inside a deliverer-signed Delivery carried in an ACP prompt's _meta, with two-phase replay protection"
 
 [dependencies]
 getrandom = "0.4"
+coded-error = { git = "https://github.com/qtpi-bonding/coded-error.git", rev = "ffeaf3949230a8883b56c75e7031346a4f28ed4d", default-features = false }
 libc = "0.2"
 identity-crypto = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "14c6abb5d4b56b1c8dc6b6ce74d871bd03eea223" }
+identity-keyfile = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "14c6abb5d4b56b1c8dc6b6ce74d871bd03eea223" }
 prost = "0.13"
 serde_json = "1"
 thiserror = "2"
@@ -16,6 +18,9 @@ wait-timeout = "0.2"
 
 [dev-dependencies]
 hex = "0.4"
+
+[lints.clippy]
+all = "warn"
 
 [features]
 # Lets a crate build a ResolvedPrincipal from a registry record. Only the
