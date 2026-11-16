@@ -3,8 +3,8 @@
 use identity_crypto::transcripts::delivery_transcript;
 use identity_crypto::{PrincipalId, PublicKey};
 use message_attestation::{
-    locate, render, verify_delivery_meta, RenderOptions, AttestationError, DeliveryPolicy, MemoryReplayStore,
-    ReplayStore, Trust, DEFAULT_META_KEY, RENDER_VERSION,
+    locate, render, verify_delivery_meta, AttestationError, DeliveryPolicy, MemoryReplayStore,
+    RenderOptions, ReplayStore, Trust, DEFAULT_META_KEY, RENDER_VERSION,
 };
 use serde_json::Value;
 
@@ -41,7 +41,9 @@ fn error_name(e: &AttestationError) -> &'static str {
 }
 
 fn str_of<'a>(v: &'a Value, key: &str) -> &'a str {
-    v[key].as_str().unwrap_or_else(|| panic!("{key} is not a string"))
+    v[key]
+        .as_str()
+        .unwrap_or_else(|| panic!("{key} is not a string"))
 }
 
 /// Runs one case; `Err` carries what disagreed.
@@ -52,7 +54,8 @@ fn check(case: &Value) -> Result<(), String> {
         .iter()
         .map(|t| PrincipalId::parse_canonical(t.as_str().unwrap()).map_err(|e| e.to_string()))
         .collect::<Result<_, _>>()?;
-    let self_id = PrincipalId::parse_canonical(str_of(case, "self_id")).map_err(|e| e.to_string())?;
+    let self_id =
+        PrincipalId::parse_canonical(str_of(case, "self_id")).map_err(|e| e.to_string())?;
     let own: Vec<PublicKey> = case["own_devices"]
         .as_array()
         .ok_or("own_devices")?
@@ -60,9 +63,18 @@ fn check(case: &Value) -> Result<(), String> {
         .map(|k| PublicKey::from_hex(k.as_str().unwrap()).map_err(|e| e.to_string()))
         .collect::<Result<_, _>>()?;
     let store = MemoryReplayStore::default();
-    for p in case["prior_sequences"].as_array().ok_or("prior_sequences")? {
+    for p in case["prior_sequences"]
+        .as_array()
+        .ok_or("prior_sequences")?
+    {
         store
-            .record(str_of(p, "scope"), str_of(p, "key"), p["last"].as_u64().unwrap(), 0, None)
+            .record(
+                str_of(p, "scope"),
+                str_of(p, "key"),
+                p["last"].as_u64().unwrap(),
+                0,
+                None,
+            )
             .map_err(|e| e.to_string())?;
     }
     let policy = DeliveryPolicy {
@@ -79,7 +91,9 @@ fn check(case: &Value) -> Result<(), String> {
             .ok_or("transcript_hex given but no delivery in meta")?;
         let got = hex::encode(delivery_transcript(&delivery).map_err(|e| e.to_string())?);
         if got != hex_str {
-            return Err(format!("transcript differs:\n  rust {got}\n  gen  {hex_str}"));
+            return Err(format!(
+                "transcript differs:\n  rust {got}\n  gen  {hex_str}"
+            ));
         }
     }
 
@@ -88,7 +102,10 @@ fn check(case: &Value) -> Result<(), String> {
     if let Some(name) = expected["error"].as_str() {
         return match outcome {
             Err(e) if error_name(&e) == name => Ok(()),
-            Err(e) => Err(format!("expected error {name}, got {} ({e})", error_name(&e))),
+            Err(e) => Err(format!(
+                "expected error {name}, got {} ({e})",
+                error_name(&e)
+            )),
             Ok(_) => Err(format!("expected error {name}, got a result")),
         };
     }
@@ -108,37 +125,63 @@ fn check(case: &Value) -> Result<(), String> {
     let want = ok["messages"].as_array().ok_or("ok.messages")?;
     let got = verified.delivery.messages();
     if got.len() != want.len() {
-        return Err(format!("expected {} messages, got {}", want.len(), got.len()));
+        return Err(format!(
+            "expected {} messages, got {}",
+            want.len(),
+            got.len()
+        ));
     }
     for (g, w) in got.iter().zip(want) {
         if g.author().to_string() != str_of(w, "author") {
             return Err(format!("author {} != {}", g.author(), str_of(w, "author")));
         }
         if g.message().message_id != str_of(w, "message_id") {
-            return Err(format!("message id {} != {}", g.message().message_id, str_of(w, "message_id")));
+            return Err(format!(
+                "message id {} != {}",
+                g.message().message_id,
+                str_of(w, "message_id")
+            ));
         }
         let got_name = g.author_name().map(|n| n.as_str());
         if got_name != w["author_name"].as_str() {
-            return Err(format!("author name {got_name:?} != {:?}", w["author_name"]));
+            return Err(format!(
+                "author name {got_name:?} != {:?}",
+                w["author_name"]
+            ));
         }
     }
     let owner = match case["render_owner"].as_str() {
         Some(o) => Some(PrincipalId::parse_canonical(o).map_err(|e| e.to_string())?),
         None => None,
     };
-    let rendered =
-        render(&verified.delivery, &self_id, Trust::Verified, &RenderOptions { owner: owner.as_ref() });
+    let rendered = render(
+        &verified.delivery,
+        &self_id,
+        Trust::Verified,
+        &RenderOptions {
+            owner: owner.as_ref(),
+        },
+    );
     if rendered != str_of(ok, "render") {
-        return Err(format!("render differs:\n  rust {rendered}\n  gen  {}", str_of(ok, "render")));
+        return Err(format!(
+            "render differs:\n  rust {rendered}\n  gen  {}",
+            str_of(ok, "render")
+        ));
     }
     Ok(())
 }
 
 #[test]
 fn delivery_vectors_match_the_independent_generator() {
-    assert_eq!(RENDER_VERSION, 2, "vectors were written for render version 2");
-    let file = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/vectors/delivery.json"))
-        .expect("vectors/delivery.json");
+    assert_eq!(
+        RENDER_VERSION, 2,
+        "vectors were written for render version 2"
+    );
+    let file = std::fs::read_to_string(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/vectors/delivery.json"
+    ))
+    .expect("vectors/delivery.json");
     let doc: Value = serde_json::from_str(&file).unwrap();
     let mut failures = Vec::new();
     let mut checked = 0;
@@ -148,6 +191,11 @@ fn delivery_vectors_match_the_independent_generator() {
             failures.push(format!("{}: {why}", str_of(case, "name")));
         }
     }
-    assert!(failures.is_empty(), "{} failing:\n{}", failures.len(), failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "{} failing:\n{}",
+        failures.len(),
+        failures.join("\n")
+    );
     assert_eq!(checked, 28);
 }
