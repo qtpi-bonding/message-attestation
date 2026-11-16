@@ -1,7 +1,5 @@
 use std::error::Error as _;
-use std::ffi::CString;
 use std::fs;
-use std::os::unix::ffi::OsStrExt;
 use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -14,6 +12,15 @@ use message_attestation::{
 };
 
 static NEXT_TEST_ID: AtomicU64 = AtomicU64::new(0);
+
+fn mkfifo(path: &Path) {
+    rustix::fs::mkfifoat(
+        rustix::fs::CWD,
+        path,
+        rustix::fs::Mode::from_raw_mode(0o600),
+    )
+    .expect("mkfifo");
+}
 
 fn test_path(name: &str) -> (PathBuf, PathBuf) {
     let id = NEXT_TEST_ID.fetch_add(1, Ordering::Relaxed);
@@ -276,9 +283,7 @@ fn a_missing_state_file_is_the_empty_store() {
 #[test]
 fn a_fifo_at_the_state_path_is_refused_without_hanging() {
     let (directory, path) = test_path("fifo");
-    let c_path = CString::new(path.as_os_str().as_bytes()).expect("c path");
-    // SAFETY: c_path is a valid NUL-terminated path.
-    assert_eq!(unsafe { libc::mkfifo(c_path.as_ptr(), 0o600) }, 0);
+    mkfifo(&path);
     let (sender, receiver) = std::sync::mpsc::channel();
     let open_path = path.clone();
     thread::spawn(move || {
@@ -364,9 +369,7 @@ fn a_write_that_cannot_create_its_temp_fails_and_leaves_none() {
 fn a_fifo_or_directory_at_the_lock_path_is_refused() {
     let (directory, path) = test_path("lock-fifo");
     let lock = lock_path(&path);
-    let c_path = CString::new(lock.as_os_str().as_bytes()).expect("c path");
-    // SAFETY: c_path is a valid NUL-terminated path.
-    assert_eq!(unsafe { libc::mkfifo(c_path.as_ptr(), 0o600) }, 0);
+    mkfifo(&lock);
     let error = FileReplayStore::open(&path).expect_err("a FIFO lock must be refused");
     assert!(
         matches!(keyfile_error(&error), KeyfileError::InsecureFile(_)),

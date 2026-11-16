@@ -88,7 +88,7 @@ pub fn send_via_command(
         .process_group(0)
         .spawn()
         .map_err(|e| AttestationError::Send(Box::new(e)))?;
-    let pgid = child.id() as libc::pid_t;
+    let pgid = child_group(&child);
 
     let (done_tx, done_rx) = mpsc::channel::<()>();
     let mut stdin = child
@@ -119,11 +119,7 @@ pub fn send_via_command(
         Ok(Some(status)) => Some(status),
         Ok(None) | Err(_) => None,
     };
-    // SAFETY: kill(2) with a negative pid signals the group we created with
-    // process_group(0); it takes no pointers.
-    unsafe {
-        libc::kill(-pgid, libc::SIGKILL);
-    }
+    kill_group(pgid);
     if status.is_none() {
         let _ = child.kill();
         let _ = child.wait();
@@ -152,12 +148,20 @@ pub fn send_via_command(
     }
 }
 
-fn stdio_not_piped(child: &mut std::process::Child) -> AttestationError {
-    // SAFETY: kill(2) with a negative pid signals the group we created with
-    // process_group(0); it takes no pointers.
-    unsafe {
-        libc::kill(-(child.id() as libc::pid_t), libc::SIGKILL);
+/// The process group the child leads (spawned with `process_group(0)`).
+fn child_group(child: &std::process::Child) -> Option<rustix::process::Pid> {
+    rustix::process::Pid::from_raw(child.id() as i32)
+}
+
+/// SIGKILLs the whole group; a group that is already gone is not an error.
+fn kill_group(pgid: Option<rustix::process::Pid>) {
+    if let Some(pgid) = pgid {
+        let _ = rustix::process::kill_process_group(pgid, rustix::process::Signal::KILL);
     }
+}
+
+fn stdio_not_piped(child: &mut std::process::Child) -> AttestationError {
+    kill_group(child_group(child));
     let _ = child.kill();
     let _ = child.wait();
     AttestationError::Send("child stdio was not piped".into())

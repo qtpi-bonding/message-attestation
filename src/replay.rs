@@ -41,13 +41,14 @@
 //! the one-time migration rewrites live files.
 
 use std::collections::HashMap;
-use std::fs::{File, OpenOptions};
-use std::io;
-use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
+use std::fs::OpenOptions;
+use std::os::unix::fs::OpenOptionsExt;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
-use identity_keyfile::private_fs::{create_private_dir, read_private_file, write_private_atomic};
+use identity_keyfile::private_fs::{
+    check_private_file_handle, create_private_dir, read_private_file, write_private_atomic,
+};
 use identity_keyfile::KeyfileError;
 use serde_json::{Map, Value};
 
@@ -164,12 +165,15 @@ impl FileReplayStore {
                 if error.raw_os_error() == Some(libc::ELOOP) {
                     KeyfileError::InsecureFile(self.lock_path.clone())
                 } else {
-                    keyfile_io(&self.lock_path, error)
+                    KeyfileError::Io {
+                        path: self.lock_path.clone(),
+                        source: error,
+                    }
                 }
             })
             .map_err(store_error)?;
         // The handle checks run before flock so an insecure lock is never used.
-        check_lock_handle(&lock, &self.lock_path, euid()).map_err(store_error)?;
+        check_private_file_handle(&lock, &self.lock_path).map_err(store_error)?;
         lock.lock().map_err(store_error)?;
         let result = operation(self);
         let unlock_result = lock.unlock().map_err(store_error);
@@ -206,32 +210,6 @@ impl FileReplayStore {
         }
         write_private_atomic(&self.path, &contents, 0o600).map_err(store_error)
     }
-}
-
-fn euid() -> u32 {
-    // SAFETY: geteuid has no preconditions and cannot fail.
-    unsafe { libc::geteuid() }
-}
-
-fn keyfile_io(path: &Path, error: io::Error) -> KeyfileError {
-    KeyfileError::Io {
-        path: path.to_path_buf(),
-        source: error,
-    }
-}
-
-/// Checks an already-opened lock file handle: a regular file with no group or
-/// other access, owned by `uid`. Checking the handle, not the path, cannot be
-/// raced. Never chmods: an unsuitable lock file is only refused.
-fn check_lock_handle(file: &File, path: &Path, uid: u32) -> Result<(), KeyfileError> {
-    let meta = file.metadata().map_err(|error| keyfile_io(path, error))?;
-    if !meta.is_file() || meta.mode() & 0o077 != 0 {
-        return Err(KeyfileError::InsecureFile(path.to_path_buf()));
-    }
-    if meta.uid() != uid {
-        return Err(KeyfileError::WrongOwner(path.to_path_buf()));
-    }
-    Ok(())
 }
 
 impl ReplayStore for FileReplayStore {
@@ -379,34 +357,4 @@ fn store_error(error: impl std::error::Error + Send + Sync + 'static) -> Attesta
 
 fn store_message(message: &str) -> AttestationError {
     AttestationError::Store(message.to_owned().into())
-}
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::os::unix::fs::PermissionsExt;
-
-    #[test]
-    fn a_lock_handle_owned_by_another_user_is_refused() {
-        let path = std::env::temp_dir().join(format!("replay-lock-owner-{}", std::process::id()));
-        let file = OpenOptions::new()
-            .create_new(true)
-            .write(true)
-            .mode(0o600)
-            .open(&path)
-            .expect("create lock");
-        let me = euid();
-        check_lock_handle(&file, &path, me).expect("own file passes");
-        let error = check_lock_handle(&file, &path, me + 1).expect_err("foreign owner refused");
-        assert!(
-            matches!(&error, KeyfileError::WrongOwner(p) if p == &path),
-            "{error:?}"
-        );
-        let mode = std::fs::metadata(&path)
-            .expect("metadata")
-            .permissions()
-            .mode()
-            & 0o777;
-        assert_eq!(mode, 0o600, "never chmod");
-        std::fs::remove_file(&path).expect("clean up");
-    }
 }
