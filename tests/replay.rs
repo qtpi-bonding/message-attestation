@@ -134,15 +134,27 @@ fn two_stores_on_one_file_do_not_both_accept_the_same_sequence() {
 }
 
 #[test]
-fn a_stale_temp_file_does_not_wedge_the_store() {
+fn leftover_temp_files_named_by_the_old_scheme_do_not_wedge_the_store() {
+    // A crash between the temp write and the rename leaves a temp file. The old
+    // private_fs named temps `.replay.json.<pid>.<n>.tmp` with `n` restarting at 0
+    // in every process (and an even older `.replay.json.<pid>.tmp`), so a daemon
+    // that restarts with the same pid generated the same name and O_EXCL refused
+    // the write. The counter is shared by every test thread, so plant a wide range.
     let (directory, path) = test_path("stale-temp");
+    let pid = std::process::id();
+    let mut planted = vec![directory.join(format!(".replay.json.{pid}.tmp"))];
+    planted.extend((0..2000).map(|n| directory.join(format!(".replay.json.{pid}.{n}.tmp"))));
+    for stale in &planted {
+        fs::write(stale, b"leftover from a crash").expect("write stale temp");
+    }
     let store = FileReplayStore::open(&path).expect("open");
-    let stale = directory.join(format!(".replay.json.{}.tmp", std::process::id()));
-    fs::write(&stale, b"leftover from a crash").expect("write stale temp");
-    assert!(store
-        .record("scope", "key", 1, 0, None)
-        .expect("record despite stale temp"));
-    assert_eq!(store.last_seen("scope", "key").expect("read"), Some(1));
+    for sequence in 1..=3 {
+        assert!(store
+            .record("scope", "key", sequence, 0, None)
+            .expect("record despite stale temps"));
+    }
+    assert_eq!(store.last_seen("scope", "key").expect("read"), Some(3));
+    fs::remove_dir_all(directory).expect("clean up");
 }
 
 fn mode_of(path: &Path) -> u32 {
