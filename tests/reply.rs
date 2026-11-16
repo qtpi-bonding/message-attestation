@@ -2,12 +2,12 @@ mod common;
 
 use common::*;
 use identity_crypto::pb;
+use identity_crypto::SKEW_SECONDS;
 use message_attestation::{
     compose_reply, is_valid_id, new_message_id, parse_tool_input, send_message_tool,
-    verify_delivery, AttestationError, MemoryReplayStore, ReplyDraft, ReplySigner,
-    MAX_BODY_BYTES, SEND_MESSAGE_TOOL,
+    verify_delivery, AttestationError, MemoryReplayStore, ReplyDraft, ReplySigner, MAX_BODY_BYTES,
+    SEND_MESSAGE_TOOL,
 };
-use identity_crypto::SKEW_SECONDS;
 use serde_json::{json, Value};
 use std::collections::HashSet;
 use std::sync::Arc;
@@ -61,7 +61,15 @@ fn parses_rooms_people_reply_and_mentions() {
         "mentions": [p],
     }))
     .unwrap();
-    assert_eq!(d.to, vec![room("r1"), pb::Target { target: Some(pb::target::Target::RecipientId(p.clone())) }]);
+    assert_eq!(
+        d.to,
+        vec![
+            room("r1"),
+            pb::Target {
+                target: Some(pb::target::Target::RecipientId(p.clone()))
+            }
+        ]
+    );
     assert_eq!(d.body, "hi");
     assert_eq!(d.reply_to.as_deref(), Some("m-1"));
     assert_eq!(d.references, vec!["m-0".to_string()]);
@@ -93,7 +101,11 @@ fn unknown_field_is_refused() {
 #[test]
 fn target_without_prefix_is_refused() {
     for t in ["abc", "you"] {
-        assert_eq!(field_of(parse_tool_input(&json!({"to": [t], "body": "hi"}))).0, "to", "{t}");
+        assert_eq!(
+            field_of(parse_tool_input(&json!({"to": [t], "body": "hi"}))).0,
+            "to",
+            "{t}"
+        );
     }
 }
 
@@ -106,7 +118,10 @@ fn empty_body_is_refused() {
 #[test]
 fn missing_to_is_refused() {
     assert_eq!(field_of(parse_tool_input(&json!({"body": "hi"}))).0, "to");
-    assert_eq!(field_of(parse_tool_input(&json!({"to": [], "body": "hi"}))).0, "to");
+    assert_eq!(
+        field_of(parse_tool_input(&json!({"to": [], "body": "hi"}))).0,
+        "to"
+    );
 }
 
 #[test]
@@ -114,21 +129,36 @@ fn wrong_type_is_refused() {
     let cases: [(&str, Value); 5] = [
         ("to", json!({"to": "room:r1", "body": "hi"})),
         ("body", json!({"to": ["room:r1"], "body": 5})),
-        ("reply_to", json!({"to": ["room:r1"], "body": "hi", "reply_to": 3})),
-        ("references", json!({"to": ["room:r1"], "body": "hi", "references": "m"})),
-        ("mentions", json!({"to": ["room:r1"], "body": "hi", "mentions": [1]})),
+        (
+            "reply_to",
+            json!({"to": ["room:r1"], "body": "hi", "reply_to": 3}),
+        ),
+        (
+            "references",
+            json!({"to": ["room:r1"], "body": "hi", "references": "m"}),
+        ),
+        (
+            "mentions",
+            json!({"to": ["room:r1"], "body": "hi", "mentions": [1]}),
+        ),
     ];
     for (f, v) in cases {
         assert_eq!(field_of(parse_tool_input(&v)).0, f);
     }
-    assert_eq!(field_of(parse_tool_input(&json!({"to": [5], "body": "hi"}))).0, "to");
+    assert_eq!(
+        field_of(parse_tool_input(&json!({"to": [5], "body": "hi"}))).0,
+        "to"
+    );
 }
 
 #[test]
 fn oversized_body_is_refused() {
     assert_eq!(MAX_BODY_BYTES, 65536);
     let a = author(T0);
-    let signer = ReplySigner::Keyed { session: Arc::new(a.session), device_delegation: a.delegation };
+    let signer = ReplySigner::Keyed {
+        session: Arc::new(a.session),
+        device_delegation: a.delegation,
+    };
     let d = deliverer(T0);
     let draft = |n: usize| ReplyDraft {
         to: vec![room("r")],
@@ -138,7 +168,16 @@ fn oversized_body_is_refused() {
         mentions: vec![],
     };
     let e = compose_reply(&signer, &d.id, T0, draft(65537)).unwrap_err();
-    assert!(matches!(e, AttestationError::InvalidMessage { field: "body", reason: "too long" }), "{e:?}");
+    assert!(
+        matches!(
+            e,
+            AttestationError::InvalidMessage {
+                field: "body",
+                reason: "too long"
+            }
+        ),
+        "{e:?}"
+    );
     compose_reply(&signer, &d.id, T0, draft(65536)).unwrap();
     let r = parse_tool_input(&json!({"to": ["room:r1"], "body": "a".repeat(65537)}));
     assert_eq!(field_of(r), ("body", "too long"));
@@ -154,7 +193,10 @@ fn draft_for(f: &Fx) -> ReplyDraft {
     }
 }
 
-fn verified_one(f: &Fx, c: &message_attestation::ComposedReply) -> message_attestation::VerifiedMessage {
+fn verified_one(
+    f: &Fx,
+    c: &message_attestation::ComposedReply,
+) -> message_attestation::VerifiedMessage {
     let d = with_signed(f, c.signed.clone(), vec![room("r")]);
     let v = verify_delivery(&d, &policy(f), &MemoryReplayStore::default()).unwrap();
     assert_eq!(v.delivery.messages().len(), 1);
@@ -166,7 +208,10 @@ fn compose_keyed_signs_a_message_that_verifies() {
     let f = fx();
     let a = author(T0);
     let id = a.id.clone();
-    let signer = ReplySigner::Keyed { session: Arc::new(a.session), device_delegation: a.delegation };
+    let signer = ReplySigner::Keyed {
+        session: Arc::new(a.session),
+        device_delegation: a.delegation,
+    };
     let c = compose_reply(&signer, &f.dl.id, T0, draft_for(&f)).unwrap();
     let m = verified_one(&f, &c);
     assert_eq!(m.author(), &id);
@@ -180,7 +225,9 @@ fn compose_hosted_signs_a_message_that_verifies() {
     let f = fx();
     let h = hosted_author(T0);
     let id = h.id.clone();
-    let signer = ReplySigner::Hosted { session: Arc::new(h.session) };
+    let signer = ReplySigner::Hosted {
+        session: Arc::new(h.session),
+    };
     let c = compose_reply(&signer, &f.dl.id, T0, draft_for(&f)).unwrap();
     let m = verified_one(&f, &c);
     assert_eq!(m.author(), &id);
@@ -188,9 +235,16 @@ fn compose_hosted_signs_a_message_that_verifies() {
     assert_eq!(m.message().message_id, c.message_id);
 }
 
-fn expired(r: Result<message_attestation::ComposedReply, AttestationError>, not_after: i64, now: i64) {
+fn expired(
+    r: Result<message_attestation::ComposedReply, AttestationError>,
+    not_after: i64,
+    now: i64,
+) {
     match r.unwrap_err() {
-        AttestationError::SessionExpired { not_after: na, now: n } => assert_eq!((na, n), (not_after, now)),
+        AttestationError::SessionExpired {
+            not_after: na,
+            now: n,
+        } => assert_eq!((na, n), (not_after, now)),
         e => panic!("{e:?}"),
     }
 }
@@ -199,9 +253,16 @@ fn expired(r: Result<message_attestation::ComposedReply, AttestationError>, not_
 fn expired_session_is_refused_keyed() {
     let f = fx();
     let a = author(T0);
-    let signer = ReplySigner::Keyed { session: Arc::new(a.session), device_delegation: a.delegation };
+    let signer = ReplySigner::Keyed {
+        session: Arc::new(a.session),
+        device_delegation: a.delegation,
+    };
     let now = T0 + 3601;
-    expired(compose_reply(&signer, &f.dl.id, now, draft_for(&f)), T0 + 3600, now);
+    expired(
+        compose_reply(&signer, &f.dl.id, now, draft_for(&f)),
+        T0 + 3600,
+        now,
+    );
     compose_reply(&signer, &f.dl.id, T0 + 3600, draft_for(&f)).unwrap();
     compose_reply(&signer, &f.dl.id, T0 - SKEW_SECONDS, draft_for(&f)).unwrap();
     assert!(matches!(
@@ -214,9 +275,15 @@ fn expired_session_is_refused_keyed() {
 fn expired_session_is_refused_hosted() {
     let f = fx();
     let h = hosted_author(T0);
-    let signer = ReplySigner::Hosted { session: Arc::new(h.session) };
+    let signer = ReplySigner::Hosted {
+        session: Arc::new(h.session),
+    };
     let now = T0 + 3601;
-    expired(compose_reply(&signer, &f.dl.id, now, draft_for(&f)), T0 + 3600, now);
+    expired(
+        compose_reply(&signer, &f.dl.id, now, draft_for(&f)),
+        T0 + 3600,
+        now,
+    );
     compose_reply(&signer, &f.dl.id, T0 + 3600, draft_for(&f)).unwrap();
     compose_reply(&signer, &f.dl.id, T0 - SKEW_SECONDS, draft_for(&f)).unwrap();
     assert!(matches!(
@@ -229,10 +296,17 @@ fn expired_session_is_refused_hosted() {
 fn expired_delegation_is_refused_keyed() {
     let f = fx();
     let a = author_with(T0, 600, 3600);
-    let signer = ReplySigner::Keyed { session: Arc::new(a.session), device_delegation: a.delegation };
+    let signer = ReplySigner::Keyed {
+        session: Arc::new(a.session),
+        device_delegation: a.delegation,
+    };
     compose_reply(&signer, &f.dl.id, T0 + 600, draft_for(&f)).unwrap();
     let now = T0 + 601;
-    expired(compose_reply(&signer, &f.dl.id, now, draft_for(&f)), T0 + 600, now);
+    expired(
+        compose_reply(&signer, &f.dl.id, now, draft_for(&f)),
+        T0 + 600,
+        now,
+    );
 }
 
 #[test]
@@ -240,10 +314,16 @@ fn future_delegation_is_refused_keyed() {
     let f = fx();
     let issued = T0 + SKEW_SECONDS;
     let a = author_issued(T0, issued, DAY, 3600);
-    let signer = ReplySigner::Keyed { session: Arc::new(a.session), device_delegation: a.delegation };
+    let signer = ReplySigner::Keyed {
+        session: Arc::new(a.session),
+        device_delegation: a.delegation,
+    };
     compose_reply(&signer, &f.dl.id, T0, draft_for(&f)).unwrap();
     let a = author_issued(T0, issued + 1, DAY, 3600);
-    let signer = ReplySigner::Keyed { session: Arc::new(a.session), device_delegation: a.delegation };
+    let signer = ReplySigner::Keyed {
+        session: Arc::new(a.session),
+        device_delegation: a.delegation,
+    };
     assert!(matches!(
         compose_reply(&signer, &f.dl.id, T0, draft_for(&f)),
         Err(AttestationError::SessionExpired { .. })
@@ -255,9 +335,14 @@ fn signed_message_names_the_deliverer_and_now() {
     let f = fx();
     let now = T0 + 5;
     let a = author(T0);
-    let keyed = ReplySigner::Keyed { session: Arc::new(a.session), device_delegation: a.delegation };
+    let keyed = ReplySigner::Keyed {
+        session: Arc::new(a.session),
+        device_delegation: a.delegation,
+    };
     let h = hosted_author(T0);
-    let hosted = ReplySigner::Hosted { session: Arc::new(h.session) };
+    let hosted = ReplySigner::Hosted {
+        session: Arc::new(h.session),
+    };
     for signer in [keyed, hosted] {
         let c = compose_reply(&signer, &f.dl.id, now, draft_for(&f)).unwrap();
         assert_eq!(c.signed.audience, f.dl.id.to_string());
@@ -269,15 +354,30 @@ fn signed_message_names_the_deliverer_and_now() {
 fn compose_refuses_hostile_reply_to_and_65_targets() {
     let f = fx();
     let a = author(T0);
-    let signer = ReplySigner::Keyed { session: Arc::new(a.session), device_delegation: a.delegation };
+    let signer = ReplySigner::Keyed {
+        session: Arc::new(a.session),
+        device_delegation: a.delegation,
+    };
     let mut d = draft_for(&f);
     d.reply_to = Some("x\" y".into());
     let e = compose_reply(&signer, &f.dl.id, T0, d).unwrap_err();
-    assert!(matches!(e, AttestationError::InvalidMessage { field: "reply_to", .. }), "{e:?}");
+    assert!(
+        matches!(
+            e,
+            AttestationError::InvalidMessage {
+                field: "reply_to",
+                ..
+            }
+        ),
+        "{e:?}"
+    );
     let mut d = draft_for(&f);
     d.to = (0..65).map(|i| room(&format!("r{i}"))).collect();
     let e = compose_reply(&signer, &f.dl.id, T0, d).unwrap_err();
-    assert!(matches!(e, AttestationError::InvalidMessage { field: "to", .. }), "{e:?}");
+    assert!(
+        matches!(e, AttestationError::InvalidMessage { field: "to", .. }),
+        "{e:?}"
+    );
 }
 
 #[test]
@@ -288,7 +388,12 @@ fn message_ids_are_fresh_and_well_formed() {
     for id in &ids {
         assert_eq!(id.len(), 34, "{id}");
         assert!(id.starts_with("m-"), "{id}");
-        assert!(id[2..].bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')), "{id}");
+        assert!(
+            id[2..]
+                .bytes()
+                .all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')),
+            "{id}"
+        );
         assert!(is_valid_id(id), "{id}");
     }
 }
@@ -303,7 +408,9 @@ fn tool_schema_has_no_body_max_length() {
 
 #[test]
 fn description_states_the_byte_limit() {
-    assert!(send_message_tool().description.contains("at most 65536 bytes of UTF-8"));
+    assert!(send_message_tool()
+        .description
+        .contains("at most 65536 bytes of UTF-8"));
     assert_eq!(MAX_BODY_BYTES, 65536);
 }
 
@@ -315,6 +422,11 @@ fn message_id_has_the_documented_shape() {
     for id in [&a, &b] {
         assert!(id.starts_with("m-"), "{id}");
         assert_eq!(id.len(), 34, "{id}");
-        assert!(id[2..].bytes().all(|c| matches!(c, b'0'..=b'9' | b'a'..=b'f')), "{id}");
+        assert!(
+            id[2..]
+                .bytes()
+                .all(|c| matches!(c, b'0'..=b'9' | b'a'..=b'f')),
+            "{id}"
+        );
     }
 }

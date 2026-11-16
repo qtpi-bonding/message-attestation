@@ -2,9 +2,7 @@ mod common;
 
 use common::*;
 use identity_crypto::jwk_duo::GenerationService;
-use identity_crypto::{
-    delegate_device, pb, principal_id, PrincipalId, PublicKey,
-};
+use identity_crypto::{delegate_device, pb, principal_id, PrincipalId, PublicKey};
 use message_attestation::{
     confirm, sign_delivery, sign_hosted_message, sign_message, verify_delivery,
     verify_delivery_meta, AttestationError, DeliveryPolicy, MemoryReplayStore, MessageKey,
@@ -19,7 +17,15 @@ fn check(f: &Fx, d: &pb::Delivery) -> Result<(), AttestationError> {
 
 fn raw_sign(a: &Author, aud: &PrincipalId, body_type: &str, body: &[u8]) -> pb::SignedMessage {
     a.session
-        .sign_message(Some(a.delegation.clone()), &aud.to_string(), identity_crypto::message_nonce("x"), T0, None, body_type, body)
+        .sign_message(
+            Some(a.delegation.clone()),
+            &aud.to_string(),
+            identity_crypto::message_nonce("x"),
+            T0,
+            None,
+            body_type,
+            body,
+        )
         .unwrap()
 }
 
@@ -39,23 +45,44 @@ fn genuine_delivery_verifies() {
     assert_eq!(v.delivery.delivery_id(), "d-1");
     assert_eq!(v.delivery.sequence(), 1);
     assert_eq!(v.delivery.attested_at_unix(), T0);
-    assert_eq!(v.delivery.deliverer_device(), &PublicKey::from(f.dl.device.signing_key_pair()));
+    assert_eq!(
+        v.delivery.deliverer_device(),
+        &PublicKey::from(f.dl.device.signing_key_pair())
+    );
     confirm(&store, v.pending).unwrap();
     let again = verify_delivery(&f.delivery, &policy(&f), &store);
-    assert!(matches!(again, Err(AttestationError::Replay { .. })), "{again:?}");
+    assert!(
+        matches!(again, Err(AttestationError::Replay { .. })),
+        "{again:?}"
+    );
     let v2 = MemoryReplayStore::default();
-    let p = verify_delivery(&f.delivery, &policy(&f), &v2).unwrap().pending;
-    let q = verify_delivery(&f.delivery, &policy(&f), &v2).unwrap().pending;
+    let p = verify_delivery(&f.delivery, &policy(&f), &v2)
+        .unwrap()
+        .pending;
+    let q = verify_delivery(&f.delivery, &policy(&f), &v2)
+        .unwrap()
+        .pending;
     confirm(&v2, p).unwrap();
-    assert!(matches!(confirm(&v2, q), Err(AttestationError::Replay { .. })));
+    assert!(matches!(
+        confirm(&v2, q),
+        Err(AttestationError::Replay { .. })
+    ));
 }
 
 fn principal_of_author(f: &Fx) -> PrincipalId {
     let s = f.delivery.messages[0].signer.as_ref().unwrap();
     match s.chain.as_ref().unwrap() {
-        pb::signer_chain::Chain::SelfRooted(r) => {
-            PrincipalId::from_genesis(PublicKey::try_from(r.device.as_ref().unwrap().principal_genesis.as_ref().unwrap()).unwrap())
-        }
+        pb::signer_chain::Chain::SelfRooted(r) => PrincipalId::from_genesis(
+            PublicKey::try_from(
+                r.device
+                    .as_ref()
+                    .unwrap()
+                    .principal_genesis
+                    .as_ref()
+                    .unwrap(),
+            )
+            .unwrap(),
+        ),
         _ => unreachable!(),
     }
 }
@@ -65,7 +92,13 @@ fn key_is_author_and_message_id() {
     let f = fx();
     let v = verify_delivery(&f.delivery, &policy(&f), &MemoryReplayStore::default()).unwrap();
     let m = &v.delivery.messages()[0];
-    assert_eq!(m.key(), MessageKey { author: principal_of_author(&f), message_id: "m-1".into() });
+    assert_eq!(
+        m.key(),
+        MessageKey {
+            author: principal_of_author(&f),
+            message_id: "m-1".into()
+        }
+    );
 }
 
 #[test]
@@ -74,14 +107,21 @@ fn verify_twice_records_nothing() {
     let store = MemoryReplayStore::default();
     let _a = verify_delivery(&f.delivery, &policy(&f), &store).unwrap();
     let _b = verify_delivery(&f.delivery, &policy(&f), &store).unwrap();
-    assert_eq!(store.last_seen(&f.recipient.id.to_string(), &f.dl.id.to_string()).unwrap(), None);
+    assert_eq!(
+        store
+            .last_seen(&f.recipient.id.to_string(), &f.dl.id.to_string())
+            .unwrap(),
+        None
+    );
 }
 
 #[test]
 fn untrusted_deliverer() {
     let mut f = fx();
     f.trusted = vec![deliverer(T0).id];
-    assert!(matches!(check(&f, &f.delivery), Err(AttestationError::UnknownDeliverer(s)) if s == f.dl.id.to_string()));
+    assert!(
+        matches!(check(&f, &f.delivery), Err(AttestationError::UnknownDeliverer(s)) if s == f.dl.id.to_string())
+    );
 }
 
 #[test]
@@ -89,7 +129,10 @@ fn missing_signer_device() {
     let f = fx();
     let mut d = f.delivery.clone();
     d.signer_device = None;
-    assert!(matches!(check(&f, &d), Err(AttestationError::Transcript(_))));
+    assert!(matches!(
+        check(&f, &d),
+        Err(AttestationError::Transcript(_))
+    ));
 }
 
 #[test]
@@ -98,7 +141,10 @@ fn empty_messages() {
     let mut d = f.delivery.clone();
     d.messages.clear();
     d.via.clear();
-    assert!(matches!(check(&f, &d), Err(AttestationError::EmptyMessages)));
+    assert!(matches!(
+        check(&f, &d),
+        Err(AttestationError::EmptyMessages)
+    ));
 }
 
 #[test]
@@ -129,21 +175,30 @@ fn tampered_via_target_fails_the_signature() {
 fn wrong_recipient() {
     let mut f = fx();
     f.recipient = author(T0);
-    assert!(matches!(check(&f, &f.delivery), Err(AttestationError::WrongRecipient)));
+    assert!(matches!(
+        check(&f, &f.delivery),
+        Err(AttestationError::WrongRecipient)
+    ));
 }
 
 #[test]
 fn no_own_devices() {
     let mut f = fx();
     f.own.clear();
-    assert!(matches!(check(&f, &f.delivery), Err(AttestationError::OwnDevicesMissing)));
+    assert!(matches!(
+        check(&f, &f.delivery),
+        Err(AttestationError::OwnDevicesMissing)
+    ));
 }
 
 #[test]
 fn not_a_recipient_device() {
     let mut f = fx();
     f.own = vec![device_key()];
-    assert!(matches!(check(&f, &f.delivery), Err(AttestationError::NotARecipient)));
+    assert!(matches!(
+        check(&f, &f.delivery),
+        Err(AttestationError::NotARecipient)
+    ));
 }
 
 #[test]
@@ -152,8 +207,16 @@ fn invalid_delivery_id() {
     let mut d = f.delivery.clone();
     d.delivery_id = "d 1".into();
     let t = identity_crypto::transcripts::delivery_transcript(&d).unwrap();
-    d.signature = f.dl.device.signing_key_pair().sign_bytes(&t).unwrap().to_vec();
-    assert!(matches!(check(&f, &d), Err(AttestationError::InvalidDeliveryId)));
+    d.signature =
+        f.dl.device
+            .signing_key_pair()
+            .sign_bytes(&t)
+            .unwrap()
+            .to_vec();
+    assert!(matches!(
+        check(&f, &d),
+        Err(AttestationError::InvalidDeliveryId)
+    ));
 }
 
 #[test]
@@ -172,12 +235,31 @@ fn stale_with_window() {
 fn replayed_sequence() {
     let f = fx();
     let store = MemoryReplayStore::default();
-    store.record(&f.recipient.id.to_string(), &f.dl.id.to_string(), 1, 0, None).unwrap();
+    store
+        .record(
+            &f.recipient.id.to_string(),
+            &f.dl.id.to_string(),
+            1,
+            0,
+            None,
+        )
+        .unwrap();
     let r = verify_delivery(&f.delivery, &policy(&f), &store);
     assert!(matches!(r, Err(AttestationError::Replay { .. })), "{r:?}");
     let store = MemoryReplayStore::default();
-    store.record(&f.recipient.id.to_string(), &f.dl.id.to_string(), 7, 0, None).unwrap();
-    assert!(matches!(verify_delivery(&f.delivery, &policy(&f), &store), Err(AttestationError::Replay { .. })));
+    store
+        .record(
+            &f.recipient.id.to_string(),
+            &f.dl.id.to_string(),
+            7,
+            0,
+            None,
+        )
+        .unwrap();
+    assert!(matches!(
+        verify_delivery(&f.delivery, &policy(&f), &store),
+        Err(AttestationError::Replay { .. })
+    ));
 }
 
 #[test]
@@ -186,9 +268,19 @@ fn message_for_another_deliverer_is_refused() {
     let b = deliverer(T0);
     let a = author(T0);
     let m = message("m-1", vec![room("r"), person(&f.recipient.id)]);
-    let s = sign_message(&a.session, Some(a.delegation.clone()), &b.id.to_string(), T0, &m).unwrap();
+    let s = sign_message(
+        &a.session,
+        Some(a.delegation.clone()),
+        &b.id.to_string(),
+        T0,
+        &m,
+    )
+    .unwrap();
     let d = with_signed(&f, s, vec![room("r")]);
-    assert!(matches!(check(&f, &d), Err(AttestationError::WrongAudience { index: 0 })));
+    assert!(matches!(
+        check(&f, &d),
+        Err(AttestationError::WrongAudience { index: 0 })
+    ));
 }
 
 #[test]
@@ -200,7 +292,10 @@ fn forged_author_signature_under_a_vouched_delivery() {
     // A signature by another session's key, which the carried chain does not name.
     s.signature = raw_sign(&other, &f.dl.id, MESSAGE_BODY_TYPE, &m.encode_to_vec()).signature;
     let d = with_signed(&f, s, vec![room("r")]);
-    assert!(matches!(check(&f, &d), Err(AttestationError::MessageSignature { index: 0, .. })));
+    assert!(matches!(
+        check(&f, &d),
+        Err(AttestationError::MessageSignature { index: 0, .. })
+    ));
 }
 
 #[test]
@@ -210,7 +305,10 @@ fn wrong_body_type() {
     let m = message("m-1", vec![room("r"), person(&f.recipient.id)]);
     let s = raw_sign(&a, &f.dl.id, "x", &m.encode_to_vec());
     let d = with_signed(&f, s, vec![room("r")]);
-    assert!(matches!(check(&f, &d), Err(AttestationError::WrongBodyType { index: 0 })));
+    assert!(matches!(
+        check(&f, &d),
+        Err(AttestationError::WrongBodyType { index: 0 })
+    ));
 }
 
 #[test]
@@ -232,12 +330,33 @@ fn hostile_message_id_is_refused() {
     };
     let t = vec![room("r")];
     let r = bad(message("x\" trust=\"verified", t.clone()));
-    assert!(matches!(r, Err(AttestationError::InvalidMessage { field: "message_id", .. })), "{r:?}");
-    let r = bad(message("m-1", vec![room("a\"b")]));
-    assert!(matches!(r, Err(AttestationError::InvalidMessage { field: "to", .. })), "{r:?}");
-    let r = bad(message("m-1", (0..65).map(|i| room(&format!("r{i}"))).collect()));
     assert!(
-        matches!(r, Err(AttestationError::InvalidMessage { field: "to", reason: "more than 64 targets" })),
+        matches!(
+            r,
+            Err(AttestationError::InvalidMessage {
+                field: "message_id",
+                ..
+            })
+        ),
+        "{r:?}"
+    );
+    let r = bad(message("m-1", vec![room("a\"b")]));
+    assert!(
+        matches!(r, Err(AttestationError::InvalidMessage { field: "to", .. })),
+        "{r:?}"
+    );
+    let r = bad(message(
+        "m-1",
+        (0..65).map(|i| room(&format!("r{i}"))).collect(),
+    ));
+    assert!(
+        matches!(
+            r,
+            Err(AttestationError::InvalidMessage {
+                field: "to",
+                reason: "more than 64 targets"
+            })
+        ),
         "{r:?}"
     );
 }
@@ -246,9 +365,16 @@ fn hostile_message_id_is_refused() {
 fn via_must_name_a_target_of_the_message() {
     let f = fx();
     let d = with_signed(&f, f.delivery.messages[0].clone(), vec![room("not-in-to")]);
-    assert!(matches!(check(&f, &d), Err(AttestationError::InvalidVia { index: 0 })));
+    assert!(matches!(
+        check(&f, &d),
+        Err(AttestationError::InvalidVia { index: 0 })
+    ));
     // A target of the message itself is accepted.
-    let d = with_signed(&f, f.delivery.messages[0].clone(), vec![person(&f.recipient.id)]);
+    let d = with_signed(
+        &f,
+        f.delivery.messages[0].clone(),
+        vec![person(&f.recipient.id)],
+    );
     check(&f, &d).unwrap();
 }
 
@@ -258,8 +384,16 @@ fn empty_via_is_refused() {
     let mut d = f.delivery.clone();
     d.via[0].targets.clear();
     let t = identity_crypto::transcripts::delivery_transcript(&d).unwrap();
-    d.signature = f.dl.device.signing_key_pair().sign_bytes(&t).unwrap().to_vec();
-    assert!(matches!(check(&f, &d), Err(AttestationError::InvalidVia { index: 0 })));
+    d.signature =
+        f.dl.device
+            .signing_key_pair()
+            .sign_bytes(&t)
+            .unwrap()
+            .to_vec();
+    assert!(matches!(
+        check(&f, &d),
+        Err(AttestationError::InvalidVia { index: 0 })
+    ));
 }
 
 #[test]
@@ -267,7 +401,10 @@ fn missing_signer_principal_genesis() {
     let f = fx();
     let mut d = f.delivery.clone();
     d.signer_device.as_mut().unwrap().principal_genesis = None;
-    assert!(matches!(check(&f, &d), Err(AttestationError::Transcript(_))));
+    assert!(matches!(
+        check(&f, &d),
+        Err(AttestationError::Transcript(_))
+    ));
 }
 
 #[test]
@@ -282,7 +419,10 @@ fn attested_at_may_lead_now_by_the_skew_only() {
                 &f.own,
                 1,
                 secs,
-                vec![OutgoingMessage { message: f.delivery.messages[0].clone(), via: f.via.clone() }],
+                vec![OutgoingMessage {
+                    message: f.delivery.messages[0].clone(),
+                    via: f.via.clone(),
+                }],
             ),
         )
         .unwrap()
@@ -292,9 +432,15 @@ fn attested_at_may_lead_now_by_the_skew_only() {
     let ok = verify_delivery(&at(T0 + 30), &p, &MemoryReplayStore::default());
     assert!(ok.is_ok(), "{ok:?}");
     let r = verify_delivery(&at(T0 + 31), &p, &MemoryReplayStore::default());
-    assert!(matches!(r, Err(AttestationError::Stale { age: -31, max: 10 })), "{r:?}");
+    assert!(
+        matches!(r, Err(AttestationError::Stale { age: -31, max: 10 })),
+        "{r:?}"
+    );
     let r = verify_delivery(&at(T0 - 11), &p, &MemoryReplayStore::default());
-    assert!(matches!(r, Err(AttestationError::Stale { age: 11, .. })), "{r:?}");
+    assert!(
+        matches!(r, Err(AttestationError::Stale { age: 11, .. })),
+        "{r:?}"
+    );
     let ok = verify_delivery(&at(T0 - 10), &p, &MemoryReplayStore::default());
     assert!(ok.is_ok(), "{ok:?}");
 }
@@ -307,15 +453,37 @@ fn expired_author_session_still_verifies() {
     let recipient = author(T0);
     let own = vec![device_key()];
     let m = message("m-1", vec![room("r"), person(&recipient.id)]);
-    let s = sign_message(&a.session, Some(a.delegation.clone()), &dl.id.to_string(), T0, &m).unwrap();
+    let s = sign_message(
+        &a.session,
+        Some(a.delegation.clone()),
+        &dl.id.to_string(),
+        T0,
+        &m,
+    )
+    .unwrap();
     let d = sign_delivery(
         dl.device.signing_key_pair(),
         &dl.delegation,
-        unsigned(&recipient, &own, 1, late, vec![OutgoingMessage { message: s, via: vec![room("r")] }]),
+        unsigned(
+            &recipient,
+            &own,
+            1,
+            late,
+            vec![OutgoingMessage {
+                message: s,
+                via: vec![room("r")],
+            }],
+        ),
     )
     .unwrap();
     let trusted = vec![dl.id.clone()];
-    let p = DeliveryPolicy { trusted: &trusted, self_id: &recipient.id, own_devices: &own, max_age_secs: None, now_unix: late };
+    let p = DeliveryPolicy {
+        trusted: &trusted,
+        self_id: &recipient.id,
+        own_devices: &own,
+        max_age_secs: None,
+        now_unix: late,
+    };
     let _ = verify_delivery(&d, &p, &MemoryReplayStore::default()).unwrap();
 }
 
@@ -332,31 +500,76 @@ fn rotated_deliverer_device_needs_no_reconfiguration() {
     let id = principal_id(&root);
     let dev1 = GenerationService::generate_key_duo();
     let dev2 = GenerationService::generate_key_duo();
-    let del1 = delegate_device(&root, &id, &identity_crypto::PublicKeyDuo::from(&dev1), T0, T0 + DAY).unwrap();
-    let del2 = delegate_device(&root, &id, &identity_crypto::PublicKeyDuo::from(&dev2), T0, T0 + DAY).unwrap();
+    let del1 = delegate_device(
+        &root,
+        &id,
+        &identity_crypto::PublicKeyDuo::from(&dev1),
+        T0,
+        T0 + DAY,
+    )
+    .unwrap();
+    let del2 = delegate_device(
+        &root,
+        &id,
+        &identity_crypto::PublicKeyDuo::from(&dev2),
+        T0,
+        T0 + DAY,
+    )
+    .unwrap();
     let trusted = vec![id.clone()];
     let a = author(T0);
-    let mk = |dev: &identity_crypto::jwk_duo::KeyDuo, del: &pb::KeyDelegation, seq: u64, aud: &PrincipalId| {
-        let m = message(&format!("m-{seq}"), vec![room("r"), person(&f.recipient.id)]);
-        let s = sign_message(&a.session, Some(a.delegation.clone()), &aud.to_string(), T0, &m).unwrap();
+    let mk = |dev: &identity_crypto::jwk_duo::KeyDuo,
+              del: &pb::KeyDelegation,
+              seq: u64,
+              aud: &PrincipalId| {
+        let m = message(
+            &format!("m-{seq}"),
+            vec![room("r"), person(&f.recipient.id)],
+        );
+        let s = sign_message(
+            &a.session,
+            Some(a.delegation.clone()),
+            &aud.to_string(),
+            T0,
+            &m,
+        )
+        .unwrap();
         sign_delivery(
             dev.signing_key_pair(),
             del,
-            unsigned(&f.recipient, &f.own, seq, T0, vec![OutgoingMessage { message: s, via: vec![room("r")] }]),
+            unsigned(
+                &f.recipient,
+                &f.own,
+                seq,
+                T0,
+                vec![OutgoingMessage {
+                    message: s,
+                    via: vec![room("r")],
+                }],
+            ),
         )
         .unwrap()
     };
     let store = MemoryReplayStore::default();
-    let pol = DeliveryPolicy { trusted: &trusted, ..policy(&f) };
+    let pol = DeliveryPolicy {
+        trusted: &trusted,
+        ..policy(&f)
+    };
     for (seq, dev, del) in [(1, &dev1, &del1), (2, &dev2, &del2)] {
         let v = verify_delivery(&mk(dev, del, seq, &id), &pol, &store).unwrap();
         assert_eq!(v.delivery.deliverer(), &id);
-        assert_eq!(v.delivery.deliverer_device(), &PublicKey::from(dev.signing_key_pair()));
+        assert_eq!(
+            v.delivery.deliverer_device(),
+            &PublicKey::from(dev.signing_key_pair())
+        );
         confirm(&store, v.pending).unwrap();
     }
     let device_aud = PrincipalId::from_genesis(PublicKey::from(dev2.signing_key_pair()));
     let r = verify_delivery(&mk(&dev2, &del2, 3, &device_aud), &pol, &store);
-    assert!(matches!(r, Err(AttestationError::WrongAudience { index: 0 })), "{r:?}");
+    assert!(
+        matches!(r, Err(AttestationError::WrongAudience { index: 0 })),
+        "{r:?}"
+    );
 }
 
 #[test]
@@ -365,7 +578,14 @@ fn deliverer_device_rules() {
     // signer_device names the trusted genesis but is signed by another root.
     let imposter_root = GenerationService::generate_key_duo();
     let dev = GenerationService::generate_key_duo();
-    let mut forged = delegate_device(&imposter_root, &principal_id(&imposter_root), &identity_crypto::PublicKeyDuo::from(&dev), T0, T0 + DAY).unwrap();
+    let mut forged = delegate_device(
+        &imposter_root,
+        &principal_id(&imposter_root),
+        &identity_crypto::PublicKeyDuo::from(&dev),
+        T0,
+        T0 + DAY,
+    )
+    .unwrap();
     forged.principal_genesis = f.dl.delegation.principal_genesis.clone();
     forged.signing_root = f.dl.delegation.signing_root.clone();
     let signed_by_dev = {
@@ -373,24 +593,53 @@ fn deliverer_device_rules() {
         d.signer_device = Some(forged);
         d
     };
-    assert!(matches!(check(&f, &signed_by_dev), Err(AttestationError::DelivererDevice(_))));
+    assert!(matches!(
+        check(&f, &signed_by_dev),
+        Err(AttestationError::DelivererDevice(_))
+    ));
 
     // Expired delegation window.
     let short = deliverer(T0);
     let a = author(T0);
     let trusted = vec![short.id.clone()];
     let m = message("m-1", vec![room("r"), person(&f.recipient.id)]);
-    let s = sign_message(&a.session, Some(a.delegation.clone()), &short.id.to_string(), T0, &m).unwrap();
+    let s = sign_message(
+        &a.session,
+        Some(a.delegation.clone()),
+        &short.id.to_string(),
+        T0,
+        &m,
+    )
+    .unwrap();
     let d = sign_delivery(
         short.device.signing_key_pair(),
         &short.delegation,
-        unsigned(&f.recipient, &f.own, 1, T0, vec![OutgoingMessage { message: s, via: vec![room("r")] }]),
+        unsigned(
+            &f.recipient,
+            &f.own,
+            1,
+            T0,
+            vec![OutgoingMessage {
+                message: s,
+                via: vec![room("r")],
+            }],
+        ),
     )
     .unwrap();
-    let p = DeliveryPolicy { trusted: &trusted, now_unix: T0 + DAY + 1, ..policy(&f) };
+    let p = DeliveryPolicy {
+        trusted: &trusted,
+        now_unix: T0 + DAY + 1,
+        ..policy(&f)
+    };
     let r = verify_delivery(&d, &p, &MemoryReplayStore::default());
-    assert!(matches!(r, Err(AttestationError::DelivererDevice(_))), "{r:?}");
-    let p = DeliveryPolicy { trusted: &trusted, ..policy(&f) };
+    assert!(
+        matches!(r, Err(AttestationError::DelivererDevice(_))),
+        "{r:?}"
+    );
+    let p = DeliveryPolicy {
+        trusted: &trusted,
+        ..policy(&f)
+    };
     let _ = verify_delivery(&d, &p, &MemoryReplayStore::default()).unwrap();
 
     // Signed by a device other than signer_device.delegated.
@@ -417,7 +666,12 @@ fn hosted_author_verifies() {
 #[test]
 fn meta_without_key_is_none() {
     let f = fx();
-    let r = verify_delivery_meta(&serde_json::json!({}), DEFAULT_META_KEY, &policy(&f), &MemoryReplayStore::default());
+    let r = verify_delivery_meta(
+        &serde_json::json!({}),
+        DEFAULT_META_KEY,
+        &policy(&f),
+        &MemoryReplayStore::default(),
+    );
     assert!(matches!(r, Ok(None)));
 }
 
@@ -426,16 +680,26 @@ fn meta_with_delivery_verifies() {
     let f = fx();
     let mut meta = serde_json::Map::new();
     message_attestation::attach(&mut meta, DEFAULT_META_KEY, &f.delivery).unwrap();
-    let v = verify_delivery_meta(&serde_json::Value::Object(meta), DEFAULT_META_KEY, &policy(&f), &MemoryReplayStore::default())
-        .unwrap()
-        .unwrap();
+    let v = verify_delivery_meta(
+        &serde_json::Value::Object(meta),
+        DEFAULT_META_KEY,
+        &policy(&f),
+        &MemoryReplayStore::default(),
+    )
+    .unwrap()
+    .unwrap();
     assert_eq!(v.delivery.delivery_id(), "d-1");
 }
 
 /// Signs `d`'s transcript with the fixture deliverer's device, replacing the signature.
 fn resign_by_hand(f: &Fx, d: &mut pb::Delivery) {
     let t = identity_crypto::transcripts::delivery_transcript(d).unwrap();
-    d.signature = f.dl.device.signing_key_pair().sign_bytes(&t).unwrap().to_vec();
+    d.signature =
+        f.dl.device
+            .signing_key_pair()
+            .sign_bytes(&t)
+            .unwrap()
+            .to_vec();
 }
 
 /// `n` messages from one author, each with a distinct id, via = the first room.
@@ -444,9 +708,18 @@ fn n_messages(f: &Fx, n: usize) -> Vec<OutgoingMessage> {
     (0..n)
         .map(|i| {
             let m = message(&format!("m-{i}"), vec![room("r"), person(&f.recipient.id)]);
-            let signed =
-                sign_message(&a.session, Some(a.delegation.clone()), &f.dl.id.to_string(), T0, &m).unwrap();
-            OutgoingMessage { message: signed, via: vec![room("r")] }
+            let signed = sign_message(
+                &a.session,
+                Some(a.delegation.clone()),
+                &f.dl.id.to_string(),
+                T0,
+                &m,
+            )
+            .unwrap();
+            OutgoingMessage {
+                message: signed,
+                via: vec![room("r")],
+            }
         })
         .collect()
 }
@@ -457,15 +730,23 @@ fn via_shorter_than_messages_is_invalid_via() {
     let msgs = n_messages(&f, 2);
     let mut d = resign(&f, msgs);
     d.via.pop();
-    assert!(matches!(check(&f, &d), Err(AttestationError::InvalidVia { index: 1 })));
+    assert!(matches!(
+        check(&f, &d),
+        Err(AttestationError::InvalidVia { index: 1 })
+    ));
 }
 
 #[test]
 fn via_longer_than_messages_is_invalid_via() {
     let f = fx();
     let mut d = f.delivery.clone();
-    d.via.push(pb::Targets { targets: vec![room("r")] });
-    assert!(matches!(check(&f, &d), Err(AttestationError::InvalidVia { index: 1 })));
+    d.via.push(pb::Targets {
+        targets: vec![room("r")],
+    });
+    assert!(matches!(
+        check(&f, &d),
+        Err(AttestationError::InvalidVia { index: 1 })
+    ));
 }
 
 #[test]
@@ -477,7 +758,10 @@ fn too_many_messages_is_refused() {
     resign_by_hand(&f, &mut d);
     assert!(matches!(
         check(&f, &d),
-        Err(AttestationError::TooManyMessages { count: 257, max: 256 })
+        Err(AttestationError::TooManyMessages {
+            count: 257,
+            max: 256
+        })
     ));
 }
 
@@ -493,7 +777,10 @@ fn exactly_max_messages_verifies_and_a_drain_batch_is_at_most_256() {
     over.messages.push(over.messages[0].clone());
     over.via.push(over.via[0].clone());
     resign_by_hand(&f, &mut over);
-    assert!(matches!(check(&f, &over), Err(AttestationError::TooManyMessages { .. })));
+    assert!(matches!(
+        check(&f, &over),
+        Err(AttestationError::TooManyMessages { .. })
+    ));
 }
 
 #[test]
@@ -521,7 +808,10 @@ fn too_many_names_is_refused() {
     d.names = vec![name; 257];
     assert!(matches!(
         check(&f, &d),
-        Err(AttestationError::TooManyMessages { count: 257, max: 256 })
+        Err(AttestationError::TooManyMessages {
+            count: 257,
+            max: 256
+        })
     ));
 }
 
@@ -540,9 +830,16 @@ fn stores() -> Vec<(Box<dyn ReplayStore>, Option<PathBuf>)> {
             .unwrap()
             .as_nanos() as i64
     ));
-    std::fs::DirBuilder::new().recursive(true).mode(0o700).create(&directory).unwrap();
+    std::fs::DirBuilder::new()
+        .recursive(true)
+        .mode(0o700)
+        .create(&directory)
+        .unwrap();
     let file = message_attestation::FileReplayStore::open(&directory.join("replay.json")).unwrap();
-    vec![(Box::new(MemoryReplayStore::default()), None), (Box::new(file), Some(directory))]
+    vec![
+        (Box::new(MemoryReplayStore::default()), None),
+        (Box::new(file), Some(directory)),
+    ]
 }
 
 fn finish(dir: Option<PathBuf>) {
@@ -583,12 +880,31 @@ impl Two {
     /// A one-message delivery from `dl` with the given sequence and attestation time.
     fn delivery(&self, dl: &Deliverer, seq: u64, at: i64) -> pb::Delivery {
         let a = author(T0);
-        let m = message(&format!("m-{seq}"), vec![room("r"), person(&self.f.recipient.id)]);
-        let signed = sign_message(&a.session, Some(a.delegation.clone()), &dl.id.to_string(), T0, &m).unwrap();
+        let m = message(
+            &format!("m-{seq}"),
+            vec![room("r"), person(&self.f.recipient.id)],
+        );
+        let signed = sign_message(
+            &a.session,
+            Some(a.delegation.clone()),
+            &dl.id.to_string(),
+            T0,
+            &m,
+        )
+        .unwrap();
         sign_delivery(
             &dl.device,
             &dl.delegation,
-            unsigned(&self.f.recipient, &self.f.own, seq, at, vec![OutgoingMessage { message: signed, via: vec![room("r")] }]),
+            unsigned(
+                &self.f.recipient,
+                &self.f.own,
+                seq,
+                at,
+                vec![OutgoingMessage {
+                    message: signed,
+                    via: vec![room("r")],
+                }],
+            ),
         )
         .unwrap()
     }
@@ -615,10 +931,20 @@ fn a_pruned_id_is_still_refused() {
         let t = two();
         let now = T0 + MAX_AGE + 1 + 1;
         let d5 = d_then_e(&t, store.as_ref(), Some(MAX_AGE), now);
-        assert_eq!(store.last_seen(&scope(&t), &t.d.id.to_string()).unwrap(), None, "forgotten");
-        assert_eq!(store.last_seen(&scope(&t), &t.e.id.to_string()).unwrap(), Some(1));
+        assert_eq!(
+            store.last_seen(&scope(&t), &t.d.id.to_string()).unwrap(),
+            None,
+            "forgotten"
+        );
+        assert_eq!(
+            store.last_seen(&scope(&t), &t.e.id.to_string()).unwrap(),
+            Some(1)
+        );
         let again = verify_delivery(&d5, &t.policy(now, Some(MAX_AGE)), store.as_ref());
-        assert!(matches!(again, Err(AttestationError::Stale { .. })), "{again:?}");
+        assert!(
+            matches!(again, Err(AttestationError::Stale { .. })),
+            "{again:?}"
+        );
         finish(dir);
     }
 }
@@ -629,10 +955,21 @@ fn age_equal_to_max_is_kept_and_refused_as_replay() {
         let t = two();
         let now = T0 + MAX_AGE;
         let d5 = d_then_e(&t, store.as_ref(), Some(MAX_AGE), now);
-        assert_eq!(store.last_seen(&scope(&t), &t.d.id.to_string()).unwrap(), Some(5), "kept");
+        assert_eq!(
+            store.last_seen(&scope(&t), &t.d.id.to_string()).unwrap(),
+            Some(5),
+            "kept"
+        );
         let again = verify_delivery(&d5, &t.policy(now, Some(MAX_AGE)), store.as_ref());
         assert!(
-            matches!(&again, Err(AttestationError::Replay { last: 5, got: 5, .. })),
+            matches!(
+                &again,
+                Err(AttestationError::Replay {
+                    last: 5,
+                    got: 5,
+                    ..
+                })
+            ),
             "{again:?}"
         );
         finish(dir);
@@ -648,10 +985,23 @@ fn no_max_age_never_forgets() {
         t.e = deliverer(now);
         t.trusted = vec![t.d.id.clone(), t.e.id.clone()];
         let d5 = d_then_e(&t, store.as_ref(), None, now);
-        assert_eq!(store.last_seen(&scope(&t), &t.d.id.to_string()).unwrap(), Some(5));
+        assert_eq!(
+            store.last_seen(&scope(&t), &t.d.id.to_string()).unwrap(),
+            Some(5)
+        );
         // D's own delegation is still valid half a day on: the replay reaches the store.
         let again = verify_delivery(&d5, &t.policy(T0 + DAY / 2, None), store.as_ref());
-        assert!(matches!(&again, Err(AttestationError::Replay { last: 5, got: 5, .. })), "{again:?}");
+        assert!(
+            matches!(
+                &again,
+                Err(AttestationError::Replay {
+                    last: 5,
+                    got: 5,
+                    ..
+                })
+            ),
+            "{again:?}"
+        );
         finish(dir);
     }
 }
@@ -664,7 +1014,17 @@ fn a_fresh_replayed_delivery_inside_the_window_is_refused() {
         let v = verify_delivery(&d5, &t.policy(T0, Some(MAX_AGE)), store.as_ref()).unwrap();
         confirm(store.as_ref(), v.pending).unwrap();
         let again = verify_delivery(&d5, &t.policy(T0 + 10, Some(MAX_AGE)), store.as_ref());
-        assert!(matches!(&again, Err(AttestationError::Replay { last: 5, got: 5, .. })), "{again:?}");
+        assert!(
+            matches!(
+                &again,
+                Err(AttestationError::Replay {
+                    last: 5,
+                    got: 5,
+                    ..
+                })
+            ),
+            "{again:?}"
+        );
         finish(dir);
     }
 }
@@ -678,11 +1038,27 @@ fn another_scope_is_not_forgotten() {
         let other_own = vec![device_key()];
         let a = author(T0);
         let m = message("m-o", vec![room("r"), person(&other.id)]);
-        let signed = sign_message(&a.session, Some(a.delegation.clone()), &t.d.id.to_string(), T0, &m).unwrap();
+        let signed = sign_message(
+            &a.session,
+            Some(a.delegation.clone()),
+            &t.d.id.to_string(),
+            T0,
+            &m,
+        )
+        .unwrap();
         let od = sign_delivery(
             &t.d.device,
             &t.d.delegation,
-            unsigned(&other, &other_own, 7, T0, vec![OutgoingMessage { message: signed, via: vec![room("r")] }]),
+            unsigned(
+                &other,
+                &other_own,
+                7,
+                T0,
+                vec![OutgoingMessage {
+                    message: signed,
+                    via: vec![room("r")],
+                }],
+            ),
         )
         .unwrap();
         let op = DeliveryPolicy {
@@ -692,11 +1068,23 @@ fn another_scope_is_not_forgotten() {
             max_age_secs: Some(MAX_AGE),
             now_unix: T0,
         };
-        confirm(store.as_ref(), verify_delivery(&od, &op, store.as_ref()).unwrap().pending).unwrap();
+        confirm(
+            store.as_ref(),
+            verify_delivery(&od, &op, store.as_ref()).unwrap().pending,
+        )
+        .unwrap();
         // Confirming for the first recipient long after forgets only its own scope.
         let _ = d_then_e(&t, store.as_ref(), Some(MAX_AGE), T0 + MAX_AGE + 2);
-        assert_eq!(store.last_seen(&scope(&t), &t.d.id.to_string()).unwrap(), None);
-        assert_eq!(store.last_seen(&other.id.to_string(), &t.d.id.to_string()).unwrap(), Some(7));
+        assert_eq!(
+            store.last_seen(&scope(&t), &t.d.id.to_string()).unwrap(),
+            None
+        );
+        assert_eq!(
+            store
+                .last_seen(&other.id.to_string(), &t.d.id.to_string())
+                .unwrap(),
+            Some(7)
+        );
         finish(dir);
     }
 }

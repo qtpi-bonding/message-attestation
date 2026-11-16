@@ -2,10 +2,10 @@ mod common;
 
 use common::*;
 use identity_crypto::{pb, PrincipalId};
-use message_attestation::{send_bytes, send_via_command, SendCommand, SEND_OUTPUT_CAP};
 use message_attestation::{
     run_send_message, AttestationError, ComposedReply, ReplySigner, SendMessageResult,
 };
+use message_attestation::{send_bytes, send_via_command, SendCommand, SEND_OUTPUT_CAP};
 use prost::Message as _;
 use serde_json::{json, Value};
 use std::fs;
@@ -18,7 +18,10 @@ static NEXT_TEST_ID: AtomicU64 = AtomicU64::new(0);
 
 fn temp_dir(name: &str) -> PathBuf {
     let id = NEXT_TEST_ID.fetch_add(1, Ordering::Relaxed);
-    let dir = std::env::temp_dir().join(format!("message-attestation-send-{name}-{}-{id}", std::process::id()));
+    let dir = std::env::temp_dir().join(format!(
+        "message-attestation-send-{name}-{}-{id}",
+        std::process::id()
+    ));
     fs::create_dir_all(&dir).expect("create test directory");
     dir
 }
@@ -26,7 +29,11 @@ fn temp_dir(name: &str) -> PathBuf {
 fn sh(script: &str, args: &[&str], timeout_ms: u64) -> SendCommand {
     let mut argv = vec!["/bin/sh".to_string(), "-c".to_string(), script.to_string()];
     argv.extend(args.iter().map(|s| s.to_string()));
-    SendCommand { argv, env: vec![("PATH".into(), std::env::var("PATH").unwrap())], timeout: Duration::from_millis(timeout_ms) }
+    SendCommand {
+        argv,
+        env: vec![("PATH".into(), std::env::var("PATH").unwrap())],
+        timeout: Duration::from_millis(timeout_ms),
+    }
 }
 
 struct Setup {
@@ -37,7 +44,10 @@ struct Setup {
 fn setup() -> Setup {
     let a = author(T0);
     Setup {
-        signer: ReplySigner::Keyed { session: Arc::new(a.session), device_delegation: a.delegation },
+        signer: ReplySigner::Keyed {
+            session: Arc::new(a.session),
+            device_delegation: a.delegation,
+        },
         deliverer: deliverer(T0).id,
     }
 }
@@ -113,7 +123,10 @@ fn hung_command_with_unread_large_stdin_times_out() {
     let cmd = sh("exec sleep 30", &[], 300);
     let reply = composed(&s, &"a".repeat(65536));
     let t = Instant::now();
-    assert!(matches!(send_via_command(&cmd, &reply).unwrap_err(), AttestationError::SendTimeout { .. }));
+    assert!(matches!(
+        send_via_command(&cmd, &reply).unwrap_err(),
+        AttestationError::SendTimeout { .. }
+    ));
     assert!(t.elapsed() < Duration::from_secs(3));
 }
 
@@ -122,14 +135,21 @@ fn hung_grandchild_holding_pipes_times_out() {
     let s = setup();
     let cmd = sh("sleep 30 & wait", &[], 300);
     let t = Instant::now();
-    assert!(matches!(send_via_command(&cmd, &composed(&s, "hi")).unwrap_err(), AttestationError::SendTimeout { .. }));
+    assert!(matches!(
+        send_via_command(&cmd, &composed(&s, "hi")).unwrap_err(),
+        AttestationError::SendTimeout { .. }
+    ));
     assert!(t.elapsed() < Duration::from_secs(3));
 }
 
 #[test]
 fn output_is_capped() {
     let s = setup();
-    let cmd = sh("cat >/dev/null; head -c 1000000 /dev/zero | tr '\\0' a", &[], 5000);
+    let cmd = sh(
+        "cat >/dev/null; head -c 1000000 /dev/zero | tr '\\0' a",
+        &[],
+        5000,
+    );
     let out = send_via_command(&cmd, &composed(&s, "hi")).unwrap();
     assert_eq!(out.stdout.len(), SEND_OUTPUT_CAP);
 }
@@ -150,9 +170,15 @@ fn missing_binary_and_empty_argv_are_send_errors() {
     let reply = composed(&s, "hi");
     let mut cmd = sh("", &[], 1000);
     cmd.argv = vec!["/nonexistent/definitely-not-here".into()];
-    assert!(matches!(send_via_command(&cmd, &reply).unwrap_err(), AttestationError::Send(_)));
+    assert!(matches!(
+        send_via_command(&cmd, &reply).unwrap_err(),
+        AttestationError::Send(_)
+    ));
     cmd.argv = vec![];
-    assert!(matches!(send_via_command(&cmd, &reply).unwrap_err(), AttestationError::Send(_)));
+    assert!(matches!(
+        send_via_command(&cmd, &reply).unwrap_err(),
+        AttestationError::Send(_)
+    ));
 }
 
 #[test]
@@ -160,7 +186,10 @@ fn failed_send_keeps_the_id_and_can_be_resent() {
     let s = setup();
     let failing = sh("cat >/dev/null; echo refused >&2; exit 1", &[], 5000);
     match run_send_message(&input("hi"), &s.signer, &s.deliverer, T0, &failing) {
-        SendMessageResult::Failed { message_id: Some(id), error } => {
+        SendMessageResult::Failed {
+            message_id: Some(id),
+            error,
+        } => {
             assert!(id.starts_with("m-"));
             assert_eq!(error, "refused");
         }
@@ -181,8 +210,15 @@ fn failed_send_keeps_the_id_and_can_be_resent() {
 fn model_result_caps_error_text() {
     let s = setup();
     let line = "x".repeat(1600);
-    let script = format!("cat >/dev/null; echo {line} >&2; echo {line} >&2; echo {line} >&2; exit 1");
-    let r = run_send_message(&input("hi"), &s.signer, &s.deliverer, T0, &sh(&script, &[], 5000));
+    let script =
+        format!("cat >/dev/null; echo {line} >&2; echo {line} >&2; echo {line} >&2; exit 1");
+    let r = run_send_message(
+        &input("hi"),
+        &s.signer,
+        &s.deliverer,
+        T0,
+        &sh(&script, &[], 5000),
+    );
     assert!(r.is_error());
     let j = r.to_json();
     assert_eq!(j["status"], "failed");
@@ -195,7 +231,13 @@ fn model_result_caps_error_text() {
 #[test]
 fn timeout_result_says_so() {
     let s = setup();
-    let r = run_send_message(&input("hi"), &s.signer, &s.deliverer, T0, &sh("exec sleep 30", &[], 300));
+    let r = run_send_message(
+        &input("hi"),
+        &s.signer,
+        &s.deliverer,
+        T0,
+        &sh("exec sleep 30", &[], 300),
+    );
     assert_eq!(r.to_json()["error"], "send timed out");
 }
 
@@ -205,7 +247,13 @@ fn parse_failure_has_no_id() {
     let cmd = sh("cat >/dev/null", &[], 5000);
     let bad = json!({"to": ["room:r1"], "body": "x", "audience": "p256:aa"});
     let r = run_send_message(&bad, &s.signer, &s.deliverer, T0, &cmd);
-    assert!(matches!(r, SendMessageResult::Failed { message_id: None, .. }));
+    assert!(matches!(
+        r,
+        SendMessageResult::Failed {
+            message_id: None,
+            ..
+        }
+    ));
     let j = r.to_json();
     assert_eq!(j["status"], "failed");
     assert!(j.get("message_id").is_none_or(Value::is_null));
@@ -215,7 +263,9 @@ fn parse_failure_has_no_id() {
 #[test]
 fn hosted_signer_works_through_the_entry_point() {
     let h = hosted_author(T0);
-    let signer = ReplySigner::Hosted { session: Arc::new(h.session) };
+    let signer = ReplySigner::Hosted {
+        session: Arc::new(h.session),
+    };
     let cmd = sh("cat >/dev/null", &[], 5000);
     let r = run_send_message(&input("hi"), &signer, &deliverer(T0).id, T0, &cmd);
     assert!(matches!(r, SendMessageResult::Sent { .. }), "{r:?}");
@@ -224,7 +274,8 @@ fn hosted_signer_works_through_the_entry_point() {
 #[test]
 fn escaped_descendant_holding_pipes_does_not_block() {
     let s = setup();
-    let script = r#"cat >/dev/null; perl -MPOSIX -e 'exit 0 if fork; POSIX::setsid(); exec "sleep", "30"'"#;
+    let script =
+        r#"cat >/dev/null; perl -MPOSIX -e 'exit 0 if fork; POSIX::setsid(); exec "sleep", "30"'"#;
     let cmd = sh(script, &[], 5000);
     let t = Instant::now();
     send_via_command(&cmd, &composed(&s, "hi")).unwrap();
@@ -234,7 +285,11 @@ fn escaped_descendant_holding_pipes_does_not_block() {
 #[test]
 fn error_line_skips_leading_blanks_and_carriage_return() {
     let s = setup();
-    let cmd = sh("cat >/dev/null; printf '\\n\\nbad target\\r\\nmore\\n' >&2; exit 1", &[], 5000);
+    let cmd = sh(
+        "cat >/dev/null; printf '\\n\\nbad target\\r\\nmore\\n' >&2; exit 1",
+        &[],
+        5000,
+    );
     let r = run_send_message(&input("hi"), &s.signer, &s.deliverer, T0, &cmd);
     assert_eq!(r.to_json()["error"], "bad target");
 }

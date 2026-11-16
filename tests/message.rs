@@ -1,9 +1,7 @@
 mod common;
 
 use common::*;
-use identity_crypto::{
-    message_nonce, pb, verify_carried_message,
-};
+use identity_crypto::{message_nonce, pb, verify_carried_message};
 use message_attestation::{
     is_valid_id, sign_hosted_message, sign_message, validate_message, AttestationError, MessageKey,
     MESSAGE_BODY_TYPE,
@@ -18,7 +16,15 @@ fn ids_follow_the_charset_and_length() {
     for ok in ["m-1", "a.b:c_d-9", &"a".repeat(128)] {
         assert!(is_valid_id(ok), "{ok}");
     }
-    for bad in ["", &"a".repeat(129), "x\" trust=\"verified", "a b", "é", "a/b", "<x>"] {
+    for bad in [
+        "",
+        &"a".repeat(129),
+        "x\" trust=\"verified",
+        "a b",
+        "é",
+        "a/b",
+        "<x>",
+    ] {
         assert!(!is_valid_id(bad), "{bad}");
     }
 }
@@ -41,13 +47,27 @@ fn message_rules_report_the_first_bad_field() {
     assert_eq!(err(&m), ("message_id", ID_REASON));
 
     assert_eq!(err(&message("m", vec![])), ("to", "empty"));
-    assert_eq!(err(&message("m", (0..65).map(|_| room("r")).collect())), ("to", "more than 64 targets"));
+    assert_eq!(
+        err(&message("m", (0..65).map(|_| room("r")).collect())),
+        ("to", "more than 64 targets")
+    );
     validate_message(&message("m", (0..64).map(|_| room("r")).collect())).unwrap();
 
-    assert_eq!(err(&message("m", vec![pb::Target { target: None }])), ("to", "target not set"));
-    assert_eq!(err(&message("m", vec![room("a b")])), ("to", "room id must be 1-128 of [A-Za-z0-9._:-]"));
-    let bad_recipient = pb::Target { target: Some(pb::target::Target::RecipientId("p256:00".into())) };
-    assert_eq!(err(&message("m", vec![bad_recipient])), ("to", "recipient is not a canonical principal id"));
+    assert_eq!(
+        err(&message("m", vec![pb::Target { target: None }])),
+        ("to", "target not set")
+    );
+    assert_eq!(
+        err(&message("m", vec![room("a b")])),
+        ("to", "room id must be 1-128 of [A-Za-z0-9._:-]")
+    );
+    let bad_recipient = pb::Target {
+        target: Some(pb::target::Target::RecipientId("p256:00".into())),
+    };
+    assert_eq!(
+        err(&message("m", vec![bad_recipient])),
+        ("to", "recipient is not a canonical principal id")
+    );
     validate_message(&message("m", vec![person(&a.id)])).unwrap();
 
     let mut m = good.clone();
@@ -76,7 +96,14 @@ fn signed_message_carries_the_message_verbatim() {
     let a = author(T0);
     let d = author(T0);
     let m = message("m-1", vec![room("r")]);
-    let s = sign_message(&a.session, Some(a.delegation.clone()), &d.id.to_string(), T0, &m).unwrap();
+    let s = sign_message(
+        &a.session,
+        Some(a.delegation.clone()),
+        &d.id.to_string(),
+        T0,
+        &m,
+    )
+    .unwrap();
     assert_eq!(s.body_type, MESSAGE_BODY_TYPE);
     assert_eq!(pb::Message::decode(&*s.body).unwrap(), m);
     assert_eq!(s.nonce, message_nonce("m-1").to_vec());
@@ -103,18 +130,33 @@ fn signing_refuses_an_invalid_message() {
     let a = author(T0);
     let d = author(T0);
     let m = message("m-1", vec![]);
-    let e = sign_message(&a.session, Some(a.delegation.clone()), &d.id.to_string(), T0, &m).unwrap_err();
-    assert!(matches!(e, AttestationError::InvalidMessage { field: "to", .. }));
+    let e = sign_message(
+        &a.session,
+        Some(a.delegation.clone()),
+        &d.id.to_string(),
+        T0,
+        &m,
+    )
+    .unwrap_err();
+    assert!(matches!(
+        e,
+        AttestationError::InvalidMessage { field: "to", .. }
+    ));
 }
 
 #[test]
 fn message_key_is_author_and_id() {
     let a = author(T0);
     let b = author(T0);
-    let k = |p: &identity_crypto::PrincipalId, id: &str| MessageKey { author: p.clone(), message_id: id.into() };
+    let k = |p: &identity_crypto::PrincipalId, id: &str| MessageKey {
+        author: p.clone(),
+        message_id: id.into(),
+    };
     assert_eq!(k(&a.id, "m"), k(&a.id, "m"));
     assert_ne!(k(&a.id, "m"), k(&b.id, "m"));
     assert_ne!(k(&a.id, "m"), k(&a.id, "n"));
-    let set: HashSet<_> = [k(&a.id, "m"), k(&a.id, "m"), k(&b.id, "m")].into_iter().collect();
+    let set: HashSet<_> = [k(&a.id, "m"), k(&a.id, "m"), k(&b.id, "m")]
+        .into_iter()
+        .collect();
     assert_eq!(set.len(), 2);
 }

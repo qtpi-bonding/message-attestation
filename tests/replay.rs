@@ -545,7 +545,10 @@ fn record_refuses_a_state_that_would_exceed_the_read_cap() {
         }
     }
     let (error, before) = refusal.expect("the record that crosses the cap must be refused");
-    assert!(!accepted.is_empty(), "the cap was hit before any record was written");
+    assert!(
+        !accepted.is_empty(),
+        "the cap was hit before any record was written"
+    );
     assert!(
         matches!(
             keyfile_error(&error),
@@ -555,7 +558,11 @@ fn record_refuses_a_state_that_would_exceed_the_read_cap() {
     );
     // The previously written file is intact, within the cap, and readable.
     let after = fs::read(&path).expect("state file still exists");
-    assert_eq!(Some(after.clone()), before, "the refused record must not touch the file");
+    assert_eq!(
+        Some(after.clone()),
+        before,
+        "the refused record must not touch the file"
+    );
     assert!(after.len() <= REPLAY_STATE_MAX_BYTES);
     assert_eq!(mode_of(&path), 0o600);
     let reopened = FileReplayStore::open(&path).expect("the store is not bricked");

@@ -64,7 +64,10 @@ impl VerifiedMessage {
         }
     }
     pub fn key(&self) -> MessageKey {
-        MessageKey { author: self.author.clone(), message_id: self.message.message_id.clone() }
+        MessageKey {
+            author: self.author.clone(),
+            message_id: self.message.message_id.clone(),
+        }
     }
 }
 
@@ -138,7 +141,10 @@ pub fn verify_delivery(
     // with a less specific error, and no per-message work may precede them.
     for count in [delivery.messages.len(), delivery.names.len()] {
         if count > MAX_MESSAGES {
-            return Err(AttestationError::TooManyMessages { count, max: MAX_MESSAGES });
+            return Err(AttestationError::TooManyMessages {
+                count,
+                max: MAX_MESSAGES,
+            });
         }
     }
     if delivery.via.len() != delivery.messages.len() {
@@ -151,8 +157,7 @@ pub fn verify_delivery(
             return Err(AttestationError::InvalidRecipientDevice { index });
         }
     }
-    let transcript_err =
-        |e: identity_crypto::Error| AttestationError::Transcript(Box::new(e));
+    let transcript_err = |e: identity_crypto::Error| AttestationError::Transcript(Box::new(e));
     let signer_device = delivery
         .signer_device
         .as_ref()
@@ -166,8 +171,12 @@ pub fn verify_delivery(
         .map_err(|e| AttestationError::DelivererDevice(Box::new(e)))?;
 
     let transcript = delivery_transcript(delivery).map_err(transcript_err)?;
-    verify_signature(&device, &transcript, &Signature::from_bytes(delivery.signature.clone()))
-        .map_err(|_| AttestationError::BadSignature)?;
+    verify_signature(
+        &device,
+        &transcript,
+        &Signature::from_bytes(delivery.signature.clone()),
+    )
+    .map_err(|_| AttestationError::BadSignature)?;
 
     if !is_valid_id(&delivery.delivery_id) {
         return Err(AttestationError::InvalidDeliveryId);
@@ -178,9 +187,10 @@ pub fn verify_delivery(
     if policy.own_devices.is_empty() {
         return Err(AttestationError::OwnDevicesMissing);
     }
-    let is_recipient = delivery.recipient_devices.iter().any(|d| {
-        PublicKey::try_from(d).is_ok_and(|k| policy.own_devices.contains(&k))
-    });
+    let is_recipient = delivery
+        .recipient_devices
+        .iter()
+        .any(|d| PublicKey::try_from(d).is_ok_and(|k| policy.own_devices.contains(&k)));
     if !is_recipient {
         return Err(AttestationError::NotARecipient);
     }
@@ -214,7 +224,10 @@ pub fn verify_delivery(
     for (index, signed) in delivery.messages.iter().enumerate() {
         let carried = verify_carried_message(signed, &deliverer_str).map_err(|e| match e {
             identity_crypto::Error::WrongAudience => AttestationError::WrongAudience { index },
-            other => AttestationError::MessageSignature { index, reason: other.to_string() },
+            other => AttestationError::MessageSignature {
+                index,
+                reason: other.to_string(),
+            },
         })?;
         if carried.body_type() != MESSAGE_BODY_TYPE {
             return Err(AttestationError::WrongBodyType { index });
@@ -223,8 +236,7 @@ pub fn verify_delivery(
             .map_err(|e| AttestationError::Decode(Box::new(e)))?;
         validate_message(&message)?;
         let via = delivery.via[index].targets.clone();
-        if via.is_empty() || via.iter().any(|t| !message.to.contains(t))
-        {
+        if via.is_empty() || via.iter().any(|t| !message.to.contains(t)) {
             return Err(AttestationError::InvalidVia { index });
         }
         messages.push(VerifiedMessage {
@@ -247,7 +259,9 @@ pub fn verify_delivery(
             authored = true;
         }
         if !authored {
-            return Err(AttestationError::StrayName { principal: entry.principal_id.clone() });
+            return Err(AttestationError::StrayName {
+                principal: entry.principal_id.clone(),
+            });
         }
         names.push(ResolvedPrincipal::from_signed(id, name));
     }
@@ -299,5 +313,9 @@ pub fn confirm(replay: &dyn ReplayStore, pending: PendingSequence) -> Result<(),
         return Ok(());
     }
     let last = replay.last_seen(&pending.scope, &pending.key)?.unwrap_or(0);
-    Err(AttestationError::Replay { principal: pending.key, last, got: pending.sequence })
+    Err(AttestationError::Replay {
+        principal: pending.key,
+        last,
+        got: pending.sequence,
+    })
 }

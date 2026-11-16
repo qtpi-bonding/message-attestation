@@ -27,7 +27,10 @@ impl RegisteredName {
         if s.len() > MAX_NAME_LEN {
             return Err(invalid("longer than 64 bytes"));
         }
-        if !s.bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b, b' ' | b'.' | b'_' | b'-')) {
+        if !s
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || matches!(b, b' ' | b'.' | b'_' | b'-'))
+        {
             return Err(invalid("only [A-Za-z0-9 ._-] is allowed"));
         }
         if s.starts_with(' ') || s.ends_with(' ') {
@@ -110,7 +113,10 @@ mod tests {
         ];
         for (name, why) in table {
             let e = RegisteredName::parse(name).unwrap_err();
-            assert!(matches!(e, AttestationError::InvalidName { .. }), "{why}: {e:?}");
+            assert!(
+                matches!(e, AttestationError::InvalidName { .. }),
+                "{why}: {e:?}"
+            );
         }
     }
 }

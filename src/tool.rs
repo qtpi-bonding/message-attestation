@@ -53,13 +53,23 @@ const MAX_ERROR_BYTES: usize = 1024;
 #[derive(Clone, Debug, PartialEq)]
 pub enum SendMessageResult {
     /// `output` is the command's stdout as JSON when it parses, else a string.
-    Sent { message_id: String, output: serde_json::Value },
+    Sent {
+        message_id: String,
+        output: serde_json::Value,
+    },
     /// `message_id` is set once the reply was composed.
-    Failed { message_id: Option<String>, error: String },
+    Failed {
+        message_id: Option<String>,
+        error: String,
+    },
 }
 
 fn model_line(text: &str) -> String {
-    let line = text.lines().find(|l| !l.trim().is_empty()).unwrap_or("").trim_end_matches('\r');
+    let line = text
+        .lines()
+        .find(|l| !l.trim().is_empty())
+        .unwrap_or("")
+        .trim_end_matches('\r');
     let mut end = line.len().min(MAX_ERROR_BYTES);
     while !line.is_char_boundary(end) {
         end -= 1;
@@ -71,7 +81,11 @@ fn failure_text(e: &AttestationError) -> String {
     match e {
         AttestationError::SendFailed { stderr, .. } => {
             let first = model_line(stderr);
-            if first.is_empty() { "send failed".to_owned() } else { first }
+            if first.is_empty() {
+                "send failed".to_owned()
+            } else {
+                first
+            }
         }
         AttestationError::SendTimeout { .. } => "send timed out".to_owned(),
         other => model_line(&other.to_string()),
@@ -122,8 +136,12 @@ pub fn run_send_message(
     match send_via_command(cmd, &reply) {
         Ok(out) => {
             let text = out.stdout.trim();
-            let output = serde_json::from_str(text).unwrap_or_else(|_| serde_json::Value::String(text.to_owned()));
-            SendMessageResult::Sent { message_id: reply.message_id, output }
+            let output = serde_json::from_str(text)
+                .unwrap_or_else(|_| serde_json::Value::String(text.to_owned()));
+            SendMessageResult::Sent {
+                message_id: reply.message_id,
+                output,
+            }
         }
         Err(e) => failed(Some(reply.message_id), &e),
     }

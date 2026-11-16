@@ -6,7 +6,9 @@ use identity_crypto::{
     HostedAgent, HostedSessionCredential, HostingDaemon, PrincipalId, PublicKey, SessionCredential,
     Timestamp,
 };
-use message_attestation::{sign_delivery, sign_message, DeliveryPolicy, OutgoingMessage, UnsignedDelivery};
+use message_attestation::{
+    sign_delivery, sign_message, DeliveryPolicy, OutgoingMessage, UnsignedDelivery,
+};
 
 pub const T0: i64 = 1_700_000_000;
 pub const DAY: i64 = 86_400;
@@ -27,13 +29,35 @@ pub fn author_with(now: i64, delegation_secs: i64, session_secs: i64) -> Author 
 }
 
 /// Like `author_with`, but the device delegation is issued at `delegation_at`.
-pub fn author_issued(now: i64, delegation_at: i64, delegation_secs: i64, session_secs: i64) -> Author {
+pub fn author_issued(
+    now: i64,
+    delegation_at: i64,
+    delegation_secs: i64,
+    session_secs: i64,
+) -> Author {
     let root = GenerationService::generate_key_duo();
     let device = GenerationService::generate_key_duo();
     let id = principal_id(&root);
-    let delegation = delegate_device(&root, &id, &identity_crypto::PublicKeyDuo::from(&device), delegation_at, delegation_at + delegation_secs).unwrap();
-    let session = mint_session(device.signing_key_pair(), &signing_public(&root), now, now + session_secs).unwrap();
-    Author { id, session, delegation }
+    let delegation = delegate_device(
+        &root,
+        &id,
+        &identity_crypto::PublicKeyDuo::from(&device),
+        delegation_at,
+        delegation_at + delegation_secs,
+    )
+    .unwrap();
+    let session = mint_session(
+        device.signing_key_pair(),
+        &signing_public(&root),
+        now,
+        now + session_secs,
+    )
+    .unwrap();
+    Author {
+        id,
+        session,
+        delegation,
+    }
 }
 
 /// An author whose session is minted by the root key itself (no device delegation).
@@ -41,8 +65,18 @@ pub fn author_self_rooted(now: i64) -> Author {
     let root = GenerationService::generate_key_duo();
     let id = principal_id(&root);
     let delegation = pb::KeyDelegation::default();
-    let session = mint_session(root.signing_key_pair(), &signing_public(&root), now, now + 3600).unwrap();
-    Author { id, session, delegation }
+    let session = mint_session(
+        root.signing_key_pair(),
+        &signing_public(&root),
+        now,
+        now + 3600,
+    )
+    .unwrap();
+    Author {
+        id,
+        session,
+        delegation,
+    }
 }
 
 pub fn message(id: &str, to: Vec<pb::Target>) -> pb::Message {
@@ -52,17 +86,24 @@ pub fn message(id: &str, to: Vec<pb::Target>) -> pb::Message {
         reply_to: None,
         references: vec![],
         mentions: vec![],
-        authored_at: Some(identity_crypto::Timestamp { seconds: T0, nanos: 0 }),
+        authored_at: Some(identity_crypto::Timestamp {
+            seconds: T0,
+            nanos: 0,
+        }),
         body: "hello".to_string(),
     }
 }
 
 pub fn room(id: &str) -> pb::Target {
-    pb::Target { target: Some(pb::target::Target::RoomId(id.to_string())) }
+    pb::Target {
+        target: Some(pb::target::Target::RoomId(id.to_string())),
+    }
 }
 
 pub fn person(id: &PrincipalId) -> pb::Target {
-    pb::Target { target: Some(pb::target::Target::RecipientId(id.to_string())) }
+    pb::Target {
+        target: Some(pb::target::Target::RecipientId(id.to_string())),
+    }
 }
 
 pub struct Deliverer {
@@ -75,8 +116,19 @@ pub fn deliverer(now: i64) -> Deliverer {
     let root = GenerationService::generate_key_duo();
     let device = GenerationService::generate_key_duo();
     let id = principal_id(&root);
-    let delegation = delegate_device(&root, &id, &identity_crypto::PublicKeyDuo::from(&device), now, now + DAY).unwrap();
-    Deliverer { id, device, delegation }
+    let delegation = delegate_device(
+        &root,
+        &id,
+        &identity_crypto::PublicKeyDuo::from(&device),
+        now,
+        now + DAY,
+    )
+    .unwrap();
+    Deliverer {
+        id,
+        device,
+        delegation,
+    }
 }
 
 pub struct HostedAuthor {
@@ -89,14 +141,35 @@ pub fn hosted_author(now: i64) -> HostedAuthor {
     let droot = GenerationService::generate_key_duo();
     let ddev = GenerationService::generate_key_duo();
     let did = principal_id(&droot);
-    let ddel = delegate_device(&droot, &did, &identity_crypto::PublicKeyDuo::from(&ddev), now, now + DAY).unwrap();
+    let ddel = delegate_device(
+        &droot,
+        &did,
+        &identity_crypto::PublicKeyDuo::from(&ddev),
+        now,
+        now + DAY,
+    )
+    .unwrap();
     let aroot = GenerationService::generate_key_duo();
     let adev = GenerationService::generate_key_duo();
     let id = principal_id(&aroot);
-    let adel = delegate_device(&aroot, &id, &identity_crypto::PublicKeyDuo::from(&adev), now, now + DAY).unwrap();
+    let adel = delegate_device(
+        &aroot,
+        &id,
+        &identity_crypto::PublicKeyDuo::from(&adev),
+        now,
+        now + DAY,
+    )
+    .unwrap();
     let session = mint_hosted_session(
-        HostingDaemon { device: ddev.signing_key_pair(), device_delegation: &ddel },
-        HostedAgent { device: adev.signing_key_pair(), device_delegation: &adel, rotations: &[] },
+        HostingDaemon {
+            device: ddev.signing_key_pair(),
+            device_delegation: &ddel,
+        },
+        HostedAgent {
+            device: adev.signing_key_pair(),
+            device_delegation: &adel,
+            rotations: &[],
+        },
         &format!("{}/agent", did.short_id()),
         now,
         now + 3600,
@@ -115,13 +188,22 @@ pub struct Fx {
     pub delivery: pb::Delivery,
 }
 
-pub fn unsigned(recipient: &Author, own: &[PublicKey], seq: u64, at: i64, ms: Vec<OutgoingMessage>) -> UnsignedDelivery {
+pub fn unsigned(
+    recipient: &Author,
+    own: &[PublicKey],
+    seq: u64,
+    at: i64,
+    ms: Vec<OutgoingMessage>,
+) -> UnsignedDelivery {
     UnsignedDelivery {
         delivery_id: format!("d-{seq}"),
         recipient_id: recipient.id.clone(),
         recipient_devices: own.to_vec(),
         sequence: seq,
-        attested_at: Timestamp { seconds: at, nanos: 0 },
+        attested_at: Timestamp {
+            seconds: at,
+            nanos: 0,
+        },
         messages: ms,
         names: vec![],
     }
@@ -137,15 +219,39 @@ pub fn fx() -> Fx {
     let recipient = author(T0);
     let own = vec![device_key()];
     let msg = message("m-1", vec![room("r"), person(&recipient.id)]);
-    let signed = sign_message(&a.session, Some(a.delegation.clone()), &dl.id.to_string(), T0, &msg).unwrap();
+    let signed = sign_message(
+        &a.session,
+        Some(a.delegation.clone()),
+        &dl.id.to_string(),
+        T0,
+        &msg,
+    )
+    .unwrap();
     let via = vec![room("r")];
     let delivery = sign_delivery(
         &dl.device,
         &dl.delegation,
-        unsigned(&recipient, &own, 1, T0, vec![OutgoingMessage { message: signed, via: via.clone() }]),
+        unsigned(
+            &recipient,
+            &own,
+            1,
+            T0,
+            vec![OutgoingMessage {
+                message: signed,
+                via: via.clone(),
+            }],
+        ),
     )
     .unwrap();
-    Fx { trusted: vec![dl.id.clone()], dl, recipient, own, msg, via, delivery }
+    Fx {
+        trusted: vec![dl.id.clone()],
+        dl,
+        recipient,
+        own,
+        msg,
+        via,
+        delivery,
+    }
 }
 
 pub fn policy(f: &Fx) -> DeliveryPolicy<'_> {
@@ -160,12 +266,15 @@ pub fn policy(f: &Fx) -> DeliveryPolicy<'_> {
 
 /// Re-signs a delivery of `msgs` with the fixture's deliverer.
 pub fn resign(f: &Fx, msgs: Vec<OutgoingMessage>) -> pb::Delivery {
-    sign_delivery(&f.dl.device, &f.dl.delegation, unsigned(&f.recipient, &f.own, 1, T0, msgs))
-        .unwrap()
+    sign_delivery(
+        &f.dl.device,
+        &f.dl.delegation,
+        unsigned(&f.recipient, &f.own, 1, T0, msgs),
+    )
+    .unwrap()
 }
 
 /// A delivery of one hand-built SignedMessage from a fresh author.
 pub fn with_signed(f: &Fx, s: pb::SignedMessage, via: Vec<pb::Target>) -> pb::Delivery {
     resign(f, vec![OutgoingMessage { message: s, via }])
 }
-

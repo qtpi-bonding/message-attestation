@@ -89,7 +89,13 @@ pub fn render_message(
             reason: "needs 2",
         });
     }
-    check_fields(view.message_id, view.to, view.reply_to, view.references, view.mentions)?;
+    check_fields(
+        view.message_id,
+        view.to,
+        view.reply_to,
+        view.references,
+        view.mentions,
+    )?;
     check_author_and_via(view.author_id, view.via)?;
     if let Some(name) = view.author_name {
         RegisteredName::parse(name)?;
@@ -111,7 +117,10 @@ fn render_view(
         if let Some(name) = view.author_name {
             attr(&mut out, "from-name", name);
         }
-        if options.owner.is_some_and(|o| o.to_string() == view.author_id) {
+        if options
+            .owner
+            .is_some_and(|o| o.to_string() == view.author_id)
+        {
             attr(&mut out, "owner", "true");
         }
     }
@@ -192,7 +201,10 @@ mod tests {
 
     #[test]
     fn attr_escapes_every_special_character() {
-        assert_eq!(attr_of("&<>\"'\n\r"), " n=\"&amp;&lt;&gt;&quot;&#39;&#10;&#13;\"");
+        assert_eq!(
+            attr_of("&<>\"'\n\r"),
+            " n=\"&amp;&lt;&gt;&quot;&#39;&#10;&#13;\""
+        );
     }
 
     #[test]

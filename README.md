@@ -2,11 +2,9 @@
 
 Signs and verifies author-signed Messages inside a deliverer-signed Delivery carried in ACP `_meta`, and renders them as text an agent reads. It **authenticates, never authorizes**: what to do with a message (or on rejection) is the consumer's policy.
 
-The wire types are `identity_crypto::pb::{Message, SignedMessage, Delivery}`; this crate is named differently on purpose. P-256 only. Pure and synchronous: no tokio, no clock (the caller passes `now_unix`), no key storage (a signer passes its own credentials). Only `FileReplayStore` does I/O.
+The wire types are `identity_crypto::pb::{Message, SignedMessage, Delivery}`; this crate is named differently on purpose. P-256 only. Pure and synchronous: no tokio, no clock (the caller passes `now_unix`), no key storage (a signer passes its own credentials). Only `FileReplayStore` does I/O. Unix only: the crate refuses to compile on other targets (`compile_error!`), because the replay store relies on file modes, ownership and `O_NOFOLLOW`.
 
-## Pinned dependency
-
-`identity-crypto` 0.10.0, pinned to rev `14c6abb5d4b56b1c8dc6b6ce74d871bd03eea223`.
+Everything is exported from the crate root (`message_attestation::{..}`); the modules are private.
 
 ## Message rules
 
@@ -24,7 +22,7 @@ A Message is carried as a `SignedMessage` whose body type is `MESSAGE_BODY_TYPE`
 
 - `sign_message(&session, delegation: Option<KeyDelegation>, audience: &str, issued_at_unix, &message)` signs with a `SessionCredential`. `Some(delegation)` (root to device) is carried; `None` carries no device delegation, and a recipient's carried-message verifier refuses such a `SelfRooted` chain, so pass `None` only for a consumer that does not use it.
 - `sign_hosted_message(&hosted_session, audience: &str, issued_at_unix, &message)` is the same for a `HostedSessionCredential`.
-- `sign_delivery(&device, &device_delegation, UnsignedDelivery { delivery_id, recipient_id, recipient_devices, sequence, attested_at, messages, names })` signs with the deliverer's DEVICE key only; `device_delegation` (root to that device) is carried as `signer_device` and must delegate exactly this device. Each `OutgoingMessage` is `{ message: SignedMessage, via: Vec<Target> }`. Empty `messages` is `EmptyMessages`, empty `recipient_devices` is `NoRecipients`, a bad `delivery_id` is `InvalidDeliveryId`, an empty or invalid `via` is `InvalidVia { index }`. The result is self-verified before it is returned. `names` are `ResolvedPrincipal`s (a registry-bound name); they are sorted by id and written to field 10 of the Delivery, and a name for a principal that authors no message is `StrayName { principal }`. The authors are not re-verified, except to find who wrote each message when `names` is non-empty: the deliverer has done that against its own directory.
+- `sign_delivery(device: &dyn Signer, &device_delegation, UnsignedDelivery { delivery_id, recipient_id, recipient_devices, sequence, attested_at, messages, names })` signs with the deliverer's DEVICE key only; `device_delegation` (root to that device) is carried as `signer_device` and must delegate exactly this device. Each `OutgoingMessage` is `{ message: SignedMessage, via: Vec<Target> }`. Empty `messages` is `EmptyMessages`, empty `recipient_devices` is `NoRecipients`, a bad `delivery_id` is `InvalidDeliveryId`, an empty or invalid `via` is `InvalidVia { index }`. More than `MAX_MESSAGES` (256) messages, or more than `MAX_MESSAGES` names, is `TooManyMessages { count, max }`. The result is self-verified before it is returned. `names` are `ResolvedPrincipal`s (a registry-bound name); they are sorted by id and written to field 10 of the Delivery, and a name for a principal that authors no message is `StrayName { principal }`. The authors are not re-verified, except to find who wrote each message when `names` is non-empty: the deliverer has done that against its own directory.
 
 ## Reply tool
 
@@ -34,15 +32,15 @@ Contract (`send_message_tool()` returns a `ToolDefinition { name, description, i
 
 - name: `SEND_MESSAGE_TOOL` = `"send_message"`.
 - description: sends a message as yourself; `to` lists rooms (`room:<id>`) and agents or people (`p256:<hex>`), at most 64; to reply, pass the message's id as `reply_to`; `mentions` are `p256:` ids; the result is the new message's id.
-- schema: an object with `to` (array of strings, 1 to 64), `body` (string, at least 1 character), optional `reply_to` (string), `references` and `mentions` (arrays of strings). Required: `to`, `body`. `additionalProperties` is false. The schema's `maxLength` on `body` is a character hint for the model; `MAX_BODY_BYTES` (65536 UTF-8 bytes) is what binds.
+- schema: an object with `to` (array of strings, 1 to 64), `body` (string, at least 1 character), optional `reply_to` (string), `references` and `mentions` (arrays of strings). Required: `to`, `body`. `additionalProperties` is false. The schema carries no `maxLength` on `body`: `MAX_BODY_BYTES` (65536 UTF-8 bytes) is what `parse_tool_input` enforces, and the description states it.
 
 `parse_tool_input` turns the JSON into a `ReplyDraft`. `room:<id>` becomes a room target with the prefix stripped; `p256:<hex>` becomes a recipient target keeping the full string; anything else is refused. An unknown field (`message_id`, `audience`, `To`) is `InvalidMessage { field: "input", .. }` and nothing is signed. The id, target and mention rules are not repeated here: signing runs `validate_message`.
 
-`ReplySigner` is `Keyed { session: Arc<SessionCredential>, device_delegation }` or `Hosted { session: Arc<HostedSessionCredential> }`. It is owned and `Clone`, so a host keeps one per agent. `compose_reply(&signer, &deliverer, now_unix, draft)` checks the signer is inside its validity window at `now_unix` (the session certificate and, when keyed, the device delegation; `identity_crypto::SKEW_SECONDS` of skew is allowed on the lower bounds), else `SessionExpired` and nothing is signed. It checks the body size, mints the id (`new_message_id`: `m-` plus 32 lowercase hex characters of OS randomness) and signs with `audience = deliverer`. The audience is the deliverer principal the harness is configured with, never anything from the model.
+`ReplySigner` is `Keyed { session: Arc<SessionCredential>, device_delegation }` or `Hosted { session: Arc<HostedSessionCredential> }`. It is owned and `Clone`, so a host keeps one per agent. `compose_reply(&signer, &deliverer, now_unix, draft)` checks the signer is inside its validity window at `now_unix` (the session certificate and, when keyed, the device delegation; `identity_crypto::SKEW_SECONDS` of skew is allowed on the lower bounds), else `SessionExpired` and nothing is signed. It checks the body size, mints the id (`new_message_id() -> Result<String, AttestationError>`: `m-` plus 32 lowercase hex characters of OS randomness; it is fallible, and a failure of the OS source is `Randomness`) and signs with `audience = deliverer`. The audience is the deliverer principal the harness is configured with, never anything from the model.
 
 `run_send_message(&input, &signer, &deliverer, now_unix, &cmd)` is parse, compose, send and result in one call. It never panics: every failure is `SendMessageResult::Failed`. The result has `to_json()` (`{"message_id", "status": "sent"|"failed", "output"?, "error"?}`) and `is_error()`. The model-visible `error` is the first non-blank line of the command's stderr, with `\r` stripped, at most 1024 bytes; the full stderr stays in the Rust error (`SendFailed`). A failure after composing still carries the `message_id`.
 
-`send_via_command(&SendCommand { argv, env, timeout }, &composed)` runs the command with the `SignedMessage` protobuf bytes (`send_bytes`) on stdin. The child gets a cleared environment (`env_clear()`, then exactly `env`) and its own process group. Exit 0 is `Ok(SendOutcome { stdout })`; a non-zero exit is `SendFailed { status, stderr }`; a timeout is `SendTimeout`. After the child exits or times out, its whole process group is killed. The pipe threads then get a 1 s grace and are abandoned, keeping what was captured, so a descendant that left the group cannot hold the call open. Stdout and stderr are each capped at `SEND_OUTPUT_CAP` (64 KiB).
+`send_via_command(&SendCommand { argv, env, timeout }, &composed)` runs the command with the `SignedMessage` protobuf bytes (`send_bytes`) on stdin. If the child's stdin, stdout or stderr is not piped the call is `Send(..)` (the process group is killed); it never panics. The child gets a cleared environment (`env_clear()`, then exactly `env`) and its own process group. Exit 0 is `Ok(SendOutcome { stdout })`; a non-zero exit is `SendFailed { status, stderr }`; a timeout is `SendTimeout`. After the child exits or times out, its whole process group is killed. The pipe threads then get a 1 s grace and are abandoned, keeping what was captured, so a descendant that left the group cannot hold the call open. Stdout and stderr are each capped at `SEND_OUTPUT_CAP` (64 KiB).
 
 `send_via_command` blocks. A tokio host calls `run_send_message` or `send_via_command` inside `spawn_blocking`. To retry, resend the same `ComposedReply`: the message id stays the same and no new one is minted.
 
@@ -106,7 +104,76 @@ Every decode, signature or store error is a rejection; nothing returns `Ok` by d
 
 Scope is the recipient's own id (`self_id`); the key within it is the deliverer principal. Replay is two-phase: `verify_*` checks the sequence against the store but records nothing, so verifying twice succeeds. `confirm(&store, pending)` records it (atomic compare-and-advance) and returns `Replay` if the sequence was already advanced. **Confirm at the same point you record your own idempotency state.**
 
-`MemoryReplayStore` is for tests and short-lived consumers. `FileReplayStore::open(path)` persists `{scope: {key: last}}` JSON (temp file, fsync, rename, directory fsync), fails closed on a corrupt file, and holds an advisory lock on the sidecar `<path>.lock` across read-modify-write, so several processes can share one file. Needs rustc 1.89 (`File::lock`). The `ReplayStore` trait is `last_seen(scope, key)` and `record(scope, key, seq)`.
+`MemoryReplayStore` is for tests and short-lived consumers.
+
+```rust
+pub trait ReplayStore: Send + Sync {
+    fn last_seen(&self, scope: &str, key_id: &str) -> Result<Option<u64>, AttestationError>;
+    fn record(&self, scope: &str, key_id: &str, seq: u64, attested_at_unix: i64,
+              forget_before_unix: Option<i64>) -> Result<bool, AttestationError>;
+}
+```
+
+`record` has five arguments. It returns `Ok(false)` when `seq <= last` (nothing is forgotten or written). Otherwise it stores the sequence with time `max(old, attested_at_unix)`, and when `forget_before_unix` is `Some(t)` removes, in the same write, every other entry of the same scope whose stored time is strictly `< t`. `confirm` passes `now_unix - max_age_secs` (and `None` when `max_age_secs` is `None`, so nothing is ever forgotten then).
+
+**Forgetting rule and its assumption.** An entry older than `max_age_secs` guards nothing, because the freshness check refuses any delivery that old before the replay check runs. This holds only for an honest deliverer and a stable policy: `now_unix` must never step backwards (nor differ between processes sharing a store), `max_age_secs` must never grow or become `None` later, and a deliverer's `attested_at` must stay within `max_age` of its sequence order. Otherwise a forgotten deliverer's old delivery can look fresh again and be accepted a second time. The store keeps no clock floor; the consumer owns this.
+
+**`FileReplayStore::open(path)`** persists
+
+```json
+{"<scope>": {"<key>": {"sequence": 7, "attested_at": 1760000000}}}
+```
+
+(temp file, fsync, rename, directory fsync) and holds an advisory lock on the sidecar `<path>.lock` across read-modify-write, so several processes can share one file. Needs rustc 1.89 (`File::lock`). It fails closed on a corrupt file, on a bare-number entry (the old layout) or an entry without `sequence` or `attested_at` (`Store`); there is no dual read, so live files need a one-time rewrite. Modes are required, never repaired:
+
+| path | required mode | notes |
+| --- | --- | --- |
+| parent directory | `0700` | created `0700` if missing; only the leaf is checked, at `open` |
+| `<path>` (state) | `0600` | written `0600`; refused if any group/other bit is set |
+| `<path>.lock` | `0600` | created `0600`; opened `O_NOFOLLOW`, checked on the handle before locking |
+
+All three must be owned by the effective user. A loose, foreign-owned, symlinked or non-regular file is a `Store` error (the source is a `identity_keyfile::KeyfileError`: `InsecureDir`, `InsecureFile`, `WrongOwner`, `NotAFile`); the library never `chmod`s. The state file is read with a cap of `REPLAY_STATE_MAX_BYTES` (1 MiB, `TooLarge` beyond it) and a write that would exceed the cap is refused, so a full store refuses new keys instead of bricking itself. A missing state file is an empty store.
+
+## Errors
+
+`AttestationError` is `#[non_exhaustive]` and derives `coded_error::CodedError` with namespace `message.attestation`: `error.code()` is `message.attestation.<code>`, and `class()` is `Logical`, `Infrastructure` or `Transient`. Sources are boxed (`Source = Box<dyn Error + Send + Sync>`) and reachable through `std::error::Error::source()`; for example `Sign` wraps an `identity_crypto::SignerError`, so a UI can downcast `Cancelled`. `Store` displays `store failed` with the path-bearing cause in `source()`.
+
+| variant | code | class |
+| --- | --- | --- |
+| `Replay { principal, last, got }` | `replay` | Logical |
+| `Store(Source)` | `store` | Infrastructure |
+| `InvalidMessage { field, reason }` | `invalid_message` | Logical |
+| `Sign(Source)` | `sign` | Infrastructure |
+| `NotObject` | `not_object` | Logical |
+| `Decode(Source)` | `decode` | Logical |
+| `Encode(Source)` | `encode` | Infrastructure |
+| `EmptyMessages` | `empty_messages` | Logical |
+| `NoRecipients` | `no_recipients` | Logical |
+| `Transcript(Source)` | `transcript` | Logical |
+| `InvalidDeliveryId` | `invalid_delivery_id` | Logical |
+| `InvalidVia { index }` | `invalid_via` | Logical |
+| `UnknownDeliverer(String)` | `unknown_deliverer` | Logical |
+| `DelivererDevice(Source)` | `deliverer_device` | Logical |
+| `WrongRecipient` | `wrong_recipient` | Logical |
+| `WrongAudience { index }` | `wrong_audience` | Logical |
+| `MessageSignature { index, reason }` | `message_signature` | Logical |
+| `WrongBodyType { index }` | `wrong_body_type` | Logical |
+| `BadSignature` | `bad_signature` | Logical |
+| `OwnDevicesMissing` | `own_devices_missing` | Infrastructure |
+| `NotARecipient` | `not_a_recipient` | Logical |
+| `Stale { age, max }` | `stale` | Logical |
+| `UnknownRenderVersion(u32)` | `unknown_render_version` | Infrastructure |
+| `SessionExpired { not_after, now }` | `session_expired` | Logical |
+| `Send(Source)` | `send` | Infrastructure |
+| `SendFailed { status, stderr }` | `send_failed` | Infrastructure |
+| `SendTimeout { secs }` | `send_timeout` | Transient |
+| `InvalidName { reason }` | `invalid_name` | Logical |
+| `StrayName { principal }` | `stray_name` | Logical |
+| `TooManyMessages { count, max }` | `too_many_messages` | Logical |
+| `InvalidRecipientDevice { index }` | `invalid_recipient_device` | Logical |
+| `Randomness(Source)` | `randomness` | Infrastructure |
+
+Verification also refuses, before any per-message work: more than `MAX_MESSAGES` messages or names (`TooManyMessages`), a `via` list whose length differs from `messages` (`InvalidVia`), and a recipient device that is not a public key (`InvalidRecipientDevice { index }`).
 
 ## Seen messages
 

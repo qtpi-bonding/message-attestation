@@ -29,8 +29,13 @@ pub struct ReplyDraft {
 /// Owned and Clone, so a host can keep one per agent across async tasks.
 #[derive(Clone)]
 pub enum ReplySigner {
-    Keyed { session: Arc<SessionCredential>, device_delegation: pb::KeyDelegation },
-    Hosted { session: Arc<HostedSessionCredential> },
+    Keyed {
+        session: Arc<SessionCredential>,
+        device_delegation: pb::KeyDelegation,
+    },
+    Hosted {
+        session: Arc<HostedSessionCredential>,
+    },
 }
 
 #[derive(Clone, Debug)]
@@ -44,7 +49,11 @@ fn strings(v: &Value, field: &'static str) -> Result<Vec<String>, AttestationErr
         Value::Null => Ok(vec![]),
         Value::Array(a) => a
             .iter()
-            .map(|s| s.as_str().map(str::to_owned).ok_or_else(|| invalid(field, "not a string")))
+            .map(|s| {
+                s.as_str()
+                    .map(str::to_owned)
+                    .ok_or_else(|| invalid(field, "not a string"))
+            })
             .collect(),
         _ => Err(invalid(field, "not an array")),
     }
@@ -64,7 +73,9 @@ fn target(s: &str) -> Result<pb::Target, AttestationError> {
 /// Enforces the tool's input shape itself. Ids and principals are checked
 /// later, by `compose_reply`.
 pub fn parse_tool_input(input: &Value) -> Result<ReplyDraft, AttestationError> {
-    let obj = input.as_object().ok_or_else(|| invalid("input", "not an object"))?;
+    let obj = input
+        .as_object()
+        .ok_or_else(|| invalid("input", "not an object"))?;
     if obj.keys().any(|k| !KNOWN_FIELDS.contains(&k.as_str())) {
         return Err(invalid("input", "unknown field"));
     }
@@ -76,7 +87,10 @@ pub fn parse_tool_input(input: &Value) -> Result<ReplyDraft, AttestationError> {
     if to.is_empty() {
         return Err(invalid("to", "empty"));
     }
-    let to = to.iter().map(|s| target(s)).collect::<Result<Vec<_>, _>>()?;
+    let to = to
+        .iter()
+        .map(|s| target(s))
+        .collect::<Result<Vec<_>, _>>()?;
     let body = match obj.get("body") {
         None | Some(Value::Null) => return Err(invalid("body", "missing")),
         Some(Value::String(s)) => s.clone(),
@@ -92,7 +106,13 @@ pub fn parse_tool_input(input: &Value) -> Result<ReplyDraft, AttestationError> {
         Some(_) => return Err(invalid("reply_to", "not a string")),
     };
     let list = |k: &'static str| obj.get(k).map_or(Ok(vec![]), |v| strings(v, k));
-    Ok(ReplyDraft { to, body, reply_to, references: list("references")?, mentions: list("mentions")? })
+    Ok(ReplyDraft {
+        to,
+        body,
+        reply_to,
+        references: list("references")?,
+        mentions: list("mentions")?,
+    })
 }
 
 fn check_body_size(body: &str) -> Result<(), AttestationError> {
@@ -148,7 +168,10 @@ pub fn compose_reply(
         reply_to: draft.reply_to,
         references: draft.references,
         mentions: draft.mentions,
-        authored_at: Some(Timestamp { seconds: now_unix, nanos: 0 }),
+        authored_at: Some(Timestamp {
+            seconds: now_unix,
+            nanos: 0,
+        }),
         body: draft.body,
     };
     let signed = signer.sign(&deliverer.to_string(), now_unix, &message)?;
@@ -158,9 +181,16 @@ pub fn compose_reply(
 impl ReplySigner {
     fn check_valid_at(&self, now_unix: i64) -> Result<(), AttestationError> {
         match self {
-            ReplySigner::Keyed { session, device_delegation } => {
+            ReplySigner::Keyed {
+                session,
+                device_delegation,
+            } => {
                 let cert = session.cert();
-                check_window(cert.not_before_unix_seconds, cert.not_after_unix_seconds, now_unix)?;
+                check_window(
+                    cert.not_before_unix_seconds,
+                    cert.not_after_unix_seconds,
+                    now_unix,
+                )?;
                 check_window(
                     device_delegation.issued_at_unix_seconds,
                     device_delegation.not_after_unix_seconds,
@@ -169,17 +199,33 @@ impl ReplySigner {
             }
             ReplySigner::Hosted { session } => {
                 let cert = session.cert();
-                check_window(cert.not_before_unix_seconds, cert.not_after_unix_seconds, now_unix)?;
+                check_window(
+                    cert.not_before_unix_seconds,
+                    cert.not_after_unix_seconds,
+                    now_unix,
+                )?;
             }
         }
         Ok(())
     }
 
-    fn sign(&self, audience: &str, issued_at: i64, m: &pb::Message) -> Result<pb::SignedMessage, AttestationError> {
+    fn sign(
+        &self,
+        audience: &str,
+        issued_at: i64,
+        m: &pb::Message,
+    ) -> Result<pb::SignedMessage, AttestationError> {
         match self {
-            ReplySigner::Keyed { session, device_delegation } => {
-                sign_message(session, Some(device_delegation.clone()), audience, issued_at, m)
-            }
+            ReplySigner::Keyed {
+                session,
+                device_delegation,
+            } => sign_message(
+                session,
+                Some(device_delegation.clone()),
+                audience,
+                issued_at,
+                m,
+            ),
             ReplySigner::Hosted { session } => sign_hosted_message(session, audience, issued_at, m),
         }
     }

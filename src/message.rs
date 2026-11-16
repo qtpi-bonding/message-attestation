@@ -1,6 +1,4 @@
-use identity_crypto::{
-    message_nonce, pb, HostedSessionCredential, PrincipalId, SessionCredential,
-};
+use identity_crypto::{message_nonce, pb, HostedSessionCredential, PrincipalId, SessionCredential};
 use prost::Message as _;
 
 use crate::error::AttestationError;
@@ -16,7 +14,8 @@ const ID_REASON: &str = "must be 1-128 of [A-Za-z0-9._:-]";
 pub fn is_valid_id(s: &str) -> bool {
     !s.is_empty()
         && s.len() <= MAX_ID_LEN
-        && s.bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b':' | b'-'))
+        && s.bytes()
+            .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b':' | b'-'))
 }
 
 fn invalid(field: &'static str, reason: &'static str) -> AttestationError {
@@ -92,7 +91,13 @@ pub(crate) fn check_author_and_via(
 
 /// Every Message rule, in field order.
 pub fn validate_message(m: &pb::Message) -> Result<(), AttestationError> {
-    check_fields(&m.message_id, &m.to, m.reply_to.as_deref(), &m.references, &m.mentions)?;
+    check_fields(
+        &m.message_id,
+        &m.to,
+        m.reply_to.as_deref(),
+        &m.references,
+        &m.mentions,
+    )?;
     if m.authored_at.is_none() {
         return Err(invalid("authored_at", "missing"));
     }

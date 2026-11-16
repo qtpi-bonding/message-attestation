@@ -50,7 +50,11 @@ fn read_capped(mut r: impl Read, kept: &Mutex<Vec<u8>>) {
     }
 }
 
-fn spawn_reader(pipe: impl Read + Send + 'static, buf: Arc<Mutex<Vec<u8>>>, done: mpsc::Sender<()>) {
+fn spawn_reader(
+    pipe: impl Read + Send + 'static,
+    buf: Arc<Mutex<Vec<u8>>>,
+    done: mpsc::Sender<()>,
+) {
     thread::spawn(move || {
         read_capped(pipe, &buf);
         let _ = done.send(());
@@ -66,7 +70,10 @@ fn captured(kept: &Mutex<Vec<u8>>) -> String {
 /// is the way to retry without a new message id.
 ///
 /// Blocking by design: tokio hosts call it inside `spawn_blocking`.
-pub fn send_via_command(cmd: &SendCommand, reply: &ComposedReply) -> Result<SendOutcome, AttestationError> {
+pub fn send_via_command(
+    cmd: &SendCommand,
+    reply: &ComposedReply,
+) -> Result<SendOutcome, AttestationError> {
     let (program, args) = cmd
         .argv
         .split_first()
@@ -134,9 +141,14 @@ pub fn send_via_command(cmd: &SendCommand, reply: &ComposedReply) -> Result<Send
     let stderr = captured(&err_buf);
 
     match status {
-        None => Err(AttestationError::SendTimeout { secs: cmd.timeout.as_secs().max(1) }),
+        None => Err(AttestationError::SendTimeout {
+            secs: cmd.timeout.as_secs().max(1),
+        }),
         Some(s) if s.success() => Ok(SendOutcome { stdout }),
-        Some(s) => Err(AttestationError::SendFailed { status: s.code(), stderr }),
+        Some(s) => Err(AttestationError::SendFailed {
+            status: s.code(),
+            stderr,
+        }),
     }
 }
 
