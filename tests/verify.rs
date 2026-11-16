@@ -430,3 +430,96 @@ fn meta_with_delivery_verifies() {
         .unwrap();
     assert_eq!(v.delivery.delivery_id(), "d-1");
 }
+
+/// Signs `d`'s transcript with the fixture deliverer's device, replacing the signature.
+fn resign_by_hand(f: &Fx, d: &mut pb::Delivery) {
+    let t = identity_crypto::transcripts::delivery_transcript(d).unwrap();
+    d.signature = f.dl.device.signing_key_pair().sign_bytes(&t).unwrap().to_vec();
+}
+
+/// `n` messages from one author, each with a distinct id, via = the first room.
+fn n_messages(f: &Fx, n: usize) -> Vec<OutgoingMessage> {
+    let a = author(T0);
+    (0..n)
+        .map(|i| {
+            let m = message(&format!("m-{i}"), vec![room("r"), person(&f.recipient.id)]);
+            let signed =
+                sign_message(&a.session, Some(a.delegation.clone()), &f.dl.id.to_string(), T0, &m).unwrap();
+            OutgoingMessage { message: signed, via: vec![room("r")] }
+        })
+        .collect()
+}
+
+#[test]
+fn via_shorter_than_messages_is_invalid_via() {
+    let f = fx();
+    let msgs = n_messages(&f, 2);
+    let mut d = resign(&f, msgs);
+    d.via.pop();
+    assert!(matches!(check(&f, &d), Err(AttestationError::InvalidVia { index: 1 })));
+}
+
+#[test]
+fn via_longer_than_messages_is_invalid_via() {
+    let f = fx();
+    let mut d = f.delivery.clone();
+    d.via.push(pb::Targets { targets: vec![room("r")] });
+    assert!(matches!(check(&f, &d), Err(AttestationError::InvalidVia { index: 1 })));
+}
+
+#[test]
+fn too_many_messages_is_refused() {
+    let f = fx();
+    let mut d = resign(&f, n_messages(&f, 256));
+    d.messages.push(d.messages[0].clone());
+    d.via.push(d.via[0].clone());
+    resign_by_hand(&f, &mut d);
+    assert!(matches!(
+        check(&f, &d),
+        Err(AttestationError::TooManyMessages { count: 257, max: 256 })
+    ));
+}
+
+#[test]
+fn exactly_max_messages_verifies_and_a_drain_batch_is_at_most_256() {
+    // multimatrix's mailbox drain batch must not exceed this constant.
+    assert_eq!(message_attestation::MAX_MESSAGES, 256);
+    let f = fx();
+    let d = resign(&f, n_messages(&f, 256));
+    assert_eq!(d.messages.len(), 256);
+    check(&f, &d).unwrap();
+    let mut over = d.clone();
+    over.messages.push(over.messages[0].clone());
+    over.via.push(over.via[0].clone());
+    resign_by_hand(&f, &mut over);
+    assert!(matches!(check(&f, &over), Err(AttestationError::TooManyMessages { .. })));
+}
+
+#[test]
+fn an_undecodable_recipient_device_is_refused_even_when_another_matches() {
+    let f = fx();
+    let mut d = f.delivery.clone();
+    assert!(!d.recipient_devices.is_empty());
+    let mut bad = d.recipient_devices[0].clone();
+    bad.key.extend_from_slice(&[0xde, 0xad, 0xbe, 0xef]);
+    d.recipient_devices.push(bad);
+    assert!(matches!(
+        check(&f, &d),
+        Err(AttestationError::InvalidRecipientDevice { index: 1 })
+    ));
+}
+
+#[test]
+fn too_many_names_is_refused() {
+    let f = fx();
+    let mut d = f.delivery.clone();
+    let name = pb::PrincipalName {
+        principal_id: principal_of_author(&f).to_string(),
+        name: "Alice".into(),
+    };
+    d.names = vec![name; 257];
+    assert!(matches!(
+        check(&f, &d),
+        Err(AttestationError::TooManyMessages { count: 257, max: 256 })
+    ));
+}

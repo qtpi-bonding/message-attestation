@@ -8,7 +8,7 @@ use identity_crypto::{
 use prost::Message as _;
 
 use crate::locate::locate;
-use crate::message::{is_valid_id, validate_message, MessageKey, MESSAGE_BODY_TYPE};
+use crate::message::{is_valid_id, validate_message, MessageKey, MAX_MESSAGES, MESSAGE_BODY_TYPE};
 use crate::names::{RegisteredName, ResolvedPrincipal};
 use crate::principal::delegation_principal;
 use crate::render::MessageView;
@@ -132,6 +132,23 @@ pub fn verify_delivery(
     if delivery.messages.is_empty() {
         return Err(AttestationError::EmptyMessages);
     }
+    // Structural caps first: the transcript builder rejects these shapes
+    // with a less specific error, and no per-message work may precede them.
+    for count in [delivery.messages.len(), delivery.names.len()] {
+        if count > MAX_MESSAGES {
+            return Err(AttestationError::TooManyMessages { count, max: MAX_MESSAGES });
+        }
+    }
+    if delivery.via.len() != delivery.messages.len() {
+        return Err(AttestationError::InvalidVia {
+            index: delivery.via.len().min(delivery.messages.len()),
+        });
+    }
+    for (index, d) in delivery.recipient_devices.iter().enumerate() {
+        if PublicKey::try_from(d).is_err() {
+            return Err(AttestationError::InvalidRecipientDevice { index });
+        }
+    }
     let transcript_err =
         |e: identity_crypto::Error| AttestationError::Transcript(Box::new(e));
     let signer_device = delivery
@@ -203,11 +220,7 @@ pub fn verify_delivery(
         let message = pb::Message::decode(carried.body())
             .map_err(|e| AttestationError::Decode(Box::new(e)))?;
         validate_message(&message)?;
-        let via = delivery
-            .via
-            .get(index)
-            .map(|t| t.targets.clone())
-            .unwrap_or_default();
+        let via = delivery.via[index].targets.clone();
         if via.is_empty() || via.iter().any(|t| !message.to.contains(t))
         {
             return Err(AttestationError::InvalidVia { index });
