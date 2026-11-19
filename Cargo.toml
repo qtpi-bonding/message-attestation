@@ -8,8 +8,8 @@ description = "Sign, verify, attach and render author-signed Messages inside a d
 [dependencies]
 getrandom = "0.4"
 coded-error = { git = "https://github.com/qtpi-bonding/coded-error.git", rev = "ffeaf3949230a8883b56c75e7031346a4f28ed4d", default-features = false }
-identity-crypto = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "e3ea32e0b4be2b81330b2019fc7a586a48d57bd5" }
-identity-keyfile = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "e3ea32e0b4be2b81330b2019fc7a586a48d57bd5" }
+identity-crypto = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "d031b5e7c1d493fd3f7a06070ce10f9922238e47" }
+identity-keyfile = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "d031b5e7c1d493fd3f7a06070ce10f9922238e47" }
 prost = "0.13"
 rustix = { version = "1", default-features = false, features = ["std", "process"] }
 serde_json = "1"
