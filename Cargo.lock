@@ -140,8 +140,8 @@ checksum = "0c9ea0ac24bc397ab3c98583a3c9ba74fa56b09a4449bbe172b9b1ddb016027a"
 
 [[package]]
 name = "coded-error"
-version = "0.2.0"
-source = "git+https://github.com/qtpi-bonding/coded-error.git?rev=ffeaf3949230a8883b56c75e7031346a4f28ed4d#ffeaf3949230a8883b56c75e7031346a4f28ed4d"
+version = "0.3.0"
+source = "git+https://github.com/qtpi-bonding/coded-error.git?rev=de21d22e31baff78eae7d4ca817b87430bff1f81#de21d22e31baff78eae7d4ca817b87430bff1f81"
 dependencies = [
  "coded-error-derive",
  "sha2 0.10.9",
@@ -149,8 +149,8 @@ dependencies = [
 
 [[package]]
 name = "coded-error-derive"
-version = "0.2.0"
-source = "git+https://github.com/qtpi-bonding/coded-error.git?rev=ffeaf3949230a8883b56c75e7031346a4f28ed4d#ffeaf3949230a8883b56c75e7031346a4f28ed4d"
+version = "0.3.0"
+source = "git+https://github.com/qtpi-bonding/coded-error.git?rev=de21d22e31baff78eae7d4ca817b87430bff1f81#de21d22e31baff78eae7d4ca817b87430bff1f81"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -473,7 +473,7 @@ dependencies = [
 [[package]]
 name = "identity-crypto"
 version = "0.11.0"
-source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=d031b5e7c1d493fd3f7a06070ce10f9922238e47#d031b5e7c1d493fd3f7a06070ce10f9922238e47"
+source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=6472e3622a73110bcf3fcb11a946f1890bf232e1#6472e3622a73110bcf3fcb11a946f1890bf232e1"
 dependencies = [
  "chrono",
  "hex",
@@ -491,7 +491,7 @@ dependencies = [
 [[package]]
 name = "identity-keyfile"
 version = "0.11.0"
-source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=d031b5e7c1d493fd3f7a06070ce10f9922238e47#d031b5e7c1d493fd3f7a06070ce10f9922238e47"
+source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=6472e3622a73110bcf3fcb11a946f1890bf232e1#6472e3622a73110bcf3fcb11a946f1890bf232e1"
 dependencies = [
  "identity-crypto",
  "libc",
