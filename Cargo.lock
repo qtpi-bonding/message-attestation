@@ -472,8 +472,8 @@ dependencies = [
 
 [[package]]
 name = "identity-crypto"
-version = "0.11.0"
-source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=6472e3622a73110bcf3fcb11a946f1890bf232e1#6472e3622a73110bcf3fcb11a946f1890bf232e1"
+version = "0.12.0"
+source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=d7514fc567ed118aa7108ca75ce9a5129e2507d1#d7514fc567ed118aa7108ca75ce9a5129e2507d1"
 dependencies = [
  "chrono",
  "hex",
@@ -490,8 +490,8 @@ dependencies = [
 
 [[package]]
 name = "identity-keyfile"
-version = "0.11.0"
-source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=6472e3622a73110bcf3fcb11a946f1890bf232e1#6472e3622a73110bcf3fcb11a946f1890bf232e1"
+version = "0.12.0"
+source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=d7514fc567ed118aa7108ca75ce9a5129e2507d1#d7514fc567ed118aa7108ca75ce9a5129e2507d1"
 dependencies = [
  "identity-crypto",
  "libc",

@@ -952,7 +952,7 @@ fn age_equal_to_max_is_kept_and_refused_as_replay() {
 #[test]
 fn no_max_age_never_forgets() {
     for (store, dir) in stores() {
-        // Device delegations last at most 31 days, so E is minted at the late time.
+        // Device delegations last at most 91 days, so E is minted at the late time.
         let now = T0 + 10 * 365 * DAY;
         let mut t = two();
         t.e = deliverer(now);
