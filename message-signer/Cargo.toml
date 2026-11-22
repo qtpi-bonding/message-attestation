@@ -1,0 +1,41 @@
+[package]
+name = "message-attestation-signer"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.89"
+description = "A local helper that holds a device key and signs room messages over a unix socket, on the shared request-signer server"
+publish = false
+
+[lib]
+name = "message_attestation_signer"
+path = "src/lib.rs"
+
+[[bin]]
+name = "message-attestation-signer"
+path = "src/main.rs"
+
+[dependencies]
+message-attestation = { path = ".." }
+identity-request-signer = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "1fdf2ab35482d2e63dca79a7618e8421bac908f3" }
+identity-crypto = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "1fdf2ab35482d2e63dca79a7618e8421bac908f3" }
+identity-keyfile = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "1fdf2ab35482d2e63dca79a7618e8421bac908f3" }
+identity-request-auth = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "1fdf2ab35482d2e63dca79a7618e8421bac908f3" }
+coded-error = { git = "https://github.com/qtpi-bonding/coded-error.git", rev = "de21d22e31baff78eae7d4ca817b87430bff1f81", default-features = false }
+base64 = "0.22"
+prost = "0.13"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+toml = "0.8"
+
+[dev-dependencies]
+identity-request-auth = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "1fdf2ab35482d2e63dca79a7618e8421bac908f3", features = ["testkit"] }
+identity-keyfile = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "1fdf2ab35482d2e63dca79a7618e8421bac908f3", features = ["testkit"] }
+identity-crypto = { git = "https://github.com/qtpi-bonding/identity-crypto.git", rev = "1fdf2ab35482d2e63dca79a7618e8421bac908f3", features = ["testkit"] }
+tempfile = "3"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = "warn"
