@@ -27,7 +27,18 @@ impl MessageConfig {
     /// a canonical principal id, or `max_targets` of 0 or over
     /// `message_attestation::MAX_TARGETS`, -> `config_invalid`.
     pub fn validate(&self) -> Result<(), MessageSignerError> {
-        unimplemented!("MessageConfig::validate")
+        if self.deliverer.is_empty() {
+            return Err(MessageSignerError::ServicePrincipalMissing);
+        }
+        if identity_crypto::PrincipalId::parse_canonical(&self.deliverer).is_err()
+            || self.max_targets == 0
+            || self.max_targets > message_attestation::MAX_TARGETS
+        {
+            return Err(MessageSignerError::ConfigInvalid(String::from(
+                "the [message] section is invalid",
+            )));
+        }
+        Ok(())
     }
 
     pub fn max_targets(&self) -> usize {
@@ -42,7 +53,34 @@ impl MessageConfig {
 pub fn parse_config(
     text: &str,
 ) -> Result<(identity_request_signer::Config, MessageConfig), MessageSignerError> {
-    unimplemented!("parse_config")
+    const BAD: &str = "the configuration is invalid";
+    let table: toml::Table = toml::from_str(text).map_err(|_| {
+        MessageSignerError::ConfigInvalid(String::from("the configuration is not valid TOML"))
+    })?;
+    let message = table
+        .get("message")
+        .and_then(toml::Value::as_table)
+        .ok_or_else(|| {
+            MessageSignerError::ConfigInvalid(String::from("the [message] section is missing"))
+        })?
+        .clone();
+    let message_text = toml::to_string(&message)
+        .map_err(|_| MessageSignerError::ConfigInvalid(String::from(BAD)))?;
+    let message: MessageConfig = toml::from_str(&message_text).map_err(|_| {
+        MessageSignerError::ConfigInvalid(String::from("the [message] section is invalid"))
+    })?;
+    let rest = {
+        let mut rest = table.clone();
+        rest.remove("message");
+        toml::to_string(&rest).map_err(|_| MessageSignerError::ConfigInvalid(String::from(BAD)))?
+    };
+    let config = identity_request_signer::Config::parse(&rest)
+        .map_err(|_| MessageSignerError::ConfigInvalid(String::from(BAD)))?;
+    config
+        .validate()
+        .map_err(|_| MessageSignerError::ConfigInvalid(String::from(BAD)))?;
+    message.validate()?;
+    Ok((config, message))
 }
 
 /// Loads the config from a file. Refuses a symlink, any group/other mode bit
@@ -51,5 +89,38 @@ pub fn parse_config(
 pub fn load_config(
     path: &Path,
 ) -> Result<(identity_request_signer::Config, MessageConfig), MessageSignerError> {
-    unimplemented!("load_config")
+    use std::io::Read;
+    if std::fs::symlink_metadata(path)
+        .map_err(|_| {
+            MessageSignerError::ConfigInvalid(String::from("cannot read the config file"))
+        })?
+        .file_type()
+        .is_symlink()
+    {
+        return Err(MessageSignerError::ConfigInvalid(String::from(
+            "the config file must not be a symlink",
+        )));
+    }
+    let mut file = std::fs::File::open(path).map_err(|_| {
+        MessageSignerError::ConfigInvalid(String::from("cannot read the config file"))
+    })?;
+    let meta = file.metadata().map_err(|_| {
+        MessageSignerError::ConfigInvalid(String::from("cannot read the config file"))
+    })?;
+    if meta.len() > MAX_CONFIG_BYTES {
+        return Err(MessageSignerError::ConfigInvalid(String::from(
+            "the config file is too large",
+        )));
+    }
+    use std::os::unix::fs::PermissionsExt;
+    if meta.permissions().mode() & 0o077 != 0 {
+        return Err(MessageSignerError::ConfigInvalid(String::from(
+            "the config file must be readable only by its owner",
+        )));
+    }
+    let mut text = String::new();
+    file.read_to_string(&mut text).map_err(|_| {
+        MessageSignerError::ConfigInvalid(String::from("the config is not valid UTF-8"))
+    })?;
+    parse_config(&text)
 }
