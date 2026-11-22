@@ -22,6 +22,63 @@ impl Drop for ChildGuard {
     }
 }
 
+/// Collect stderr from a child while a kill-on-drop guard keeps it bounded.
+fn spawn_with_stderr(config_path: &std::path::Path) -> (ChildGuard, std::process::ChildStderr) {
+    let mut child = std::process::Command::new(env!("CARGO_BIN_EXE_message-attestation-signer"))
+        .arg("--config")
+        .arg(config_path)
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .expect("spawn the binary");
+    let stderr = child.stderr.take().expect("piped stderr");
+    (ChildGuard(child), stderr)
+}
+
+#[test]
+fn an_empty_identity_dir_is_refused_by_the_server_before_any_op_key_load() {
+    std::env::set_var("TMPDIR", "/tmp");
+    // A private but EMPTY identity dir: both the server and the op would
+    // refuse to load keys from it, so whichever refuses first decides the
+    // error code on stderr.
+    let dir = tempfile::TempDir::new().expect("empty identity dir");
+    std::fs::set_permissions(dir.path(), std::fs::Permissions::from_mode(0o700))
+        .expect("make temp dir private");
+    // A real canonical deliverer, so the config itself parses.
+    let keys_dir = DeviceOnlyDir::new(now_unix(), 91 * 86400);
+    let deliverer = principal_string(keys_dir.path());
+    let config_dir = tempfile::TempDir::new().expect("config temp dir");
+    let config_path = config_dir.path().join("signer.toml");
+    let text = format!(
+        "identity_dir = {:?}\nexpected_principal = {deliverer:?}\nsocket = {:?}\nserver_id = {SERVER:?}\n[message]\ndeliverer = {deliverer:?}\n",
+        dir.path(),
+        dir.path().join("run.sock"),
+    );
+    std::fs::write(&config_path, text).expect("write config");
+    std::fs::set_permissions(&config_path, std::fs::Permissions::from_mode(0o600))
+        .expect("make the config 0600");
+
+    let (mut child, mut stderr) = spawn_with_stderr(&config_path);
+    let mut text = String::new();
+    use std::io::Read as _;
+    stderr
+        .read_to_string(&mut text)
+        .expect("read stderr until EOF");
+    let status = child.0.wait().expect("wait for the child");
+    assert!(
+        !status.success(),
+        "the binary must exit non-zero on an empty identity dir"
+    );
+    assert!(
+        text.contains("identity.request_signer.keys"),
+        "the server must refuse first: {text}"
+    );
+    assert!(
+        !text.contains("message.signer.keys"),
+        "the op must never load keys first: {text}"
+    );
+}
+
 #[test]
 fn the_binary_starts_and_serves_sign_message_over_its_socket() {
     // The session TMPDIR sits under a very long path; a unix socket path is

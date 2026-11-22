@@ -4,9 +4,6 @@ use crate::error::MessageSignerError;
 use serde::Deserialize;
 use std::path::Path;
 
-/// The config file may be at most this many bytes.
-const MAX_CONFIG_BYTES: u64 = 1024 * 1024;
-
 fn default_max_targets() -> usize {
     64
 }
@@ -46,17 +43,14 @@ impl MessageConfig {
     }
 }
 
-/// Parses the whole config from text. Requires a `[message]` table; every
-/// other top-level key is passed to `identity_request_signer::Config::parse`,
-/// so an unknown top-level key is still refused. Refusal text is fixed and
-/// never echoes file content.
-pub fn parse_config(
-    text: &str,
+/// Parses the whole config from a table. Requires a `[message]` table; the
+/// rest is passed to `identity_request_signer::Config::from_table`, so an
+/// unknown top-level key is still refused. Refusal text is fixed and never
+/// echoes file content.
+pub fn parse_table(
+    table: toml::Table,
 ) -> Result<(identity_request_signer::Config, MessageConfig), MessageSignerError> {
     const BAD: &str = "the configuration is invalid";
-    let table: toml::Table = toml::from_str(text).map_err(|_| {
-        MessageSignerError::ConfigInvalid(String::from("the configuration is not valid TOML"))
-    })?;
     let message = table
         .get("message")
         .and_then(toml::Value::as_table)
@@ -72,9 +66,9 @@ pub fn parse_config(
     let rest = {
         let mut rest = table.clone();
         rest.remove("message");
-        toml::to_string(&rest).map_err(|_| MessageSignerError::ConfigInvalid(String::from(BAD)))?
+        rest
     };
-    let config = identity_request_signer::Config::parse(&rest)
+    let config = identity_request_signer::Config::from_table(rest)
         .map_err(|_| MessageSignerError::ConfigInvalid(String::from(BAD)))?;
     config
         .validate()
@@ -83,44 +77,25 @@ pub fn parse_config(
     Ok((config, message))
 }
 
-/// Loads the config from a file. Refuses a symlink, any group/other mode bit
-/// and a file over 1 MiB, all with fixed messages, then calls
-/// [`parse_config`].
+/// Parses the whole config from text. Refusal text is fixed and never echoes
+/// file content.
+pub fn parse_config(
+    text: &str,
+) -> Result<(identity_request_signer::Config, MessageConfig), MessageSignerError> {
+    let table: toml::Table = toml::from_str(text).map_err(|_| {
+        MessageSignerError::ConfigInvalid(String::from("the configuration is not valid TOML"))
+    })?;
+    parse_table(table)
+}
+
+/// Loads the config from a file. The private-file checks (symlink, mode,
+/// size, UTF-8) are `identity_request_signer::read_private_toml`'s; the
+/// refusal is then the same fixed `config_invalid` this crate reports.
 pub fn load_config(
     path: &Path,
 ) -> Result<(identity_request_signer::Config, MessageConfig), MessageSignerError> {
-    use std::io::Read;
-    if std::fs::symlink_metadata(path)
-        .map_err(|_| {
-            MessageSignerError::ConfigInvalid(String::from("cannot read the config file"))
-        })?
-        .file_type()
-        .is_symlink()
-    {
-        return Err(MessageSignerError::ConfigInvalid(String::from(
-            "the config file must not be a symlink",
-        )));
-    }
-    let mut file = std::fs::File::open(path).map_err(|_| {
+    let table = identity_request_signer::read_private_toml(path).map_err(|_| {
         MessageSignerError::ConfigInvalid(String::from("cannot read the config file"))
     })?;
-    let meta = file.metadata().map_err(|_| {
-        MessageSignerError::ConfigInvalid(String::from("cannot read the config file"))
-    })?;
-    if meta.len() > MAX_CONFIG_BYTES {
-        return Err(MessageSignerError::ConfigInvalid(String::from(
-            "the config file is too large",
-        )));
-    }
-    use std::os::unix::fs::PermissionsExt;
-    if meta.permissions().mode() & 0o077 != 0 {
-        return Err(MessageSignerError::ConfigInvalid(String::from(
-            "the config file must be readable only by its owner",
-        )));
-    }
-    let mut text = String::new();
-    file.read_to_string(&mut text).map_err(|_| {
-        MessageSignerError::ConfigInvalid(String::from("the config is not valid UTF-8"))
-    })?;
-    parse_config(&text)
+    parse_table(table)
 }

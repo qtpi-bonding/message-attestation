@@ -85,7 +85,7 @@ pub fn parse_tool_input(input: &Value) -> Result<ReplyDraft, AttestationError> {
         Some(Value::String(s)) => s.clone(),
         Some(_) => return Err(invalid("body", "not a string")),
     };
-    if body.is_empty() {
+    if body.trim().is_empty() {
         return Err(invalid("body", "empty"));
     }
     check_body_size(&body)?;

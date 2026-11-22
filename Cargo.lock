@@ -491,7 +491,7 @@ dependencies = [
 [[package]]
 name = "identity-crypto"
 version = "0.12.0"
-source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=1fdf2ab35482d2e63dca79a7618e8421bac908f3#1fdf2ab35482d2e63dca79a7618e8421bac908f3"
+source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=b4b3da5d857e0311798e843f433d9177ca7f7c7a#b4b3da5d857e0311798e843f433d9177ca7f7c7a"
 dependencies = [
  "chrono",
  "hex",
@@ -509,7 +509,7 @@ dependencies = [
 [[package]]
 name = "identity-keyfile"
 version = "0.12.0"
-source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=1fdf2ab35482d2e63dca79a7618e8421bac908f3#1fdf2ab35482d2e63dca79a7618e8421bac908f3"
+source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=b4b3da5d857e0311798e843f433d9177ca7f7c7a#b4b3da5d857e0311798e843f433d9177ca7f7c7a"
 dependencies = [
  "identity-crypto",
  "libc",
@@ -524,7 +524,7 @@ dependencies = [
 [[package]]
 name = "identity-request-auth"
 version = "0.2.0"
-source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=1fdf2ab35482d2e63dca79a7618e8421bac908f3#1fdf2ab35482d2e63dca79a7618e8421bac908f3"
+source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=b4b3da5d857e0311798e843f433d9177ca7f7c7a#b4b3da5d857e0311798e843f433d9177ca7f7c7a"
 dependencies = [
  "coded-error",
  "getrandom 0.3.4",
@@ -535,7 +535,7 @@ dependencies = [
 [[package]]
 name = "identity-request-signer"
 version = "0.1.0"
-source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=1fdf2ab35482d2e63dca79a7618e8421bac908f3#1fdf2ab35482d2e63dca79a7618e8421bac908f3"
+source = "git+https://github.com/qtpi-bonding/identity-crypto.git?rev=b4b3da5d857e0311798e843f433d9177ca7f7c7a#b4b3da5d857e0311798e843f433d9177ca7f7c7a"
 dependencies = [
  "base64 0.22.1",
  "coded-error",

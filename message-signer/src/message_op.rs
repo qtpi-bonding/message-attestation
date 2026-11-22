@@ -5,7 +5,7 @@ use crate::config::MessageConfig;
 use crate::error::MessageSignerError;
 use identity_request_auth::Clock;
 use identity_request_signer::SignerError;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
@@ -22,10 +22,12 @@ struct CachedSession {
 }
 
 struct Inner {
-    identity_dir: PathBuf,
     message: MessageConfig,
     deliverer: identity_crypto::PrincipalId,
     clock: Arc<dyn Clock>,
+    /// Only the device key (to mint sessions) and the principal genesis are
+    /// used from the keys; the delegation always comes from
+    /// `ctx.device.delegation()` at op time.
     keys: identity_keyfile::DeviceKeys,
     session: Mutex<Option<CachedSession>>,
     /// How many sessions were minted; for tests.
@@ -59,7 +61,6 @@ impl MessageOp {
             })?;
         Ok(MessageOp {
             inner: Arc::new(Inner {
-                identity_dir: identity_dir.to_path_buf(),
                 message: message.clone(),
                 deliverer,
                 clock,
@@ -76,9 +77,11 @@ impl MessageOp {
     }
 
     /// Returns a session and the delegation it was minted with, re-minting
-    /// when none is cached or the cache is past 60% of its life.
+    /// when none is cached, the cache is past 60% of its life, or the
+    /// delegation from the device state no longer matches the cached one.
     fn session_for(
         &self,
+        ctx: &identity_request_signer::OpContext,
         now: i64,
     ) -> Result<
         (
@@ -92,16 +95,22 @@ impl MessageOp {
             .session
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
+        // The delegation the op will sign with, taken from the server's
+        // device state (re-read from the file there, so a renewed delegation
+        // is picked up without a restart).
+        let delegation = ctx.device.delegation();
         if let Some(cached) = cache.as_ref() {
-            if now < cached.minted_at + SESSION_REMINT_AFTER_SECONDS {
-                return Ok((Arc::clone(&cached.session), cached.delegation.clone()));
+            // A clock stepped back below the mint time leaves the cached
+            // session not yet valid (`now < not_before`), so re-mint rather
+            // than hand out a session the signer would refuse.
+            let cache_valid = now >= cached.minted_at
+                && now < cached.minted_at + SESSION_REMINT_AFTER_SECONDS
+                && cached.delegation == delegation;
+            if cache_valid {
+                return Ok((Arc::clone(&cached.session), delegation));
             }
         }
-        // Re-read the delegation at mint time; on failure keep the loaded one.
-        let delegation = match identity_keyfile::read_delegation(&self.inner.identity_dir) {
-            Ok(delegation) => delegation,
-            Err(_) => self.inner.keys.delegation.clone(),
-        };
+        // No start-time fallback: the delegation is always the current one.
         let session = identity_crypto::mint_session(
             &self.inner.keys.device,
             &self.inner.keys.principal_id.genesis().clone(),
@@ -162,7 +171,7 @@ impl identity_request_signer::Op for MessageOp {
             )));
         }
         let now = self.inner.clock.now().seconds;
-        let (session, delegation) = self.session_for(now)?;
+        let (session, delegation) = self.session_for(ctx, now)?;
         let reply = message_attestation::compose_reply(
             &message_attestation::ReplySigner::Keyed {
                 session,

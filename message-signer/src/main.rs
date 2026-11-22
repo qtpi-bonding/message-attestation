@@ -35,22 +35,25 @@ fn main() {
     let identity_dir = config.identity_dir.clone();
     let clock: Arc<dyn identity_request_auth::Clock> = Arc::new(identity_request_auth::SystemClock);
     let log: Arc<dyn Fn(&str) + Send + Sync> = Arc::new(|line| eprintln!("{line}"));
+    // The server first: uid/root/principal checks and the key load happen
+    // here, before any op builds its own copy of the keys.
+    let mut server =
+        match identity_request_signer::Server::new(config, Arc::clone(&clock), log.clone()) {
+            Ok(s) => s,
+            Err(e) => {
+                log(&format!(
+                    "start refused: {}",
+                    coded_error::CodedError::code(&e)
+                ));
+                std::process::exit(1);
+            }
+        };
     let message_op = match message_attestation_signer::MessageOp::new(
         &identity_dir,
         &message_config,
         Arc::clone(&clock),
     ) {
         Ok(op) => op,
-        Err(e) => {
-            log(&format!(
-                "start refused: {}",
-                coded_error::CodedError::code(&e)
-            ));
-            std::process::exit(1);
-        }
-    };
-    let mut server = match identity_request_signer::Server::new(config, clock, log.clone()) {
-        Ok(s) => s,
         Err(e) => {
             log(&format!(
                 "start refused: {}",

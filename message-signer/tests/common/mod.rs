@@ -17,6 +17,14 @@ pub const BODY_TYPE: &str = "type.googleapis.com/acme.v1.AddItemRequest";
 pub const BODY: &[u8] = b"\x0a\x05apple";
 pub const ROOM: &str = "room:r1";
 
+/// The current unix time, for tests that run against the real system clock.
+pub fn now_unix() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .expect("the system clock is after the epoch")
+        .as_secs() as i64
+}
+
 /// A clock the test moves by hand (mirrors the auth testkit so the signer
 /// tests do not depend on its internals for time control).
 #[derive(Debug)]
@@ -29,6 +37,11 @@ impl TestClock {
 
     pub fn advance(&self, seconds: i64) {
         *self.0.lock().unwrap_or_else(|p| p.into_inner()) += seconds;
+    }
+
+    /// Sets the clock to an absolute time (used to step it back).
+    pub fn set(&self, now: i64) {
+        *self.0.lock().unwrap_or_else(|p| p.into_inner()) = now;
     }
 
     pub fn now(&self) -> i64 {
@@ -97,6 +110,55 @@ pub fn principal_string(dir: &std::path::Path) -> String {
 /// file removed (device-only, as the signer requires).
 pub struct DeviceOnlyDir {
     dir: tempfile::TempDir,
+}
+
+/// A device-only dir plus a full sibling dir holding the SAME identity's
+/// root, so the keyfile renew API can re-sign the delegation for the same
+/// device (the way `identity-request-signer`'s own renewal tests do it).
+pub struct RenewableDir {
+    device_only: tempfile::TempDir,
+    full: tempfile::TempDir,
+}
+
+impl RenewableDir {
+    pub fn new(now: i64, ttl_seconds: i64) -> Self {
+        let full = tempfile::TempDir::new().expect("full identity dir");
+        std::fs::set_permissions(full.path(), std::fs::Permissions::from_mode(0o700))
+            .expect("make temp dir private");
+        identity_keyfile::IdentityKeys::init(full.path(), now, ttl_seconds)
+            .expect("initialize full identity");
+        let device_only = tempfile::TempDir::new().expect("device-only identity dir");
+        std::fs::set_permissions(device_only.path(), std::fs::Permissions::from_mode(0o700))
+            .expect("make temp dir private");
+        for name in [
+            identity_keyfile::DEVICE_FILE,
+            identity_keyfile::DELEGATION_FILE,
+            identity_keyfile::AGENT_ID_FILE,
+            identity_keyfile::HISTORY_FILE,
+            identity_keyfile::ROTATIONS_FILE,
+        ] {
+            std::fs::copy(full.path().join(name), device_only.path().join(name))
+                .expect("copy device file");
+        }
+        Self { device_only, full }
+    }
+
+    pub fn path(&self) -> &std::path::Path {
+        self.device_only.path()
+    }
+
+    /// Renews the delegation and copies it into the device-only dir.
+    pub fn renew(&self, now: i64, ttl_seconds: i64) {
+        identity_keyfile::IdentityKeys::renew(self.full.path(), now, ttl_seconds, false)
+            .expect("renew");
+        std::fs::copy(
+            self.full.path().join(identity_keyfile::DELEGATION_FILE),
+            self.device_only
+                .path()
+                .join(identity_keyfile::DELEGATION_FILE),
+        )
+        .expect("copy the renewed delegation");
+    }
 }
 
 impl DeviceOnlyDir {

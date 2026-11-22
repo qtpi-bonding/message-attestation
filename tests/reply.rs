@@ -118,6 +118,17 @@ fn empty_body_is_refused() {
 }
 
 #[test]
+fn a_whitespace_only_body_is_refused_and_kept_as_typed() {
+    // Refused: whitespace-only.
+    let r = parse_tool_input(&json!({"to": ["room:r1"], "body": "   \t\n "}));
+    assert_eq!(field_of(r), ("body", "empty"));
+
+    // Kept as typed: surrounding whitespace on a real body is not stripped.
+    let d = parse_tool_input(&json!({"to": ["room:r1"], "body": "  hi  "})).unwrap();
+    assert_eq!(d.body, "  hi  ");
+}
+
+#[test]
 fn missing_to_is_refused() {
     assert_eq!(field_of(parse_tool_input(&json!({"body": "hi"}))).0, "to");
     assert_eq!(

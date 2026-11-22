@@ -3,6 +3,8 @@
 ## Unreleased
 
 - New workspace member `message-attestation-signer` (lib + bin): signs room messages over a local unix socket, on the shared `identity-request-signer` server. Adds the `sign_message` op next to `sign_request` and `info`; reads a `[message]` section (`deliverer`, `max_targets`) from the signer config. The deliverer is configured, not discovered. The identity-crypto and identity-keyfile pins move to 1fdf2ab.
+- `parse_tool_input` refuses a whitespace-only body (`invalid_message` with `field: "body"`, `reason: "empty"`) and keeps a body's surrounding whitespace exactly as typed.
+- The message-attestation-signer uses two error-code namespaces. Start-up and config errors (the `--config` load and the start-up refusals, on stderr) are `message.signer.*` (`config_invalid`, `service_principal_missing`, `keys`). Replies over the socket carry the shared server's `identity.request_signer.*` codes: `bad_request` with a `field` and a `reason`, `delegation_expired`, and `internal`. `message.attestation.*` codes are not used in socket replies: the op maps every attestation refusal into one of the server codes before it reaches the wire.
 
 ## 0.6.0
 

@@ -70,6 +70,21 @@ fn sign_one(
     (signed, reply)
 }
 
+/// The delegation carried in a SignedMessage's self-rooted chain.
+fn carried_delegation(signed: &pb::SignedMessage) -> &pb::KeyDelegation {
+    match signed
+        .signer
+        .as_ref()
+        .expect("signer")
+        .chain
+        .as_ref()
+        .expect("chain")
+    {
+        pb::signer_chain::Chain::SelfRooted(s) => s.device.as_ref().expect("device"),
+        other => panic!("expected a self-rooted chain, got {other:?}"),
+    }
+}
+
 #[test]
 fn round_trip_signs_a_verifiable_message() {
     let dir = DeviceOnlyDir::new(T0, 91 * 86400);
@@ -111,6 +126,12 @@ fn the_signed_bytes_match_the_existing_client_signing_path() {
 
     let carried = identity_crypto::verify_carried_message(&signed, &deliverer).expect("verify");
     let op_message = pb::Message::decode(carried.body()).expect("decode the op's payload Message");
+    // The admission rule: the nonce is the hash of the message id it carries.
+    assert_eq!(
+        signed.nonce,
+        identity_crypto::message_nonce(&op_message.message_id),
+        "the nonce must match the message id the way admission checks it"
+    );
 
     // The same message, signed the way the existing client path does: a
     // session minted from the device keys with a one-hour span, the
@@ -163,6 +184,22 @@ fn the_signed_bytes_match_the_existing_client_signing_path() {
         )
     );
     assert_ne!(signed.signature, client_signed.signature);
+
+    // The same trusted-device verification the deliverer's admission runs,
+    // with the device key as the only trusted device.
+    let device = identity_keyfile::DeviceKeys::load(dir.path())
+        .expect("device keys")
+        .device;
+    identity_crypto::verify_signed_message_trusted_devices(
+        &signed,
+        &deliverer,
+        identity_crypto::AuthorDevices {
+            author_genesis: &keys.principal_id.genesis().clone(),
+            devices: &[identity_crypto::signing_public(&device)],
+        },
+        identity_crypto::When::Live { now: T0 },
+    )
+    .expect("the op's message verifies as a trusted-device message");
 }
 
 fn refusal_code(reply: &serde_json::Value) -> String {
@@ -312,6 +349,46 @@ fn the_session_is_reminted_at_sixty_percent() {
     clock.advance(200);
     let _ = sign_one(&server, &[ROOM], "four");
     assert_eq!(op.mint_count(), 2, "T0+2200 is past 60%: re-minted");
+}
+
+#[test]
+fn a_renewed_delegation_is_picked_up_and_the_session_is_reminted() {
+    let renewable = RenewableDir::new(T0, 91 * 86400);
+    let dir = renewable.path();
+    let deliverer = principal_string(dir);
+    let (server, op, _log, _clock) = server(dir, &deliverer, T0);
+
+    let (first, _reply) = sign_one(&server, &[ROOM], "one");
+    assert_eq!(op.mint_count(), 1);
+    let first_not_after = carried_delegation(&first).not_after_unix_seconds;
+
+    // Renew the delegation file mid-session, then sign again at the SAME
+    // clock time: the cached session must be dropped and re-minted with the
+    // delegation ctx.device.delegation() now returns.
+    renewable.renew(T0, 10 * 86400);
+    let (second, _reply) = sign_one(&server, &[ROOM], "two");
+    assert_eq!(op.mint_count(), 2, "a renewed delegation forces a re-mint");
+    let second_not_after = carried_delegation(&second).not_after_unix_seconds;
+    assert_eq!(second_not_after, T0 + 10 * 86400, "the renewed not_after");
+    assert_ne!(first_not_after, second_not_after);
+}
+
+#[test]
+fn a_clock_step_back_remints_instead_of_failing() {
+    let dir = DeviceOnlyDir::new(T0, 91 * 86400);
+    let deliverer = principal_string(dir.path());
+    let (server, op, _log, clock) = server(dir.path(), &deliverer, T0);
+
+    clock.advance(3000);
+    let _ = sign_one(&server, &[ROOM], "one");
+    assert_eq!(op.mint_count(), 1);
+
+    // The clock goes back well before the cached session's not_before: the
+    // cached session cannot cover it, so a fresh one is minted instead of
+    // refusing.
+    clock.set(T0 + 100);
+    sign_one(&server, &[ROOM], "two");
+    assert_eq!(op.mint_count(), 2);
 }
 
 #[test]
