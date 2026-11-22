@@ -9,7 +9,7 @@ use std::io::{BufRead, BufReader, Write};
 use std::os::unix::fs::PermissionsExt;
 use std::os::unix::net::UnixStream;
 use std::path::PathBuf;
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 /// Kill-on-drop guard: a panic in any assertion or the socket wait still
 /// kills the child binary.
@@ -24,7 +24,17 @@ impl Drop for ChildGuard {
 
 #[test]
 fn the_binary_starts_and_serves_sign_message_over_its_socket() {
-    let dir = DeviceOnlyDir::new(T0, 91 * 86400);
+    // The session TMPDIR sits under a very long path; a unix socket path is
+    // capped far below it, so bind the socket from a short `/tmp` path.
+    std::env::set_var("TMPDIR", "/tmp");
+    // The binary reads the real system clock, so the identity must be
+    // initialised at (roughly) the same wall-clock time or the delegation
+    // looks expired to it.
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("the system clock is after the epoch")
+        .as_secs() as i64;
+    let dir = DeviceOnlyDir::new(now, 91 * 86400);
     let deliverer = principal_string(dir.path());
     let socket = dir.path().join("run.sock");
     let config_dir = tempfile::TempDir::new().expect("config temp dir");

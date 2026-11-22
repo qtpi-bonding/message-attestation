@@ -185,8 +185,9 @@ impl identity_request_signer::Op for MessageOp {
 }
 
 /// Maps attestation failures into signer refusals. Only the field/reason
-/// Display of `InvalidMessage` is passed through; every other variant gets a
-/// fixed message so nothing about the request body or the keys can leak.
+/// Display of `InvalidMessage` is passed through; every other caller-fault
+/// variant gets a fixed message so nothing about the request body or the keys
+/// can leak. Only randomness and sign failures stay `Internal`.
 fn map_attestation_error(err: message_attestation::AttestationError) -> SignerError {
     match err {
         message_attestation::AttestationError::InvalidMessage { field, reason } => {
@@ -194,7 +195,19 @@ fn map_attestation_error(err: message_attestation::AttestationError) -> SignerEr
                 message_attestation::AttestationError::InvalidMessage { field, reason }.to_string(),
             )
         }
+        // The caller's fault: a target string that is neither `room:<id>` nor
+        // a canonical principal id. A fixed shape, so the offending text in
+        // the variant (which quotes the request) is never echoed.
+        message_attestation::AttestationError::TargetInvalid(_) => {
+            SignerError::BadRequest(String::from("invalid message to: not a target"))
+        }
         message_attestation::AttestationError::SessionExpired { .. } => SignerError::Expired,
+        message_attestation::AttestationError::Randomness(_) => {
+            SignerError::Internal(String::from("the message could not be signed"))
+        }
+        message_attestation::AttestationError::Sign(_) => {
+            SignerError::Internal(String::from("the message could not be signed"))
+        }
         _ => SignerError::Internal(String::from("the message could not be signed")),
     }
 }

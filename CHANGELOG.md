@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- New workspace member `message-attestation-signer` (lib + bin): signs room messages over a local unix socket, on the shared `identity-request-signer` server. Adds the `sign_message` op next to `sign_request` and `info`; reads a `[message]` section (`deliverer`, `max_targets`) from the signer config. The deliverer is configured, not discovered. The identity-crypto and identity-keyfile pins move to 1fdf2ab.
+
 ## 0.6.0
 
 - New `parse_target(text)` and `parse_targets(texts)`, exported at the crate root. They are the one copy of the `--to` text rules, moved from multimatrix-client. `room:<id>` names a room (the id is kept as typed); `p256:<130 hex>` names a principal; anything else is an error. `parse_targets` also rejects an empty list, more than `MAX_TARGETS` entries, a target that fails `validate_target`, and a duplicate.

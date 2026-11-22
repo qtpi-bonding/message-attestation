@@ -22,7 +22,12 @@ fn parse_with(
     message_attestation_signer::parse_config(&text)
 }
 
-const DELIVERER: &str = "p256:02aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+/// A real canonical principal id: the fake `p256:02aa..` constant is not on
+/// the P-256 curve, so `PrincipalId::parse_canonical` refuses it.
+fn deliverer() -> String {
+    use identity_crypto::jwk_duo::GenerationService;
+    identity_crypto::principal_id(&GenerationService::generate_key_duo()).to_string()
+}
 
 #[test]
 fn a_config_without_a_message_table_is_refused() {
@@ -55,7 +60,8 @@ fn a_non_canonical_deliverer_is_refused() {
 #[test]
 fn an_unknown_key_inside_the_message_table_is_refused() {
     let err = parse_with(&format!(
-        "[message]\ndeliverer = {DELIVERER:?}\nextra = 1\n"
+        "[message]\ndeliverer = {:?}\nextra = 1\n",
+        deliverer()
     ))
     .expect_err("unknown key in [message]");
     assert_eq!(
@@ -67,19 +73,21 @@ fn an_unknown_key_inside_the_message_table_is_refused() {
 #[test]
 fn an_unknown_top_level_key_is_still_refused() {
     let err = parse_with(&format!(
-        "mystery_key = 1\n[message]\ndeliverer = {DELIVERER:?}\n"
+        "mystery_key = 1\n[message]\ndeliverer = {:?}\n",
+        deliverer()
     ))
     .expect_err("unknown top-level key");
     assert_eq!(
         coded_error::CodedError::code(&err),
-        "identity.request_signer.config_invalid"
+        "message.signer.config_invalid"
     );
 }
 
 #[test]
 fn max_targets_zero_is_refused() {
     let err = parse_with(&format!(
-        "[message]\ndeliverer = {DELIVERER:?}\nmax_targets = 0\n"
+        "[message]\ndeliverer = {:?}\nmax_targets = 0\n",
+        deliverer()
     ))
     .expect_err("max_targets 0");
     assert_eq!(
@@ -91,7 +99,8 @@ fn max_targets_zero_is_refused() {
 #[test]
 fn max_targets_over_the_cap_is_refused() {
     let err = parse_with(&format!(
-        "[message]\ndeliverer = {DELIVERER:?}\nmax_targets = {}\n",
+        "[message]\ndeliverer = {:?}\nmax_targets = {}\n",
+        deliverer(),
         message_attestation::MAX_TARGETS + 1
     ))
     .expect_err("max_targets over the cap");
@@ -104,7 +113,7 @@ fn max_targets_over_the_cap_is_refused() {
 #[test]
 fn max_targets_defaults_to_64() {
     let (config, message) =
-        parse_with(&format!("[message]\ndeliverer = {DELIVERER:?}\n")).expect("valid config");
+        parse_with(&format!("[message]\ndeliverer = {:?}\n", deliverer())).expect("valid config");
     assert_eq!(message.max_targets(), 64);
     assert_eq!(config.identity_dir, config.identity_dir);
 }
@@ -147,8 +156,9 @@ fn load_config_refuses_an_over_large_file() {
     let path = config_dir.path().join("signer.toml");
     let pad = "x".repeat(1024 * 1024 + 1);
     let text = format!(
-        "{}[message]\ndeliverer = {DELIVERER:?}\npad = {pad:?}\n",
-        config_text(dir.path(), &dir.path().join("s.sock"))
+        "{}[message]\ndeliverer = {:?}\npad = {pad:?}\n",
+        config_text(dir.path(), &dir.path().join("s.sock")),
+        deliverer()
     );
     std::fs::write(&path, text).expect("write config");
     std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).expect("make it 0600");

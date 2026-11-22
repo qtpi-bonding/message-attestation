@@ -37,6 +37,9 @@ fn server(
     let mut server =
         identity_request_signer::Server::new(config, clock.clone(), log.sink()).expect("server");
     server
+        .register_op(Box::new(identity_request_signer::SignRequestOp::new()))
+        .expect("register sign_request op");
+    server
         .register_op(Box::new(op.clone()))
         .expect("register op");
     (server, op, log, clock)
@@ -120,14 +123,14 @@ fn the_signed_bytes_match_the_existing_client_signing_path() {
         T0 + 3600,
     )
     .expect("mint session");
-    let mut client_message = op_message.clone();
-    client_message.message_id = format!("m-{}", "0".repeat(32));
     let client_signed = message_attestation::sign_message(
         &session,
         keys.delegation.clone(),
         &deliverer,
         T0,
-        &client_message,
+        // The op's own message id stays in place, so the payload bytes are
+        // byte-for-byte the same message the op signed.
+        &op_message,
     )
     .expect("client-path sign");
     let client_carried = identity_crypto::verify_carried_message(&client_signed, &deliverer)

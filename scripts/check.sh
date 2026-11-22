@@ -10,10 +10,17 @@ else
 fi
 
 run fmt --all -- --check
-run clippy --all-targets -- -D warnings
-run clippy --all-targets --all-features -- -D warnings
-run test
-run test --all-features
+run clippy --workspace --all-targets -- -D warnings
+run clippy --workspace --all-targets --all-features -- -D warnings
+run test --workspace
+run test --workspace --all-features
 run check --no-default-features
+
+# The signer crate names no service: the words are built from parts so this file does not contain them.
+w1="gr""org"; w2="multi""matrix"; w3="access""-control"
+if grep -rniE "$w1|$w2|$w3" message-signer/src message-signer/Cargo.toml; then
+    echo "FAIL: a service name or access-control appears in message-signer" >&2
+    exit 1
+fi
 
 echo "check: ok"
