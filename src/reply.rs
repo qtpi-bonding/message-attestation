@@ -59,17 +59,6 @@ fn strings(v: &Value, field: &'static str) -> Result<Vec<String>, AttestationErr
     }
 }
 
-fn target(s: &str) -> Result<pb::Target, AttestationError> {
-    let t = if let Some(id) = s.strip_prefix("room:") {
-        pb::target::Target::RoomId(id.to_owned())
-    } else if s.starts_with("p256:") {
-        pb::target::Target::RecipientId(s.to_owned())
-    } else {
-        return Err(invalid("to", "must start with room: or p256:"));
-    };
-    Ok(pb::Target { target: Some(t) })
-}
-
 /// Enforces the tool's input shape itself. Ids and principals are checked
 /// later, by `compose_reply`.
 pub fn parse_tool_input(input: &Value) -> Result<ReplyDraft, AttestationError> {
@@ -89,7 +78,7 @@ pub fn parse_tool_input(input: &Value) -> Result<ReplyDraft, AttestationError> {
     }
     let to = to
         .iter()
-        .map(|s| target(s))
+        .map(|s| crate::message::parse_target(s))
         .collect::<Result<Vec<_>, _>>()?;
     let body = match obj.get("body") {
         None | Some(Value::Null) => return Err(invalid("body", "missing")),

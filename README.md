@@ -174,6 +174,7 @@ All three must be owned by the effective user. A loose, foreign-owned, symlinked
 | `TooManyMessages { count, max }` | `too_many_messages` | Logical |
 | `InvalidRecipientDevice { index }` | `invalid_recipient_device` | Logical |
 | `Randomness(Source)` | `randomness` | Infrastructure |
+| `TargetInvalid(String)` | `target_invalid` | Logical |
 
 Verification also refuses, before any per-message work: more than `MAX_MESSAGES` messages or names (`TooManyMessages`), a `via` list whose length differs from `messages` (`InvalidVia`), and a recipient device that is not a public key (`InvalidRecipientDevice { index }`).
 

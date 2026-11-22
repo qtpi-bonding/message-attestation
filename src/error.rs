@@ -110,4 +110,7 @@ pub enum AttestationError {
     #[error("no OS randomness")]
     #[coded(code = "randomness", class = Infrastructure, grpc = Unavailable)]
     Randomness(#[source] Source),
+    #[error("{0}")]
+    #[coded(code = "target_invalid", class = Logical, grpc = InvalidArgument)]
+    TargetInvalid(String),
 }

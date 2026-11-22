@@ -44,6 +44,55 @@ pub fn validate_target(t: &pb::Target) -> Result<(), AttestationError> {
     check_target(t, "to")
 }
 
+/// Parses one `--to` entry: `room:<id>` names a room (the id is kept as typed and
+/// not validated here), and `p256:<130 hex>` names a principal. Anything else is
+/// `TargetInvalid`.
+pub fn parse_target(text: &str) -> Result<pb::Target, AttestationError> {
+    let target = if let Some(room) = text.strip_prefix("room:") {
+        pb::target::Target::RoomId(room.to_string())
+    } else if text.starts_with("p256:") {
+        pb::target::Target::RecipientId(text.to_string())
+    } else {
+        return Err(AttestationError::TargetInvalid(format!(
+            "target {text:?} is neither `room:<id>` nor a `p256:<130 hex>` principal id"
+        )));
+    };
+    Ok(pb::Target {
+        target: Some(target),
+    })
+}
+
+/// Parses every `--to` entry into a Message's `to` list. Rejects an empty list,
+/// more than `MAX_TARGETS` entries, a target that fails `validate_target`, and a
+/// target that appears twice.
+pub fn parse_targets(texts: &[String]) -> Result<Vec<pb::Target>, AttestationError> {
+    let targets = texts
+        .iter()
+        .map(|text| parse_target(text))
+        .collect::<Result<Vec<_>, _>>()?;
+    if targets.is_empty() {
+        return Err(AttestationError::TargetInvalid(
+            "at least one target is required".into(),
+        ));
+    }
+    if targets.len() > MAX_TARGETS {
+        return Err(AttestationError::TargetInvalid(format!(
+            "more than {MAX_TARGETS} targets"
+        )));
+    }
+    for (index, (text, target)) in texts.iter().zip(&targets).enumerate() {
+        validate_target(target).map_err(|error| {
+            AttestationError::TargetInvalid(format!("target {text:?}: {error}"))
+        })?;
+        if targets[..index].contains(target) {
+            return Err(AttestationError::TargetInvalid(format!(
+                "target {text:?} appears twice"
+            )));
+        }
+    }
+    Ok(targets)
+}
+
 /// The id, `to`, `reply_to`, `references` and `mentions` rules, in field order.
 /// Shared by `validate_message` and `render_message`.
 pub(crate) fn check_fields(

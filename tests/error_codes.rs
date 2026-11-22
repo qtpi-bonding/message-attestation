@@ -90,6 +90,7 @@ fn all() -> Vec<(&'static str, AttestationError)> {
             E::InvalidRecipientDevice { index: 0 },
         ),
         ("Randomness", E::Randomness(src())),
+        ("TargetInvalid", E::TargetInvalid("t".into())),
     ]
 }
 
@@ -100,7 +101,7 @@ use GrpcCode::{
 };
 
 /// (variant, full code, class, grpc): the former structmux `refusal_code` table.
-const TABLE: [(&str, &str, ErrorClass, GrpcCode); 32] = [
+const TABLE: [(&str, &str, ErrorClass, GrpcCode); 33] = [
     (
         "UnknownDeliverer",
         "message.attestation.unknown_deliverer",
@@ -198,12 +199,13 @@ const TABLE: [(&str, &str, ErrorClass, GrpcCode); 32] = [
     ("SendFailed", "message.attestation.send_failed", I, UN),
     ("Randomness", "message.attestation.randomness", I, UN),
     ("SendTimeout", "message.attestation.send_timeout", T, DE),
+    ("TargetInvalid", "message.attestation.target_invalid", L, IA),
 ];
 
 #[test]
 fn codes_are_unique_and_in_grammar() {
     let errors = all();
-    assert_eq!(errors.len(), 32);
+    assert_eq!(errors.len(), 33);
     let codes: HashSet<&str> = errors.iter().map(|(_, e)| e.code()).collect();
     assert_eq!(codes.len(), errors.len());
     for code in codes {

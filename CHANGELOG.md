@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0
+
+- New `parse_target(text)` and `parse_targets(texts)`, exported at the crate root. They are the one copy of the `--to` text rules, moved from multimatrix-client. `room:<id>` names a room (the id is kept as typed); `p256:<130 hex>` names a principal; anything else is an error. `parse_targets` also rejects an empty list, more than `MAX_TARGETS` entries, a target that fails `validate_target`, and a duplicate.
+- New variant `AttestationError::TargetInvalid(String)`, code `message.attestation.target_invalid`, class Logical, gRPC `InvalidArgument`.
+- `parse_tool_input` now uses `parse_target`. A `to` entry that is not `room:` or `p256:` now fails with `target_invalid` instead of `invalid_message`.
+
 ## 0.5.0
 
 Breaking release. Every item below can fail a consumer's build or change its behaviour.

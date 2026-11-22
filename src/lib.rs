@@ -17,8 +17,8 @@ mod verify;
 pub use error::AttestationError;
 pub use locate::{attach, locate};
 pub use message::{
-    is_valid_id, sign_hosted_message, sign_message, validate_message, validate_target, MessageKey,
-    MAX_ID_LEN, MAX_MESSAGES, MAX_TARGETS, MESSAGE_BODY_TYPE,
+    is_valid_id, parse_target, parse_targets, sign_hosted_message, sign_message, validate_message,
+    validate_target, MessageKey, MAX_ID_LEN, MAX_MESSAGES, MAX_TARGETS, MESSAGE_BODY_TYPE,
 };
 pub use names::{RegisteredName, ResolvedPrincipal, MAX_NAME_LEN};
 pub use render::{render, render_message, MessageView, RenderOptions, Trust, RENDER_VERSION};

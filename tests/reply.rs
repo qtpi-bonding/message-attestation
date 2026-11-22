@@ -101,9 +101,11 @@ fn unknown_field_is_refused() {
 #[test]
 fn target_without_prefix_is_refused() {
     for t in ["abc", "you"] {
-        assert_eq!(
-            field_of(parse_tool_input(&json!({"to": [t], "body": "hi"}))).0,
-            "to",
+        assert!(
+            matches!(
+                parse_tool_input(&json!({"to": [t], "body": "hi"})).unwrap_err(),
+                AttestationError::TargetInvalid(_)
+            ),
             "{t}"
         );
     }
